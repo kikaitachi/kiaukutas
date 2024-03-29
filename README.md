@@ -19,3 +19,9 @@ Run:
 ```
 ./run.sh
 ```
+
+## Credits
+
+This project directly or indirectly uses these open source projects:
+* [Advanced Linux Sound Architecture project](https://github.com/alsa-project/alsa-lib)
+* [FreeCAD](https://www.freecad.org/)
