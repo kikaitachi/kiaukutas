@@ -32,12 +32,11 @@ def cylinder(
     return result
 
 
-def boolean(type, base, tool, title):
-    result = doc.addObject(type, title)
+def boolean(type, base, tool):
+    result = doc.addObject(type)
     result.Base = base
     result.Tool = tool
     result.Refine = True
-    result.Label = title
     base.Visibility = False
     tool.Visibility = False
     return result
@@ -51,7 +50,6 @@ def fuse(*objects):
             "Part::Fuse",
             objects[0],
             objects[1],
-            f"{objects[0].Label}+{objects[1].Label}",
         )
     else:
         return fuse(*[fuse(*objects[:2]), *objects[2:]])
@@ -65,7 +63,6 @@ def cut(*objects):
             "Part::Cut",
             objects[0],
             objects[1],
-            f"{objects[0].Label}-{objects[1].Label}",
         )
     else:
         return cut(*[cut(*objects[:2]), *objects[2:]])
