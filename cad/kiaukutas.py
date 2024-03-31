@@ -155,20 +155,20 @@ def winch():
     return result
 
 
-#winch().Placement = Placement(Vector(0, 25, 2), Rotation(0, 0, 0))
-
 dynamixel = Part.read("XM430-W350-T.stp")
 first_winch = winch()
-first_winch.Placement = Placement(Vector(0, 0, 25), Rotation(0, 0, 0))
+first_winch.Label = "Winch 1"
+first_winch.Placement = Placement(Vector(0, 0, 19), Rotation(0, 0, 0))
 for i in range(8):
     object = doc.addObject("Part::Feature")
     object.Label = f"Dynamixel {i + 1}"
     object.Shape = dynamixel
     object.Placement = Placement(Vector(i * 30, 0, ), Rotation(0, 0, 0))
     if i != 0:
-        object = doc.addObject("App::Link", f"Winch {i + 1}")
+        object = doc.addObject("App::Link")
+        object.Label = f"Winch {i + 1}"
         object.LinkedObject = first_winch
-        object.Placement = Placement(Vector(i * 30, 0, 25), Rotation(0, 0, 0))
+        object.Placement = Placement(Vector(i * 30, 0, 19), Rotation(0, 0, 0))
 
 doc.recompute()
 FreeCADGui.ActiveDocument.ActiveView.fitAll()
