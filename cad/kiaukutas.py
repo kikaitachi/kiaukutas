@@ -7,6 +7,9 @@ import Part
 start_time = time()
 
 PULLEY_HEIGHT = 4
+BRACKET_THICKNESS = 4
+MOTOR_LENGTH = 28.5
+MOTOR_WIDTH = 46.5
 
 doc = newDocument("kiaukutas")
 
@@ -152,6 +155,19 @@ def winch():
     return result
 
 
+def makeServoToJointBracket():
+    result = doc.addObject("Part::Feature")
+    front = Part.makeBox(BRACKET_THICKNESS, MOTOR_WIDTH + BRACKET_THICKNESS, 10).translate(
+        Vector(-MOTOR_LENGTH / 2 - BRACKET_THICKNESS, -MOTOR_WIDTH + 11.25, 0)
+    )
+    side = Part.makeBox(30 * 8, BRACKET_THICKNESS, 10).translate(
+        Vector(-MOTOR_LENGTH / 2, 11.25, 0)
+    )
+    result.Shape = front.fuse(side)
+    result.Label = "Servo to Joint Bracket"
+    return result
+
+
 dynamixel = Part.read("XM430-W350-T.stp")
 first_winch = winch()
 first_winch.Label = "Winch 1"
@@ -166,6 +182,7 @@ for i in range(8):
         object.Label = f"Winch {i + 1}"
         object.LinkedObject = first_winch
         object.Placement = Placement(Vector(i * 30, 0, 19), Rotation(0, 0, 0))
+makeServoToJointBracket()
 
 doc.recompute()
 FreeCADGui.ActiveDocument.ActiveView.fitAll()
