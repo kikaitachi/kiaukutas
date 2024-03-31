@@ -1,7 +1,10 @@
 from FreeCAD import newDocument, Placement, Rotation, Vector
+from time import time
 from typing import Optional
 import FreeCADGui
 import Part
+
+start_time = time()
 
 PULLEY_HEIGHT = 4
 
@@ -152,14 +155,23 @@ def winch():
     return result
 
 
-winch().Placement = Placement(Vector(0, 25, 2), Rotation(0, 0, 0))
+#winch().Placement = Placement(Vector(0, 25, 2), Rotation(0, 0, 0))
 
 dynamixel = Part.read("XM430-W350-T.stp")
+first_winch = winch()
+first_winch.Placement = Placement(Vector(0, 0, 25), Rotation(0, 0, 0))
 for i in range(8):
     object = doc.addObject("Part::Feature")
     object.Label = f"Dynamixel {i + 1}"
     object.Shape = dynamixel
     object.Placement = Placement(Vector(i * 30, 0, ), Rotation(0, 0, 0))
+    if i != 0:
+        object = doc.addObject("App::Link", f"Winch {i + 1}")
+        object.LinkedObject = first_winch
+        object.Placement = Placement(Vector(i * 30, 0, 25), Rotation(0, 0, 0))
 
 doc.recompute()
 FreeCADGui.ActiveDocument.ActiveView.fitAll()
+
+end_time = time()
+print(f"Loaded in {end_time - start_time}s")
