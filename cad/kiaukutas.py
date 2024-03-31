@@ -1,6 +1,7 @@
 from FreeCAD import newDocument, Placement, Rotation, Vector
 from typing import Optional
 import FreeCADGui
+import Part
 
 PULLEY_HEIGHT = 4
 
@@ -152,6 +153,13 @@ def winch():
 
 
 winch().Placement = Placement(Vector(0, 25, 2), Rotation(0, 0, 0))
+
+dynamixel = Part.read("XM430-W350-T.stp")
+for i in range(8):
+    object = doc.addObject("Part::Feature")
+    object.Label = f"Dynamixel {i + 1}"
+    object.Shape = dynamixel
+    object.Placement = Placement(Vector(i * 30, 0, ), Rotation(0, 0, 0))
 
 doc.recompute()
 FreeCADGui.ActiveDocument.ActiveView.fitAll()
