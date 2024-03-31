@@ -1,6 +1,8 @@
 from FreeCAD import newDocument, Placement, Rotation, Vector
+from PySide2 import QtCore
 from time import time
 from typing import Optional
+import FreeCAD
 import FreeCADGui
 import Part
 
@@ -189,3 +191,17 @@ FreeCADGui.ActiveDocument.ActiveView.fitAll()
 
 end_time = time()
 print(f"Loaded in {end_time - start_time}s")
+
+
+# Code bellow if for preventing confirmation dialog on close
+class MainWindowFilter(QtCore.QObject):
+    def eventFilter(self, obj, ev):
+        if ev.type() == QtCore.QEvent.Close:
+            for i in FreeCAD.listDocuments():
+                FreeCAD.closeDocument(i)
+        return False
+
+
+filter = MainWindowFilter()
+mw = FreeCADGui.getMainWindow()
+mw.installEventFilter(filter)
