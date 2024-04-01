@@ -161,12 +161,30 @@ def makeServoToJointBracket():
     result = doc.addObject("Part::Feature")
     bracketHeight = 16
     servoScrewRadius = 3 / 2
-    front = Part.makeBox(BRACKET_THICKNESS, MOTOR_WIDTH + BRACKET_THICKNESS, bracketHeight).translate(
-        Vector(-MOTOR_LENGTH / 2 - BRACKET_THICKNESS, -MOTOR_WIDTH + 11.25, -bracketHeight / 2)
-    ).fuse(Part.makeCylinder(servoScrewRadius, BRACKET_THICKNESS + 10, Vector(0, 4, 0), Vector(1, 0, 0)))
-    side = Part.makeBox(30 * 8, BRACKET_THICKNESS, bracketHeight).translate(
+    motorChamferLength = 3.5
+    motorChamferWidth = 2
+    motorSpacing = 30
+    front = Part.makeBox(BRACKET_THICKNESS, MOTOR_WIDTH + BRACKET_THICKNESS - motorChamferWidth, bracketHeight).translate(
+        Vector(-MOTOR_LENGTH / 2 - BRACKET_THICKNESS, -MOTOR_WIDTH + 11.25 + motorChamferWidth, -bracketHeight / 2)
+    ).cut(Part.makeCylinder(
+        servoScrewRadius, BRACKET_THICKNESS, Vector(-MOTOR_LENGTH / 2, -4, 6), Vector(-1, 0, 0))
+    ).cut(Part.makeCylinder(
+        servoScrewRadius, BRACKET_THICKNESS, Vector(-MOTOR_LENGTH / 2, -4, -6), Vector(-1, 0, 0))
+    ).cut(Part.makeCylinder(
+        servoScrewRadius, BRACKET_THICKNESS, Vector(-MOTOR_LENGTH / 2, -4 - 24, 6), Vector(-1, 0, 0))
+    ).cut(Part.makeCylinder(
+        servoScrewRadius, BRACKET_THICKNESS, Vector(-MOTOR_LENGTH / 2, -4 - 24, -6), Vector(-1, 0, 0))
+    )
+    side = Part.makeBox(motorSpacing * 8 - motorChamferLength, BRACKET_THICKNESS, bracketHeight).translate(
         Vector(-MOTOR_LENGTH / 2, 11.25, -bracketHeight / 2)
     )
+    for i in range(8):
+        x = motorSpacing * i - (MOTOR_LENGTH + motorChamferLength - 16) / 2
+        side = side.cut(Part.makeCylinder(
+            servoScrewRadius, BRACKET_THICKNESS, Vector(x, 11.25, 6), Vector(0, 1, 0))
+        ).cut(Part.makeCylinder(
+            servoScrewRadius, BRACKET_THICKNESS, Vector(x + 16, 11.25, 6), Vector(0, 1, 0))
+        )
     result.Shape = front.fuse(side)
     result.Label = "Servo to Joint Bracket"
     return result
