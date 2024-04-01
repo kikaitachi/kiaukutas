@@ -11,6 +11,7 @@ start_time = time()
 
 NUMBER_OF_MOTORS = 8
 TENDON_RADIUS = 1 / 2
+PULLEY_RADIUS = 10 / 2
 PULLEY_HEIGHT = 4
 BRACKET_THICKNESS = 4
 MOTOR_LENGTH = 28.5
@@ -214,10 +215,14 @@ tendonAngle = math.acos(math.sqrt(1 - PULLEY_HEIGHT ** 2 / MOTOR_SPACING ** 2))
 for i in range(NUMBER_OF_MOTORS):
     object = doc.addObject("Part::Feature")
     object.Label = f"Tendon {i + 1}"
-    object.ViewObject.ShapeColor = (0.0, 0.800000011920929, 0.0, 0.0)
+    object.ViewObject.ShapeColor = (0.2, 0.6, 0.2, 0.0)
     tendonLength = MOTOR_SPACING * (i + 1) * math.cos(tendonAngle)
     object.Shape = Part.makeCylinder(
-        TENDON_RADIUS, tendonLength, Vector(0, 0, 0), Vector(-1, math.sin(tendonAngle), 0)
+        TENDON_RADIUS, tendonLength, Vector(
+            (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle),
+            (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle),
+            0
+        ), Vector(-1, math.sin(tendonAngle), 0)
     )
     object.Placement = Placement(Vector(i * 30, 0, 19 + 3 + PULLEY_HEIGHT / 2), Rotation(0, 0, 0))
 
