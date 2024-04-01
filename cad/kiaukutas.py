@@ -159,11 +159,13 @@ def winch():
 
 def makeServoToJointBracket():
     result = doc.addObject("Part::Feature")
-    front = Part.makeBox(BRACKET_THICKNESS, MOTOR_WIDTH + BRACKET_THICKNESS, 10).translate(
-        Vector(-MOTOR_LENGTH / 2 - BRACKET_THICKNESS, -MOTOR_WIDTH + 11.25, 0)
-    )
-    side = Part.makeBox(30 * 8, BRACKET_THICKNESS, 10).translate(
-        Vector(-MOTOR_LENGTH / 2, 11.25, 0)
+    bracketHeight = 16
+    servoScrewRadius = 3 / 2
+    front = Part.makeBox(BRACKET_THICKNESS, MOTOR_WIDTH + BRACKET_THICKNESS, bracketHeight).translate(
+        Vector(-MOTOR_LENGTH / 2 - BRACKET_THICKNESS, -MOTOR_WIDTH + 11.25, -bracketHeight / 2)
+    ).fuse(Part.makeCylinder(servoScrewRadius, BRACKET_THICKNESS + 10, Vector(0, 4, 0), Vector(1, 0, 0)))
+    side = Part.makeBox(30 * 8, BRACKET_THICKNESS, bracketHeight).translate(
+        Vector(-MOTOR_LENGTH / 2, 11.25, -bracketHeight / 2)
     )
     result.Shape = front.fuse(side)
     result.Label = "Servo to Joint Bracket"
