@@ -5,6 +5,7 @@ from typing import Optional
 import FreeCAD
 import FreeCADGui
 import Part
+import math
 
 start_time = time()
 
@@ -12,6 +13,7 @@ PULLEY_HEIGHT = 4
 BRACKET_THICKNESS = 4
 MOTOR_LENGTH = 28.5
 MOTOR_WIDTH = 46.5
+MOTOR_SPACING = 30
 
 doc = newDocument("kiaukutas")
 
@@ -163,7 +165,6 @@ def makeServoToJointBracket():
     servoScrewRadius = 3 / 2
     motorChamferLength = 3.5
     motorChamferWidth = 2
-    motorSpacing = 30
     front = Part.makeBox(BRACKET_THICKNESS, MOTOR_WIDTH + BRACKET_THICKNESS - motorChamferWidth, bracketHeight).translate(
         Vector(-MOTOR_LENGTH / 2 - BRACKET_THICKNESS, -MOTOR_WIDTH + 11.25 + motorChamferWidth, -bracketHeight / 2)
     ).cut(Part.makeCylinder(
@@ -175,11 +176,11 @@ def makeServoToJointBracket():
     ).cut(Part.makeCylinder(
         servoScrewRadius, BRACKET_THICKNESS, Vector(-MOTOR_LENGTH / 2, -4 - 24, -6), Vector(-1, 0, 0))
     )
-    side = Part.makeBox(motorSpacing * 8 - motorChamferLength, BRACKET_THICKNESS, bracketHeight).translate(
+    side = Part.makeBox(MOTOR_SPACING * 8 - motorChamferLength, BRACKET_THICKNESS, bracketHeight).translate(
         Vector(-MOTOR_LENGTH / 2, 11.25, -bracketHeight / 2)
     )
     for i in range(8):
-        x = motorSpacing * i - (MOTOR_LENGTH + motorChamferLength - 16) / 2
+        x = MOTOR_SPACING * i - (MOTOR_LENGTH + motorChamferLength - 16) / 2
         side = side.cut(Part.makeCylinder(
             servoScrewRadius, BRACKET_THICKNESS, Vector(x, 11.25, 6), Vector(0, 1, 0))
         ).cut(Part.makeCylinder(
@@ -205,6 +206,8 @@ for i in range(8):
         object.LinkedObject = first_winch
         object.Placement = Placement(Vector(i * 30, 0, 19), Rotation(0, 0, 0))
 makeServoToJointBracket()
+
+tendonAngle = math.acos(math.sqrt(1 - PULLEY_HEIGHT ** 2 / MOTOR_SPACING ** 2))
 
 doc.recompute()
 FreeCADGui.ActiveDocument.ActiveView.fitAll()
