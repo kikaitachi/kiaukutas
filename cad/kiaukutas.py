@@ -9,6 +9,8 @@ import math
 
 start_time = time()
 
+NUMBER_OF_MOTORS = 8
+TENDON_RADIUS = 1 / 2
 PULLEY_HEIGHT = 4
 BRACKET_THICKNESS = 4
 MOTOR_LENGTH = 28.5
@@ -176,10 +178,10 @@ def makeServoToJointBracket():
     ).cut(Part.makeCylinder(
         servoScrewRadius, BRACKET_THICKNESS, Vector(-MOTOR_LENGTH / 2, -4 - 24, -6), Vector(-1, 0, 0))
     )
-    side = Part.makeBox(MOTOR_SPACING * 8 - motorChamferLength, BRACKET_THICKNESS, bracketHeight).translate(
+    side = Part.makeBox(MOTOR_SPACING * NUMBER_OF_MOTORS - motorChamferLength, BRACKET_THICKNESS, bracketHeight).translate(
         Vector(-MOTOR_LENGTH / 2, 11.25, -bracketHeight / 2)
     )
-    for i in range(8):
+    for i in range(NUMBER_OF_MOTORS):
         x = MOTOR_SPACING * i - (MOTOR_LENGTH + motorChamferLength - 16) / 2
         side = side.cut(Part.makeCylinder(
             servoScrewRadius, BRACKET_THICKNESS, Vector(x, 11.25, 6), Vector(0, 1, 0))
@@ -195,10 +197,11 @@ dynamixel = Part.read("XM430-W350-T.stp")
 first_winch = winch()
 first_winch.Label = "Winch 1"
 first_winch.Placement = Placement(Vector(0, 0, 19), Rotation(0, 0, 0))
-for i in range(8):
+for i in range(NUMBER_OF_MOTORS):
     object = doc.addObject("Part::Feature")
     object.Label = f"Dynamixel {i + 1}"
     object.Shape = dynamixel
+    object.ViewObject.ShapeColor = (0.3, 0.3, 0.3, 0.0)
     object.Placement = Placement(Vector(i * 30, 0, ), Rotation(0, 0, 0))
     if i != 0:
         object = doc.addObject("App::Link")
@@ -208,6 +211,15 @@ for i in range(8):
 makeServoToJointBracket()
 
 tendonAngle = math.acos(math.sqrt(1 - PULLEY_HEIGHT ** 2 / MOTOR_SPACING ** 2))
+for i in range(NUMBER_OF_MOTORS):
+    object = doc.addObject("Part::Feature")
+    object.Label = f"Tendon {i + 1}"
+    object.ViewObject.ShapeColor = (0.0, 0.800000011920929, 0.0, 0.0)
+    tendonLength = MOTOR_SPACING * (i + 1) * math.cos(tendonAngle)
+    object.Shape = Part.makeCylinder(
+        TENDON_RADIUS, tendonLength, Vector(0, 0, 0), Vector(-1, math.sin(tendonAngle), 0)
+    )
+    object.Placement = Placement(Vector(i * 30, 0, 19 + 3 + PULLEY_HEIGHT / 2), Rotation(0, 0, 0))
 
 doc.recompute()
 FreeCADGui.ActiveDocument.ActiveView.fitAll()
