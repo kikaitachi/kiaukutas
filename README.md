@@ -27,5 +27,6 @@ Run:
 ## Credits
 
 This project directly or indirectly uses these open source projects:
-* [Advanced Linux Sound Architecture project](https://github.com/alsa-project/alsa-lib)
-* [FreeCAD](https://www.freecad.org/)
+* [Advanced Linux Sound Architecture project](https://www.alsa-project.org/alsa-doc/alsa-lib/)
+* [CMake](https://cmake.org/cmake/help/git-master/)
+* [FreeCAD](https://freecad-python-stubs.readthedocs.io/en/latest/autoapi/)
