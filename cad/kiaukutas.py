@@ -198,21 +198,19 @@ dynamixel = Part.read("XM430-W350-T.stp")
 first_winch = winch()
 first_winch.Label = "Winch 1"
 first_winch.Placement = Placement(Vector(0, 0, 19), Rotation(0, 0, 0))
+tendonAngle = math.acos(math.sqrt(1 - PULLEY_HEIGHT ** 2 / MOTOR_SPACING ** 2))
 for i in range(NUMBER_OF_MOTORS):
+    deltaHeight = PULLEY_RADIUS * 2 if i >= NUMBER_OF_MOTORS // 2 else 0
     object = doc.addObject("Part::Feature")
     object.Label = f"Dynamixel {i + 1}"
     object.Shape = dynamixel
     object.ViewObject.ShapeColor = (0.3, 0.3, 0.3, 0.0)
-    object.Placement = Placement(Vector(i * 30, 0, ), Rotation(0, 0, 0))
+    object.Placement = Placement(Vector(i * 30, 0, deltaHeight), Rotation(0, 0, 0))
     if i != 0:
         object = doc.addObject("App::Link")
         object.Label = f"Winch {i + 1}"
         object.LinkedObject = first_winch
-        object.Placement = Placement(Vector(i * 30, 0, 19), Rotation(0, 0, 0))
-makeServoToJointBracket()
-
-tendonAngle = math.acos(math.sqrt(1 - PULLEY_HEIGHT ** 2 / MOTOR_SPACING ** 2))
-for i in range(NUMBER_OF_MOTORS):
+        object.Placement = Placement(Vector(i * 30, 0, 19 + deltaHeight), Rotation(0, 0, 0))
     object = doc.addObject("Part::Feature")
     object.Label = f"Tendon {i + 1}"
     object.ViewObject.ShapeColor = (0.2, 0.6, 0.2, 0.0)
@@ -224,7 +222,9 @@ for i in range(NUMBER_OF_MOTORS):
             0
         ), Vector(-1, math.sin(tendonAngle), 0)
     )
-    object.Placement = Placement(Vector(i * 30, 0, 19 + 3 + PULLEY_HEIGHT / 2), Rotation(0, 0, 0))
+    object.Placement = Placement(Vector(
+        i * 30, 0, 19 + 3 + PULLEY_HEIGHT / 2 + deltaHeight), Rotation(0, 0, 0))
+makeServoToJointBracket()
 
 doc.recompute()
 FreeCADGui.ActiveDocument.ActiveView.fitAll()
