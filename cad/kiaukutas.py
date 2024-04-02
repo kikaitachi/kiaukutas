@@ -1,5 +1,6 @@
 from FreeCAD import newDocument, Placement, Rotation, Vector
 from PySide2 import QtCore
+from freecad.gears.commands import CreateInvoluteGear
 from time import time
 from typing import Optional
 import FreeCAD
@@ -76,6 +77,21 @@ def cut(*objects):
         )
     else:
         return cut(*[cut(*objects[:2]), *objects[2:]])
+
+
+def makePulley():
+    return Part.makeCylinder(
+        PULLEY_RADIUS, PULLEY_HEIGHT, Vector(0, 0, -PULLEY_HEIGHT / 2), Vector(0, 0, 1)
+    )
+
+
+def joint_gear(*, translation=Vector(0, 0, 0), rotation=Rotation(0, 0, 0)):
+    result = CreateInvoluteGear.create()
+    result.teeth = 15
+    result.module = 1.9
+    result.height = 4
+    result.Placement = Placement(translation, rotation)
+    return result
 
 
 def servo_horn_screw_holes():
@@ -200,19 +216,22 @@ first_winch.Label = "Winch 1"
 first_winch.Placement = Placement(Vector(0, 0, 19), Rotation(0, 0, 0))
 tendonAngle = math.acos(math.sqrt(1 - PULLEY_HEIGHT ** 2 / MOTOR_SPACING ** 2))
 winches = [first_winch]
+pulley = makePulley()
 for i in range(NUMBER_OF_MOTORS):
-    deltaHeight = PULLEY_RADIUS * 2 if i >= NUMBER_OF_MOTORS // 2 else 0
+    deltaHeight = (PULLEY_RADIUS + TENDON_RADIUS) * 2 if i >= NUMBER_OF_MOTORS // 2 else 0
     object = doc.addObject("Part::Feature")
     object.Label = f"Dynamixel {i + 1}"
     object.Shape = dynamixel
     object.ViewObject.ShapeColor = (0.3, 0.3, 0.3, 0.0)
     object.Placement = Placement(Vector(i * 30, 0, deltaHeight), Rotation(0, 0, 0))
+
     if i != 0:
         object = doc.addObject("App::Link")
         object.Label = f"Winch {i + 1}"
         object.LinkedObject = first_winch
         object.Placement = Placement(Vector(i * 30, 0, 19 + deltaHeight), Rotation(0, 0, 0))
         winches.append(object)
+
     object = doc.addObject("Part::Feature")
     object.Label = f"Tendon {i + 1}"
     object.ViewObject.ShapeColor = (0.2, 0.6, 0.2, 0.0)
@@ -226,13 +245,24 @@ for i in range(NUMBER_OF_MOTORS):
     )
     object.Placement = Placement(Vector(
         i * 30, 0, 19 + 3 + PULLEY_HEIGHT / 2 + deltaHeight), Rotation(0, 0, 0))
+
+    object = doc.addObject("Part::Feature")
+    object.Label = f"Pulley 1.{i + 1}"
+    object.Shape = pulley
+    object.Placement = Placement(Vector(
+        i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle),
+        (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle),
+        19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
+    ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
+
+
 makeServoToJointBracket()
 
 doc.recompute()
 FreeCADGui.ActiveDocument.ActiveView.fitAll()
 
 end_time = time()
-print(f"Loaded in {end_time - start_time}s")
+# print(f"Loaded in {end_time - start_time}s")
 
 
 t = 0
@@ -247,7 +277,7 @@ def animate():
 
 timer = QtCore.QTimer()
 timer.timeout.connect(animate)
-timer.start(5)
+# timer.start(5)
 
 
 # Code bellow if for preventing confirmation dialog on close
