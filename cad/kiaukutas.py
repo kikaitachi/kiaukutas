@@ -199,6 +199,7 @@ first_winch = winch()
 first_winch.Label = "Winch 1"
 first_winch.Placement = Placement(Vector(0, 0, 19), Rotation(0, 0, 0))
 tendonAngle = math.acos(math.sqrt(1 - PULLEY_HEIGHT ** 2 / MOTOR_SPACING ** 2))
+winches = [first_winch]
 for i in range(NUMBER_OF_MOTORS):
     deltaHeight = PULLEY_RADIUS * 2 if i >= NUMBER_OF_MOTORS // 2 else 0
     object = doc.addObject("Part::Feature")
@@ -211,6 +212,7 @@ for i in range(NUMBER_OF_MOTORS):
         object.Label = f"Winch {i + 1}"
         object.LinkedObject = first_winch
         object.Placement = Placement(Vector(i * 30, 0, 19 + deltaHeight), Rotation(0, 0, 0))
+        winches.append(object)
     object = doc.addObject("Part::Feature")
     object.Label = f"Tendon {i + 1}"
     object.ViewObject.ShapeColor = (0.2, 0.6, 0.2, 0.0)
@@ -231,6 +233,21 @@ FreeCADGui.ActiveDocument.ActiveView.fitAll()
 
 end_time = time()
 print(f"Loaded in {end_time - start_time}s")
+
+
+t = 0
+
+
+def animate():
+    global t
+    for winch in winches:
+        winch.Placement = Placement(winch.Placement.Base, Rotation(1.1 * t, 0, 0))
+    t += 0.1
+
+
+timer = QtCore.QTimer()
+timer.timeout.connect(animate)
+timer.start(5)
 
 
 # Code bellow if for preventing confirmation dialog on close
