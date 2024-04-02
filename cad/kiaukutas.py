@@ -90,6 +90,12 @@ def makePulley():
     )).removeSplitter()
 
 
+def makeTendonOnPulley():
+    helix = Part.makeHelix(TENDON_RADIUS * 2, TENDON_RADIUS * 4, PULLEY_RADIUS)
+    circle = Part.makeCircle(TENDON_RADIUS, Vector(PULLEY_RADIUS, 0, 0), Vector(0, 1, 0))
+    return Part.Wire(helix).makePipe(Part.Wire([circle]))
+
+
 def joint_gear(*, translation=Vector(0, 0, 0), rotation=Rotation(0, 0, 0)):
     result = CreateInvoluteGear.create()
     result.teeth = 15
@@ -271,6 +277,11 @@ for i in range(NUMBER_OF_MOTORS):
 
 
 makeServoToJointBracket()
+
+object = doc.addObject("Part::Feature")
+object.Label = "Tendon on pulley"
+object.Shape = makeTendonOnPulley()
+object.Placement = Placement(Vector(-40, -40, 0), Rotation(0, 0, 0))
 
 doc.recompute()
 FreeCADGui.ActiveDocument.ActiveView.fitAll()
