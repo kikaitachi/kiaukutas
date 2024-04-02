@@ -18,6 +18,7 @@ BRACKET_THICKNESS = 4
 MOTOR_LENGTH = 28.5
 MOTOR_WIDTH = 46.5
 MOTOR_SPACING = 30
+SEGMENT_THICKNESS = 16
 
 doc = newDocument("kiaukutas")
 
@@ -82,7 +83,11 @@ def cut(*objects):
 def makePulley():
     return Part.makeCylinder(
         PULLEY_RADIUS, PULLEY_HEIGHT, Vector(0, 0, -PULLEY_HEIGHT / 2), Vector(0, 0, 1)
-    )
+    ).fuse(Part.makeCone(
+        PULLEY_RADIUS + 1, PULLEY_RADIUS, 1, Vector(0, 0, -PULLEY_HEIGHT / 2), Vector(0, 0, 1)
+    )).fuse(Part.makeCone(
+        PULLEY_RADIUS, PULLEY_RADIUS + 1, 1, Vector(0, 0, PULLEY_HEIGHT / 2 - 1), Vector(0, 0, 1)
+    )).removeSplitter()
 
 
 def joint_gear(*, translation=Vector(0, 0, 0), rotation=Rotation(0, 0, 0)):
@@ -247,11 +252,20 @@ for i in range(NUMBER_OF_MOTORS):
         i * 30, 0, 19 + 3 + PULLEY_HEIGHT / 2 + deltaHeight), Rotation(0, 0, 0))
 
     object = doc.addObject("Part::Feature")
-    object.Label = f"Pulley 1.{i + 1}"
+    object.Label = f"Pulley 1a.{i + 1}"
     object.Shape = pulley
     object.Placement = Placement(Vector(
-        i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle),
-        (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle),
+        i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - tendonLength * math.cos(tendonAngle),
+        (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + tendonLength * math.sin(tendonAngle),
+        19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
+    ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
+
+    object = doc.addObject("Part::Feature")
+    object.Label = f"Pulley 1b.{i + 1}"
+    object.Shape = pulley
+    object.Placement = Placement(Vector(
+        i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength + SEGMENT_THICKNESS) * math.cos(tendonAngle),
+        (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength + SEGMENT_THICKNESS) * math.sin(tendonAngle),
         19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
     ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
 
