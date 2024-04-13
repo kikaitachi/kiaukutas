@@ -19,6 +19,7 @@ MOTOR_LENGTH = 28.5
 MOTOR_WIDTH = 46.5
 MOTOR_SPACING = 30
 SEGMENT_THICKNESS = 16
+SHAFT_RADIUS = 4.3 / 2
 
 doc = newDocument("kiaukutas")
 
@@ -87,6 +88,8 @@ def makePulley():
         PULLEY_RADIUS + 1, PULLEY_RADIUS, 1, Vector(0, 0, -PULLEY_HEIGHT / 2), Vector(0, 0, 1)
     )).fuse(Part.makeCone(
         PULLEY_RADIUS, PULLEY_RADIUS + 1, 1, Vector(0, 0, PULLEY_HEIGHT / 2 - 1), Vector(0, 0, 1)
+    )).cut(Part.makeCylinder(
+        SHAFT_RADIUS, PULLEY_HEIGHT, Vector(0, 0, -PULLEY_HEIGHT / 2), Vector(0, 0, 1)
     )).removeSplitter()
 
 
