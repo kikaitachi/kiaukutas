@@ -10,7 +10,7 @@ import math
 
 start_time = time()
 
-EXTRA_PULLEYS_JOINT = 3
+EXTRA_PULLEYS_PER_JOINT = 3
 NUMBER_OF_MOTORS = 8
 TENDON_RADIUS = 1 / 2
 PULLEY_RADIUS = 10 / 2
@@ -232,7 +232,7 @@ first_winch.Placement = Placement(Vector(0, 0, 19), Rotation(0, 0, 0))
 tendonAngle = math.acos(math.sqrt(1 - PULLEY_HEIGHT ** 2 / MOTOR_SPACING ** 2))
 winches = [first_winch]
 pulley = makePulley()
-for i in range(-EXTRA_PULLEYS_JOINT, NUMBER_OF_MOTORS + EXTRA_PULLEYS_JOINT):
+for i in range(-EXTRA_PULLEYS_PER_JOINT, NUMBER_OF_MOTORS + EXTRA_PULLEYS_PER_JOINT):
     deltaHeight = (PULLEY_RADIUS + TENDON_RADIUS) * 2 if i >= NUMBER_OF_MOTORS // 2 else 0
     tendonLength = MOTOR_SPACING * (i + 1) * math.cos(tendonAngle)
     if i in range(NUMBER_OF_MOTORS):
@@ -278,6 +278,25 @@ for i in range(-EXTRA_PULLEYS_JOINT, NUMBER_OF_MOTORS + EXTRA_PULLEYS_JOINT):
         (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength + SEGMENT_THICKNESS) * math.sin(tendonAngle),
         19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
     ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
+
+    if i <= 0 and abs(i) % 2 == 0:
+        object = doc.addObject("Part::Feature")
+        object.Label = f"Pulley 1b.{i + 1}"
+        object.Shape = pulley
+        object.Placement = Placement(Vector(
+            i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength + SEGMENT_THICKNESS + PULLEY_RADIUS * 3) * math.cos(tendonAngle),
+            (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength + SEGMENT_THICKNESS + PULLEY_RADIUS * 3) * math.sin(tendonAngle),
+            19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
+        ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
+    if i < 0 and i != -EXTRA_PULLEYS_PER_JOINT and abs(i) % 2 == 1:
+        object = doc.addObject("Part::Feature")
+        object.Label = f"Pulley 1b.{i + 1}"
+        object.Shape = pulley
+        object.Placement = Placement(Vector(
+            i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength - PULLEY_RADIUS * 3) * math.cos(tendonAngle),
+            (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength - PULLEY_RADIUS * 3) * math.sin(tendonAngle),
+            19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
+        ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
 
 
 makeServoToJointBracket()
