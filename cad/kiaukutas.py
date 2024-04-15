@@ -10,6 +10,7 @@ import math
 
 start_time = time()
 
+EXTRA_PULLEYS_JOINT = 3
 NUMBER_OF_MOTORS = 8
 TENDON_RADIUS = 1 / 2
 PULLEY_RADIUS = 10 / 2
@@ -231,34 +232,34 @@ first_winch.Placement = Placement(Vector(0, 0, 19), Rotation(0, 0, 0))
 tendonAngle = math.acos(math.sqrt(1 - PULLEY_HEIGHT ** 2 / MOTOR_SPACING ** 2))
 winches = [first_winch]
 pulley = makePulley()
-for i in range(NUMBER_OF_MOTORS):
+for i in range(-EXTRA_PULLEYS_JOINT, NUMBER_OF_MOTORS + EXTRA_PULLEYS_JOINT):
     deltaHeight = (PULLEY_RADIUS + TENDON_RADIUS) * 2 if i >= NUMBER_OF_MOTORS // 2 else 0
-    object = doc.addObject("Part::Feature")
-    object.Label = f"Dynamixel {i + 1}"
-    object.Shape = dynamixel
-    object.ViewObject.ShapeColor = (0.3, 0.3, 0.3, 0.0)
-    object.Placement = Placement(Vector(i * 30, 0, deltaHeight), Rotation(0, 0, 0))
-
-    if i != 0:
-        object = doc.addObject("App::Link")
-        object.Label = f"Winch {i + 1}"
-        object.LinkedObject = first_winch
-        object.Placement = Placement(Vector(i * 30, 0, 19 + deltaHeight), Rotation(0, 0, 0))
-        winches.append(object)
-
-    object = doc.addObject("Part::Feature")
-    object.Label = f"Tendon {i + 1}"
-    object.ViewObject.ShapeColor = (0.2, 0.6, 0.2, 0.0)
     tendonLength = MOTOR_SPACING * (i + 1) * math.cos(tendonAngle)
-    object.Shape = Part.makeCylinder(
-        TENDON_RADIUS, tendonLength, Vector(
-            (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle),
-            (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle),
-            0
-        ), Vector(-1, math.sin(tendonAngle), 0)
-    )
-    object.Placement = Placement(Vector(
-        i * 30, 0, 19 + 3 + PULLEY_HEIGHT / 2 + deltaHeight), Rotation(0, 0, 0))
+    if i in range(NUMBER_OF_MOTORS):
+        object = doc.addObject("Part::Feature")
+        object.Label = f"Dynamixel {i + 1}"
+        object.Shape = dynamixel
+        object.ViewObject.ShapeColor = (0.3, 0.3, 0.3, 0.0)
+        object.Placement = Placement(Vector(i * 30, 0, deltaHeight), Rotation(0, 0, 0))
+        if i != 0:
+            object = doc.addObject("App::Link")
+            object.Label = f"Winch {i + 1}"
+            object.LinkedObject = first_winch
+            object.Placement = Placement(Vector(i * 30, 0, 19 + deltaHeight), Rotation(0, 0, 0))
+            winches.append(object)
+
+        object = doc.addObject("Part::Feature")
+        object.Label = f"Tendon {i + 1}"
+        object.ViewObject.ShapeColor = (0.2, 0.6, 0.2, 0.0)
+        object.Shape = Part.makeCylinder(
+            TENDON_RADIUS, tendonLength, Vector(
+                (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle),
+                (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle),
+                0
+            ), Vector(-1, math.sin(tendonAngle), 0)
+        )
+        object.Placement = Placement(Vector(
+            i * 30, 0, 19 + 3 + PULLEY_HEIGHT / 2 + deltaHeight), Rotation(0, 0, 0))
 
     object = doc.addObject("Part::Feature")
     object.Label = f"Pulley 1a.{i + 1}"
