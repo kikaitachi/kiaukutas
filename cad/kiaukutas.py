@@ -279,24 +279,27 @@ for i in range(-EXTRA_PULLEYS_PER_JOINT, NUMBER_OF_MOTORS + EXTRA_PULLEYS_PER_JO
         19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
     ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
 
-    if i <= 0 and abs(i) % 2 == 0:
-        object = doc.addObject("Part::Feature")
-        object.Label = f"Pulley 1b.{i + 1}"
-        object.Shape = pulley
-        object.Placement = Placement(Vector(
-            i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength + SEGMENT_THICKNESS + PULLEY_RADIUS * 3) * math.cos(tendonAngle),
-            (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength + SEGMENT_THICKNESS + PULLEY_RADIUS * 3) * math.sin(tendonAngle),
-            19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
-        ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
-    if i < 0 and i != -EXTRA_PULLEYS_PER_JOINT and abs(i) % 2 == 1:
-        object = doc.addObject("Part::Feature")
-        object.Label = f"Pulley 1b.{i + 1}"
-        object.Shape = pulley
-        object.Placement = Placement(Vector(
-            i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength - PULLEY_RADIUS * 3) * math.cos(tendonAngle),
-            (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength - PULLEY_RADIUS * 3) * math.sin(tendonAngle),
-            19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
-        ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
+    if i <= 0:
+        delta_x = math.sin(tendonAngle) * PULLEY_HEIGHT / 2
+        delta_y = math.cos(tendonAngle) * PULLEY_HEIGHT / 2
+        if abs(i) % 2 == 0:
+            object = doc.addObject("Part::Feature")
+            object.Label = f"Pulley 1b.{i + 1}"
+            object.Shape = pulley
+            object.Placement = Placement(Vector(
+                -delta_x + i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength + SEGMENT_THICKNESS + PULLEY_RADIUS * 3) * math.cos(tendonAngle),
+                -delta_y + (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength + SEGMENT_THICKNESS + PULLEY_RADIUS * 3) * math.sin(tendonAngle),
+                19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
+            ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
+        elif i != -EXTRA_PULLEYS_PER_JOINT:
+            object = doc.addObject("Part::Feature")
+            object.Label = f"Pulley 1b.{i + 1}"
+            object.Shape = pulley
+            object.Placement = Placement(Vector(
+                -delta_x + i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength - PULLEY_RADIUS * 3) * math.cos(tendonAngle),
+                -delta_y + (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength - PULLEY_RADIUS * 3) * math.sin(tendonAngle),
+                19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
+            ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
 
 
 makeServoToJointBracket()
