@@ -6,6 +6,7 @@
 ## Parts
 
 * 8 x [Dynamixel XM430-W350-T](https://emanual.robotis.com/docs/en/dxl/x/xm430-w350/)
+* 12 x [Steel tube 5mm OD, 4mm ID, 100mm length](https://www.aliexpress.com/item/1005006698491596.html)
 
 ## Building & running
 
