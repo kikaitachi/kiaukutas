@@ -15,12 +15,16 @@ NUMBER_OF_MOTORS = 8
 TENDON_RADIUS = 1 / 2
 PULLEY_RADIUS = 10 / 2
 PULLEY_HEIGHT = 4
+PULLEY_HOLE_RADIUS = 7.2 / 2
 BRACKET_THICKNESS = 4
 MOTOR_LENGTH = 28.5
 MOTOR_WIDTH = 46.5
 MOTOR_SPACING = 30
 SEGMENT_THICKNESS = 16
-SHAFT_RADIUS = 7.2 / 2
+
+JOINT_SHAFT_LENGTH = 100
+JOINT_SHAFT_OD = 5
+JOINT_SHAFT_ID = 4
 
 doc = newDocument("kiaukutas")
 
@@ -90,7 +94,15 @@ def makePulley():
     )).fuse(Part.makeCone(
         PULLEY_RADIUS, PULLEY_RADIUS + 1, 1, Vector(0, 0, PULLEY_HEIGHT / 2 - 1), Vector(0, 0, 1)
     )).cut(Part.makeCylinder(
-        SHAFT_RADIUS, PULLEY_HEIGHT, Vector(0, 0, -PULLEY_HEIGHT / 2), Vector(0, 0, 1)
+        PULLEY_HOLE_RADIUS, PULLEY_HEIGHT, Vector(0, 0, -PULLEY_HEIGHT / 2), Vector(0, 0, 1)
+    )).removeSplitter()
+
+
+def make_joint_shaft():
+    return Part.makeCylinder(
+        JOINT_SHAFT_OD / 2, JOINT_SHAFT_LENGTH, Vector(0, 0, -JOINT_SHAFT_LENGTH / 2), Vector(0, 0, 1)
+    ).cut(Part.makeCylinder(
+        JOINT_SHAFT_ID / 2, JOINT_SHAFT_LENGTH, Vector(0, 0, -JOINT_SHAFT_LENGTH / 2), Vector(0, 0, 1)
     )).removeSplitter()
 
 
@@ -308,6 +320,12 @@ object = doc.addObject("Part::Feature")
 object.Label = "Tendon on pulley"
 object.Shape = makeTendonOnPulley()
 object.Placement = Placement(Vector(-40, -40, 0), Rotation(0, 0, 0))
+
+object = doc.addObject("Part::Feature")
+object.Label = "Joint shaft"
+object.Shape = make_joint_shaft()
+object.Placement = Placement(Vector(-50, -50, 0), Rotation(0, 0, 0))
+object.ViewObject.ShapeColor = (0.5, 0.0, 0.0, 0.0)
 
 doc.recompute()
 FreeCADGui.ActiveDocument.ActiveView.fitAll()
