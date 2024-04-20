@@ -385,7 +385,7 @@ for i in range(len(SEGMENTS)):
         )
 
     translation = translation.add(Vector(segment.length, 0, 0))
-    rotation = rotation.multiply(Rotation(Vector(0, 0, 1), segment.direction * 90))
+    rotation = rotation.multiply(Rotation(Vector(1, 0, 0), segment.direction * 90))
 
     pulley_count -= 1
 
