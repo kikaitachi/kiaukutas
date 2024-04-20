@@ -11,18 +11,46 @@ import math
 
 @dataclass
 class Segment:
-    direction: int
-    length: float
-    width: float
+    placement: Placement
 
 
 SEGMENTS = [
-    Segment(1, 120, 120),
-    Segment(0, 120, 120),
-    Segment(0, 120, 120),
-    Segment(1, 120, 120),
-    Segment(-1, 120, 120),
-    Segment(0, 120, 120),
+    Segment(
+        Placement(
+            Vector(110, 0, 110),
+            Rotation(Vector(0, -1, 0), 90),
+        )
+    ),
+    Segment(
+        Placement(
+            Vector(110, 0, 0),
+            Rotation(Vector(0, 1, 0), 0),
+        )
+    ),
+    Segment(
+        Placement(
+            Vector(110, 0, 0),
+            Rotation(Vector(0, 1, 0), 0),
+        )
+    ),
+    Segment(
+        Placement(
+            Vector(110, 0, 110),
+            Rotation(Vector(0, 1, 0), -90),
+        )
+    ),
+    Segment(
+        Placement(
+            Vector(10, 0, -10),
+            Rotation(Vector(0, 1, 0), 90),
+        )
+    ),
+    Segment(
+        Placement(
+            Vector(0, 0, 0),
+            Rotation(0, 0, 0),
+        )
+    ),
 ]
 
 EXTRA_PULLEYS_PER_JOINT = 3
@@ -342,8 +370,7 @@ object.Label = "Tendon on pulley"
 object.Shape = makeTendonOnPulley()
 object.Placement = Placement(Vector(-40, -40, 0), Rotation(0, 0, 0))
 
-translation = Vector(-50, -50, 0)
-rotation = Rotation(0, 0, 0)
+placement = Placement(Vector(-50, -50, 0), Rotation(0, 0, 0))
 pulley_count = len(SEGMENTS) + 2 + 2 * EXTRA_PULLEYS_PER_JOINT
 pulley_start = (
     (JOINT_SHAFT_LENGTH - JOINT_SHAFT_PULLEY_AREA_LENGTH) / 2 +
@@ -355,37 +382,45 @@ for i in range(len(SEGMENTS)):
     object = doc.addObject("Part::Feature")
     object.Label = f"Joint shaft {i}a"
     object.Shape = make_joint_shaft()
-    object.Placement = Placement(translation, rotation)
+    object.Placement = placement
     object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
 
     for j in range(pulley_count):
         object = doc.addObject("Part::Feature")
         object.Label = f"Pulley {i}a{j}"
         object.Shape = pulley
-        object.Placement = Placement(
-            translation.add(Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING)),
-            Rotation(0, 0, 0),
+        object.Placement = placement.multiply(
+            Placement(
+                Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING),
+                Rotation(0, 0, 0),
+            )
         )
 
-    translation = translation.add(Vector(SEGMENT_THICKNESS, 0, 0))
+    placement = placement.multiply(
+        Placement(
+            Vector(SEGMENT_THICKNESS, 0, 0),
+            Rotation(0, 0, 0),
+        )
+    )
 
     object = doc.addObject("Part::Feature")
     object.Label = f"Joint shaft {i}b"
     object.Shape = make_joint_shaft()
-    object.Placement = Placement(translation, rotation)
+    object.Placement = placement
     object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
 
     for j in range(pulley_count):
         object = doc.addObject("Part::Feature")
         object.Label = f"Pulley {i}b{j}"
         object.Shape = pulley
-        object.Placement = Placement(
-            translation.add(Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING)),
-            Rotation(0, 0, 0),
+        object.Placement = placement.multiply(
+            Placement(
+                Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING),
+                Rotation(0, 0, 0),
+            )
         )
 
-    translation = translation.add(Vector(segment.length, 0, 0))
-    rotation = rotation.multiply(Rotation(Vector(1, 0, 0), segment.direction * 90))
+    placement = placement.multiply(segment.placement)
 
     pulley_count -= 1
 
