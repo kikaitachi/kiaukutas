@@ -1,14 +1,29 @@
+from dataclasses import dataclass
 from FreeCAD import newDocument, Placement, Rotation, Vector
 from PySide2 import QtCore
 from freecad.gears.commands import CreateInvoluteGear
-from time import time
 from typing import Optional
 import FreeCAD
 import FreeCADGui
 import Part
 import math
 
-start_time = time()
+
+@dataclass
+class Segment:
+    direction: int
+    length: float
+    width: float
+
+
+SEGMENTS = [
+    Segment(1, 120, 120),
+    Segment(0, 120, 120),
+    Segment(0, 120, 120),
+    Segment(1, 120, 120),
+    Segment(-1, 120, 120),
+    Segment(0, 120, 120),
+]
 
 EXTRA_PULLEYS_PER_JOINT = 3
 NUMBER_OF_MOTORS = 8
@@ -20,11 +35,13 @@ BRACKET_THICKNESS = 4
 MOTOR_LENGTH = 28.5
 MOTOR_WIDTH = 46.5
 MOTOR_SPACING = 30
+
 SEGMENT_THICKNESS = 16
 
 JOINT_SHAFT_LENGTH = 100
 JOINT_SHAFT_OD = 5
 JOINT_SHAFT_ID = 4
+JOINT_SHAFT_COLOR = (0.5, 0.0, 0.0, 0.0)
 
 doc = newDocument("kiaukutas")
 
@@ -100,9 +117,9 @@ def makePulley():
 
 def make_joint_shaft():
     return Part.makeCylinder(
-        JOINT_SHAFT_OD / 2, JOINT_SHAFT_LENGTH, Vector(0, 0, -JOINT_SHAFT_LENGTH / 2), Vector(0, 0, 1)
+        JOINT_SHAFT_OD / 2, JOINT_SHAFT_LENGTH, Vector(0, 0, 0), Vector(0, 0, 1)
     ).cut(Part.makeCylinder(
-        JOINT_SHAFT_ID / 2, JOINT_SHAFT_LENGTH, Vector(0, 0, -JOINT_SHAFT_LENGTH / 2), Vector(0, 0, 1)
+        JOINT_SHAFT_ID / 2, JOINT_SHAFT_LENGTH, Vector(0, 0, 0), Vector(0, 0, 1)
     )).removeSplitter()
 
 
@@ -321,17 +338,29 @@ object.Label = "Tendon on pulley"
 object.Shape = makeTendonOnPulley()
 object.Placement = Placement(Vector(-40, -40, 0), Rotation(0, 0, 0))
 
-object = doc.addObject("Part::Feature")
-object.Label = "Joint shaft"
-object.Shape = make_joint_shaft()
-object.Placement = Placement(Vector(-50, -50, 0), Rotation(0, 0, 0))
-object.ViewObject.ShapeColor = (0.5, 0.0, 0.0, 0.0)
+translation = Vector(-50, -50, 0)
+rotation = Rotation(0, 0, 0)
+for i in range(len(SEGMENTS)):
+    segment = SEGMENTS[i]
+
+    object = doc.addObject("Part::Feature")
+    object.Label = f"Joint shaft {i}a"
+    object.Shape = make_joint_shaft()
+    object.Placement = Placement(translation, rotation)
+    object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
+
+    translation = translation.add(Vector(SEGMENT_THICKNESS, 0, 0))
+
+    object = doc.addObject("Part::Feature")
+    object.Label = f"Joint shaft {i}b"
+    object.Shape = make_joint_shaft()
+    object.Placement = Placement(translation, rotation)
+    object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
+
+    translation = translation.add(Vector(segment.length, 0, 0))
 
 doc.recompute()
 FreeCADGui.ActiveDocument.ActiveView.fitAll()
-
-end_time = time()
-# print(f"Loaded in {end_time - start_time}s")
 
 
 t = 0
