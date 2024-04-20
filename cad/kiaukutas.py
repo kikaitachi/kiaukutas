@@ -28,9 +28,12 @@ SEGMENTS = [
 EXTRA_PULLEYS_PER_JOINT = 3
 NUMBER_OF_MOTORS = 8
 TENDON_RADIUS = 1 / 2
+
 PULLEY_RADIUS = 10 / 2
 PULLEY_HEIGHT = 4
 PULLEY_HOLE_RADIUS = 7.2 / 2
+JOINT_PULLEY_SPACING = 5
+
 BRACKET_THICKNESS = 4
 MOTOR_LENGTH = 28.5
 MOTOR_WIDTH = 46.5
@@ -42,6 +45,7 @@ JOINT_SHAFT_LENGTH = 100
 JOINT_SHAFT_OD = 5
 JOINT_SHAFT_ID = 4
 JOINT_SHAFT_COLOR = (0.5, 0.0, 0.0, 0.0)
+JOINT_SHAFT_PULLEY_AREA_LENGTH = 70
 
 doc = newDocument("kiaukutas")
 
@@ -103,15 +107,15 @@ def cut(*objects):
         return cut(*[cut(*objects[:2]), *objects[2:]])
 
 
-def makePulley():
+def make_pulley():
     return Part.makeCylinder(
-        PULLEY_RADIUS, PULLEY_HEIGHT, Vector(0, 0, -PULLEY_HEIGHT / 2), Vector(0, 0, 1)
+        PULLEY_RADIUS, PULLEY_HEIGHT, Vector(0, 0, 0), Vector(0, 0, 1)
     ).fuse(Part.makeCone(
-        PULLEY_RADIUS + 1, PULLEY_RADIUS, 1, Vector(0, 0, -PULLEY_HEIGHT / 2), Vector(0, 0, 1)
+        PULLEY_RADIUS + 1, PULLEY_RADIUS, 1, Vector(0, 0, 0), Vector(0, 0, 1)
     )).fuse(Part.makeCone(
-        PULLEY_RADIUS, PULLEY_RADIUS + 1, 1, Vector(0, 0, PULLEY_HEIGHT / 2 - 1), Vector(0, 0, 1)
+        PULLEY_RADIUS, PULLEY_RADIUS + 1, 1, Vector(0, 0, PULLEY_HEIGHT - 1), Vector(0, 0, 1)
     )).cut(Part.makeCylinder(
-        PULLEY_HOLE_RADIUS, PULLEY_HEIGHT, Vector(0, 0, -PULLEY_HEIGHT / 2), Vector(0, 0, 1)
+        PULLEY_HOLE_RADIUS, PULLEY_HEIGHT, Vector(0, 0, 0), Vector(0, 0, 1)
     )).removeSplitter()
 
 
@@ -260,7 +264,7 @@ first_winch.Label = "Winch 1"
 first_winch.Placement = Placement(Vector(0, 0, 19), Rotation(0, 0, 0))
 tendonAngle = math.acos(math.sqrt(1 - PULLEY_HEIGHT ** 2 / MOTOR_SPACING ** 2))
 winches = [first_winch]
-pulley = makePulley()
+pulley = make_pulley()
 for i in range(-EXTRA_PULLEYS_PER_JOINT, NUMBER_OF_MOTORS + EXTRA_PULLEYS_PER_JOINT):
     deltaHeight = (PULLEY_RADIUS + TENDON_RADIUS) * 2 if i >= NUMBER_OF_MOTORS // 2 else 0
     tendonLength = MOTOR_SPACING * (i + 1) * math.cos(tendonAngle)
@@ -340,6 +344,11 @@ object.Placement = Placement(Vector(-40, -40, 0), Rotation(0, 0, 0))
 
 translation = Vector(-50, -50, 0)
 rotation = Rotation(0, 0, 0)
+pulley_count = len(SEGMENTS) + 2 + 2 * EXTRA_PULLEYS_PER_JOINT
+pulley_start = (
+    (JOINT_SHAFT_LENGTH - JOINT_SHAFT_PULLEY_AREA_LENGTH) / 2 +
+    (JOINT_PULLEY_SPACING - PULLEY_HEIGHT) / 2
+)
 for i in range(len(SEGMENTS)):
     segment = SEGMENTS[i]
 
@@ -349,6 +358,15 @@ for i in range(len(SEGMENTS)):
     object.Placement = Placement(translation, rotation)
     object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
 
+    for j in range(pulley_count):
+        object = doc.addObject("Part::Feature")
+        object.Label = f"Pulley {i}a{j}"
+        object.Shape = pulley
+        object.Placement = Placement(
+            translation.add(Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING)),
+            Rotation(0, 0, 0),
+        )
+
     translation = translation.add(Vector(SEGMENT_THICKNESS, 0, 0))
 
     object = doc.addObject("Part::Feature")
@@ -357,7 +375,19 @@ for i in range(len(SEGMENTS)):
     object.Placement = Placement(translation, rotation)
     object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
 
+    for j in range(pulley_count):
+        object = doc.addObject("Part::Feature")
+        object.Label = f"Pulley {i}b{j}"
+        object.Shape = pulley
+        object.Placement = Placement(
+            translation.add(Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING)),
+            Rotation(0, 0, 0),
+        )
+
     translation = translation.add(Vector(segment.length, 0, 0))
+    rotation = rotation.multiply(Rotation(Vector(0, 0, 1), segment.direction * 90))
+
+    pulley_count -= 1
 
 doc.recompute()
 FreeCADGui.ActiveDocument.ActiveView.fitAll()
