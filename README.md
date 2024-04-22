@@ -12,6 +12,7 @@
 | [69](https://www.aliexpress.com/item/1005005334158919.html) | Bushing 7mm OD, 5mm ID, 4mm length |
 | [44](https://www.aliexpress.com/item/1005006209247166.html) | Flange bushing 5mm OD (7mm flange), 3mm ID, 2.1mm total length (0.6mm flange) |
 | [44](https://www.aliexpress.com/item/1005004780963524.html) | Shoulder bolt 3mm diameter, M3 thread, 3mm thread length |
+| [44](https://www.aliexpress.com/item/32977174437.html) | M2.5 hexagon nuts |
 
 ## Building & running
 
