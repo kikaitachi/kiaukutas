@@ -3,12 +3,15 @@
 [![Last build result](https://github.com/kikaitachi/kiaukutas/workflows/CI/badge.svg)](https://github.com/kikaitachi/kiaukutas/actions)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
-## Parts
+## BOM
 
-* 8 x [Dynamixel XM430-W350-T](https://emanual.robotis.com/docs/en/dxl/x/xm430-w350/)
-* 12 x [Steel tube 5mm OD, 4mm ID, 100mm length](https://www.aliexpress.com/item/1005006698491596.html)
-* 69 x [Bushing 7mm OD, 5mm ID, 4mm length](https://www.aliexpress.com/item/1005005334158919.html)
-* 44 x [Flange bushing 5mm OD (7mm flange), 3mm ID, 2.1mm total length (0.6mm flange)](https://www.aliexpress.com/item/1005006209247166.html)
+| Quantity | Description |
+| -------: | ----------- |
+| [8](https://emanual.robotis.com/docs/en/dxl/x/xm430-w350/) | Dynamixel XM430-W350-T |
+| [12](https://www.aliexpress.com/item/1005006698491596.html) | Steel tube 5mm OD, 4mm ID, 100mm length |
+| [69](https://www.aliexpress.com/item/1005005334158919.html) | Bushing 7mm OD, 5mm ID, 4mm length |
+| [44](https://www.aliexpress.com/item/1005006209247166.html) | Flange bushing 5mm OD (7mm flange), 3mm ID, 2.1mm total length (0.6mm flange) |
+| [44](https://www.aliexpress.com/item/1005004780963524.html) | Shoulder bolt 3mm diameter, M3 thread, 3mm thread length |
 
 ## Building & running
 
