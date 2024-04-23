@@ -421,6 +421,12 @@ for i in range(len(SEGMENTS)):
         )
 
     placement = placement.multiply(segment.placement)
+    placement = placement.multiply(
+        Placement(
+            Vector(0, 0, 0),
+            Rotation(-45, 0, 0),
+        )
+    )
 
     pulley_count -= 1
 
