@@ -286,167 +286,169 @@ def makeServoToJointBracket():
     return result
 
 
-dynamixel = Part.read("XM430-W350-T.stp")
-first_winch = winch()
-first_winch.Label = "Winch 1"
-first_winch.Placement = Placement(Vector(0, 0, 19), Rotation(0, 0, 0))
-tendonAngle = math.acos(math.sqrt(1 - PULLEY_HEIGHT ** 2 / MOTOR_SPACING ** 2))
-winches = [first_winch]
-pulley = make_pulley()
-for i in range(-EXTRA_PULLEYS_PER_JOINT, NUMBER_OF_MOTORS + EXTRA_PULLEYS_PER_JOINT):
-    deltaHeight = (PULLEY_RADIUS + TENDON_RADIUS) * 2 if i >= NUMBER_OF_MOTORS // 2 else 0
-    tendonLength = MOTOR_SPACING * (i + 1) * math.cos(tendonAngle)
-    if i in range(NUMBER_OF_MOTORS):
-        object = doc.addObject("Part::Feature")
-        object.Label = f"Dynamixel {i + 1}"
-        object.Shape = dynamixel
-        object.ViewObject.ShapeColor = (0.3, 0.3, 0.3, 0.0)
-        object.Placement = Placement(Vector(i * 30, 0, deltaHeight), Rotation(0, 0, 0))
-        if i != 0:
-            object = doc.addObject("App::Link")
-            object.Label = f"Winch {i + 1}"
-            object.LinkedObject = first_winch
-            object.Placement = Placement(Vector(i * 30, 0, 19 + deltaHeight), Rotation(0, 0, 0))
-            winches.append(object)
+class Assembly:
+    def __init__(self) -> None:
+        self.t = 0
+        self.make_everything()
 
-        object = doc.addObject("Part::Feature")
-        object.Label = f"Tendon {i + 1}"
-        object.ViewObject.ShapeColor = (0.2, 0.6, 0.2, 0.0)
-        object.Shape = Part.makeCylinder(
-            TENDON_RADIUS, tendonLength, Vector(
-                (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle),
-                (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle),
-                0
-            ), Vector(-1, math.sin(tendonAngle), 0)
-        )
-        object.Placement = Placement(Vector(
-            i * 30, 0, 19 + 3 + PULLEY_HEIGHT / 2 + deltaHeight), Rotation(0, 0, 0))
+        doc.recompute()
+        FreeCADGui.ActiveDocument.ActiveView.fitAll()
 
-    object = doc.addObject("Part::Feature")
-    object.Label = f"Pulley 1a.{i + 1}"
-    object.Shape = pulley
-    object.Placement = Placement(Vector(
-        i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - tendonLength * math.cos(tendonAngle),
-        (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + tendonLength * math.sin(tendonAngle),
-        19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
-    ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(lambda: self.animate())
+        self.timer.start(10)
 
-    object = doc.addObject("Part::Feature")
-    object.Label = f"Pulley 1b.{i + 1}"
-    object.Shape = pulley
-    object.Placement = Placement(Vector(
-        i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength + SEGMENT_THICKNESS) * math.cos(tendonAngle),
-        (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength + SEGMENT_THICKNESS) * math.sin(tendonAngle),
-        19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
-    ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
+    def make_everything(self):
+        dynamixel = Part.read("XM430-W350-T.stp")
+        first_winch = winch()
+        first_winch.Label = "Winch 1"
+        first_winch.Placement = Placement(Vector(0, 0, 19), Rotation(0, 0, 0))
+        tendonAngle = math.acos(math.sqrt(1 - PULLEY_HEIGHT ** 2 / MOTOR_SPACING ** 2))
+        self.winches = [first_winch]
+        pulley = make_pulley()
+        for i in range(-EXTRA_PULLEYS_PER_JOINT, NUMBER_OF_MOTORS + EXTRA_PULLEYS_PER_JOINT):
+            deltaHeight = (PULLEY_RADIUS + TENDON_RADIUS) * 2 if i >= NUMBER_OF_MOTORS // 2 else 0
+            tendonLength = MOTOR_SPACING * (i + 1) * math.cos(tendonAngle)
+            if i in range(NUMBER_OF_MOTORS):
+                object = doc.addObject("Part::Feature")
+                object.Label = f"Dynamixel {i + 1}"
+                object.Shape = dynamixel
+                object.ViewObject.ShapeColor = (0.3, 0.3, 0.3, 0.0)
+                object.Placement = Placement(Vector(i * 30, 0, deltaHeight), Rotation(0, 0, 0))
+                if i != 0:
+                    object = doc.addObject("App::Link")
+                    object.Label = f"Winch {i + 1}"
+                    object.LinkedObject = first_winch
+                    object.Placement = Placement(Vector(i * 30, 0, 19 + deltaHeight), Rotation(0, 0, 0))
+                    self.winches.append(object)
 
-    if i <= 0:
-        delta_x = math.sin(tendonAngle) * PULLEY_HEIGHT / 2
-        delta_y = math.cos(tendonAngle) * PULLEY_HEIGHT / 2
-        if abs(i) % 2 == 0:
+                object = doc.addObject("Part::Feature")
+                object.Label = f"Tendon {i + 1}"
+                object.ViewObject.ShapeColor = (0.2, 0.6, 0.2, 0.0)
+                object.Shape = Part.makeCylinder(
+                    TENDON_RADIUS, tendonLength, Vector(
+                        (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle),
+                        (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle),
+                        0
+                    ), Vector(-1, math.sin(tendonAngle), 0)
+                )
+                object.Placement = Placement(Vector(
+                    i * 30, 0, 19 + 3 + PULLEY_HEIGHT / 2 + deltaHeight), Rotation(0, 0, 0))
+
+            object = doc.addObject("Part::Feature")
+            object.Label = f"Pulley 1a.{i + 1}"
+            object.Shape = pulley
+            object.Placement = Placement(Vector(
+                i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - tendonLength * math.cos(tendonAngle),
+                (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + tendonLength * math.sin(tendonAngle),
+                19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
+            ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
+
             object = doc.addObject("Part::Feature")
             object.Label = f"Pulley 1b.{i + 1}"
             object.Shape = pulley
             object.Placement = Placement(Vector(
-                -delta_x + i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength + SEGMENT_THICKNESS + PULLEY_RADIUS * 3) * math.cos(tendonAngle),
-                -delta_y + (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength + SEGMENT_THICKNESS + PULLEY_RADIUS * 3) * math.sin(tendonAngle),
+                i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength + SEGMENT_THICKNESS) * math.cos(tendonAngle),
+                (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength + SEGMENT_THICKNESS) * math.sin(tendonAngle),
                 19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
             ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
-        elif i != -EXTRA_PULLEYS_PER_JOINT:
+
+            if i <= 0:
+                delta_x = math.sin(tendonAngle) * PULLEY_HEIGHT / 2
+                delta_y = math.cos(tendonAngle) * PULLEY_HEIGHT / 2
+                if abs(i) % 2 == 0:
+                    object = doc.addObject("Part::Feature")
+                    object.Label = f"Pulley 1b.{i + 1}"
+                    object.Shape = pulley
+                    object.Placement = Placement(Vector(
+                        -delta_x + i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength + SEGMENT_THICKNESS + PULLEY_RADIUS * 3) * math.cos(tendonAngle),
+                        -delta_y + (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength + SEGMENT_THICKNESS + PULLEY_RADIUS * 3) * math.sin(tendonAngle),
+                        19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
+                    ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
+                elif i != -EXTRA_PULLEYS_PER_JOINT:
+                    object = doc.addObject("Part::Feature")
+                    object.Label = f"Pulley 1b.{i + 1}"
+                    object.Shape = pulley
+                    object.Placement = Placement(Vector(
+                        -delta_x + i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength - PULLEY_RADIUS * 3) * math.cos(tendonAngle),
+                        -delta_y + (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength - PULLEY_RADIUS * 3) * math.sin(tendonAngle),
+                        19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
+                    ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
+
+        makeServoToJointBracket()
+
+        object = doc.addObject("Part::Feature")
+        object.Label = "Tendon on pulley"
+        object.Shape = makeTendonOnPulley()
+        object.Placement = Placement(Vector(-40, -40, 0), Rotation(0, 0, 0))
+
+        placement = Placement(Vector(-50, -50, 0), Rotation(0, 0, 0))
+        pulley_count = len(SEGMENTS) + 2 + 2 * EXTRA_PULLEYS_PER_JOINT
+        pulley_start = (
+            (JOINT_SHAFT_LENGTH - JOINT_SHAFT_PULLEY_AREA_LENGTH) / 2 +
+            (JOINT_PULLEY_SPACING - PULLEY_HEIGHT) / 2
+        )
+        for i in range(len(SEGMENTS)):
+            segment = SEGMENTS[i]
+
             object = doc.addObject("Part::Feature")
-            object.Label = f"Pulley 1b.{i + 1}"
-            object.Shape = pulley
-            object.Placement = Placement(Vector(
-                -delta_x + i * 30 + (PULLEY_RADIUS + TENDON_RADIUS) * math.sin(tendonAngle) - (tendonLength - PULLEY_RADIUS * 3) * math.cos(tendonAngle),
-                -delta_y + (PULLEY_RADIUS + TENDON_RADIUS) * math.cos(tendonAngle) + (tendonLength - PULLEY_RADIUS * 3) * math.sin(tendonAngle),
-                19 + 3 + PULLEY_HEIGHT / 2 + (PULLEY_RADIUS + TENDON_RADIUS),
-            ), Rotation(0, 90, 90 + math.degrees(tendonAngle)))
+            object.Label = f"Joint shaft {i}a"
+            object.Shape = make_joint_shaft()
+            object.Placement = placement
+            object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
 
+            for j in range(pulley_count):
+                object = doc.addObject("Part::Feature")
+                object.Label = f"Pulley {i}a{j}"
+                object.Shape = pulley
+                object.Placement = placement.multiply(
+                    Placement(
+                        Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING),
+                        Rotation(0, 0, 0),
+                    )
+                )
 
-makeServoToJointBracket()
-
-object = doc.addObject("Part::Feature")
-object.Label = "Tendon on pulley"
-object.Shape = makeTendonOnPulley()
-object.Placement = Placement(Vector(-40, -40, 0), Rotation(0, 0, 0))
-
-placement = Placement(Vector(-50, -50, 0), Rotation(0, 0, 0))
-pulley_count = len(SEGMENTS) + 2 + 2 * EXTRA_PULLEYS_PER_JOINT
-pulley_start = (
-    (JOINT_SHAFT_LENGTH - JOINT_SHAFT_PULLEY_AREA_LENGTH) / 2 +
-    (JOINT_PULLEY_SPACING - PULLEY_HEIGHT) / 2
-)
-for i in range(len(SEGMENTS)):
-    segment = SEGMENTS[i]
-
-    object = doc.addObject("Part::Feature")
-    object.Label = f"Joint shaft {i}a"
-    object.Shape = make_joint_shaft()
-    object.Placement = placement
-    object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
-
-    for j in range(pulley_count):
-        object = doc.addObject("Part::Feature")
-        object.Label = f"Pulley {i}a{j}"
-        object.Shape = pulley
-        object.Placement = placement.multiply(
-            Placement(
-                Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING),
-                Rotation(0, 0, 0),
+            placement = placement.multiply(
+                Placement(
+                    Vector(SEGMENT_THICKNESS, 0, 0),
+                    Rotation(0, 0, 0),
+                )
             )
-        )
 
-    placement = placement.multiply(
-        Placement(
-            Vector(SEGMENT_THICKNESS, 0, 0),
-            Rotation(0, 0, 0),
-        )
-    )
+            object = doc.addObject("Part::Feature")
+            object.Label = f"Joint shaft {i}b"
+            object.Shape = make_joint_shaft()
+            object.Placement = placement
+            object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
 
-    object = doc.addObject("Part::Feature")
-    object.Label = f"Joint shaft {i}b"
-    object.Shape = make_joint_shaft()
-    object.Placement = placement
-    object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
+            for j in range(pulley_count):
+                object = doc.addObject("Part::Feature")
+                object.Label = f"Pulley {i}b{j}"
+                object.Shape = pulley
+                object.Placement = placement.multiply(
+                    Placement(
+                        Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING),
+                        Rotation(0, 0, 0),
+                    )
+                )
 
-    for j in range(pulley_count):
-        object = doc.addObject("Part::Feature")
-        object.Label = f"Pulley {i}b{j}"
-        object.Shape = pulley
-        object.Placement = placement.multiply(
-            Placement(
-                Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING),
-                Rotation(0, 0, 0),
+            placement = placement.multiply(segment.placement)
+            placement = placement.multiply(
+                Placement(
+                    Vector(0, 0, 0),
+                    Rotation(-45, 0, 0),
+                )
             )
-        )
 
-    placement = placement.multiply(segment.placement)
-    placement = placement.multiply(
-        Placement(
-            Vector(0, 0, 0),
-            Rotation(-45, 0, 0),
-        )
-    )
+            pulley_count -= 1
 
-    pulley_count -= 1
-
-doc.recompute()
-FreeCADGui.ActiveDocument.ActiveView.fitAll()
+    def animate(self):
+        for winch in self.winches:
+            winch.Placement = Placement(winch.Placement.Base, Rotation(1.1 * self.t, 0, 0))
+        self.t += 0.1
 
 
-t = 0
-
-
-def animate():
-    global t
-    for winch in winches:
-        winch.Placement = Placement(winch.Placement.Base, Rotation(1.1 * t, 0, 0))
-    t += 0.1
-
-
-timer = QtCore.QTimer()
-timer.timeout.connect(animate)
-# timer.start(5)
+Assembly()
 
 
 # Code bellow if for preventing confirmation dialog on close
