@@ -288,7 +288,8 @@ def makeServoToJointBracket():
 
 class Assembly:
     def __init__(self) -> None:
-        self.t = 0
+        self.servo_angles = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.speed = 0.1
         self.make_everything()
 
         doc.recompute()
@@ -443,9 +444,10 @@ class Assembly:
             pulley_count -= 1
 
     def animate(self):
-        for winch in self.winches:
-            winch.Placement = Placement(winch.Placement.Base, Rotation(1.1 * self.t, 0, 0))
-        self.t += 0.1
+        for i in range(NUMBER_OF_MOTORS):
+            self.servo_angles[i] += self.speed
+            winch = self.winches[i]
+            winch.Placement = Placement(winch.Placement.Base, Rotation(self.servo_angles[i], 0, 0))
 
 
 Assembly()
