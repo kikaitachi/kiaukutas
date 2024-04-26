@@ -408,42 +408,59 @@ class Assembly:
             (JOINT_PULLEY_SPACING - PULLEY_HEIGHT) / 2
         )
         joint_shaft = make_joint_shaft()
+        angle = -45
         for i in range(len(SEGMENTS)):
             segment = SEGMENTS[i]
 
-            def make_part(shape, placement: Placement) -> DocumentObject:
+            def make_part(
+                        shape,
+                        relative_placement: Placement = Placement(
+                            Vector(0, 0, 0),
+                            Rotation(0, 0, 0),
+                        )
+                    ) -> DocumentObject:
                 global doc
-                nonlocal segment
+                nonlocal placement, segment
                 object = doc.addObject("Part::Feature")
                 object.Shape = shape
-                object.Placement = placement
-                segment.parts.append(RobotPart(object, placement))
+                object.Placement = placement.multiply(relative_placement)
+                segment.parts.append(RobotPart(object, relative_placement))
                 return object
 
-            object = make_part(joint_shaft, placement)
+            object = make_part(joint_shaft)
             object.Label = f"Joint shaft {i}a"
             object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
 
             for j in range(pulley_count):
                 object = make_part(
                     pulley,
-                    placement.multiply(
-                        Placement(
-                            Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING),
-                            Rotation(0, 0, 0),
-                        )
+                    Placement(
+                        Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING),
+                        Rotation(0, 0, 0),
                     )
                 )
                 object.Label = f"Pulley {i}a{j}"
 
             placement = placement.multiply(
                 Placement(
+                    Vector(0, 0, 0),
+                    Rotation(angle / 2, 0, 0),
+                )
+            )
+            placement = placement.multiply(
+                Placement(
                     Vector(SEGMENT_THICKNESS, 0, 0),
                     Rotation(0, 0, 0),
                 )
             )
+            placement = placement.multiply(
+                Placement(
+                    Vector(0, 0, 0),
+                    Rotation(angle / 2, 0, 0),
+                )
+            )
 
-            object = make_part(joint_shaft, placement)
+            object = make_part(joint_shaft)
             object.Label = f"Joint shaft {i}b"
             object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
 
@@ -458,12 +475,6 @@ class Assembly:
                 object.Label = f"Pulley {i}b{j}"
 
             placement = placement.multiply(segment.placement)
-            placement = placement.multiply(
-                Placement(
-                    Vector(0, 0, 0),
-                    Rotation(-45, 0, 0),
-                )
-            )
 
             pulley_count -= 1
 
