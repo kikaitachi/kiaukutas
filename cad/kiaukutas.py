@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from FreeCAD import newDocument, Placement, Rotation, Vector
+from dataclasses import dataclass, field
+from FreeCAD import DocumentObject, newDocument, Placement, Rotation, Vector
 from PySide2 import QtCore
 from freecad.gears.commands import CreateInvoluteGear
 from typing import Optional
@@ -10,8 +10,25 @@ import math
 
 
 @dataclass
-class Segment:
+class RobotPart:
+    """Robot part."""
+
+    object: DocumentObject
+    """FreeCAD object."""
+
     placement: Placement
+    """Relative placement."""
+
+
+@dataclass
+class Segment:
+    """Segment of the robot arm."""
+
+    placement: Placement
+    """Relative placement of the next segment."""
+
+    parts: list[RobotPart] = field(default_factory=list)
+    """Parts of the segment."""
 
 
 SEGMENTS = [
@@ -290,6 +307,7 @@ class Assembly:
     def __init__(self) -> None:
         self.servo_angles = [0, 0, 0, 0, 0, 0, 0, 0]
         self.speed = 0.1
+
         self.make_everything()
 
         doc.recompute()
@@ -389,25 +407,34 @@ class Assembly:
             (JOINT_SHAFT_LENGTH - JOINT_SHAFT_PULLEY_AREA_LENGTH) / 2 +
             (JOINT_PULLEY_SPACING - PULLEY_HEIGHT) / 2
         )
+        joint_shaft = make_joint_shaft()
         for i in range(len(SEGMENTS)):
             segment = SEGMENTS[i]
 
-            object = doc.addObject("Part::Feature")
+            def make_part(shape, placement: Placement) -> DocumentObject:
+                global doc
+                nonlocal segment
+                object = doc.addObject("Part::Feature")
+                object.Shape = shape
+                object.Placement = placement
+                segment.parts.append(RobotPart(object, placement))
+                return object
+
+            object = make_part(joint_shaft, placement)
             object.Label = f"Joint shaft {i}a"
-            object.Shape = make_joint_shaft()
-            object.Placement = placement
             object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
 
             for j in range(pulley_count):
-                object = doc.addObject("Part::Feature")
-                object.Label = f"Pulley {i}a{j}"
-                object.Shape = pulley
-                object.Placement = placement.multiply(
-                    Placement(
-                        Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING),
-                        Rotation(0, 0, 0),
+                object = make_part(
+                    pulley,
+                    placement.multiply(
+                        Placement(
+                            Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING),
+                            Rotation(0, 0, 0),
+                        )
                     )
                 )
+                object.Label = f"Pulley {i}a{j}"
 
             placement = placement.multiply(
                 Placement(
@@ -416,22 +443,19 @@ class Assembly:
                 )
             )
 
-            object = doc.addObject("Part::Feature")
+            object = make_part(joint_shaft, placement)
             object.Label = f"Joint shaft {i}b"
-            object.Shape = make_joint_shaft()
-            object.Placement = placement
             object.ViewObject.ShapeColor = JOINT_SHAFT_COLOR
 
             for j in range(pulley_count):
-                object = doc.addObject("Part::Feature")
-                object.Label = f"Pulley {i}b{j}"
-                object.Shape = pulley
-                object.Placement = placement.multiply(
+                object = make_part(
+                    pulley,
                     Placement(
                         Vector(0, 0, pulley_start + j * JOINT_PULLEY_SPACING),
                         Rotation(0, 0, 0),
                     )
                 )
+                object.Label = f"Pulley {i}b{j}"
 
             placement = placement.multiply(segment.placement)
             placement = placement.multiply(
@@ -448,6 +472,12 @@ class Assembly:
             self.servo_angles[i] += self.speed
             winch = self.winches[i]
             winch.Placement = Placement(winch.Placement.Base, Rotation(self.servo_angles[i], 0, 0))
+        for segment in SEGMENTS:
+            for part in segment.parts:
+                # part.object.Placement = part.object.Placement.multiply(
+                #     Placement(Vector(0, 0, 0), Rotation(self.speed, 0, 0))
+                # )
+                pass
 
 
 Assembly()
