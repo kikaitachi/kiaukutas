@@ -13,6 +13,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install g++ cmake ninja-build libasound2-dev
+          sudo snap install freecad
       - name: Build
         run: |
           ./build.sh
