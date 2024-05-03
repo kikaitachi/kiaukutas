@@ -7,6 +7,7 @@ import FreeCAD
 import FreeCADGui
 import Part
 import math
+import sys
 
 
 @dataclass
@@ -491,18 +492,25 @@ class Assembly:
                 pass
 
 
-Assembly()
+# Assembly()
 
 
-# Code bellow if for preventing confirmation dialog on close
-class MainWindowFilter(QtCore.QObject):
-    def eventFilter(self, obj, ev):
-        if ev.type() == QtCore.QEvent.Close:
-            for i in FreeCAD.listDocuments():
-                FreeCAD.closeDocument(i)
-        return False
+# # Code bellow if for preventing confirmation dialog on close
+# class MainWindowFilter(QtCore.QObject):
+#     def eventFilter(self, obj, ev):
+#         if ev.type() == QtCore.QEvent.Close:
+#             for i in FreeCAD.listDocuments():
+#                 FreeCAD.closeDocument(i)
+#         return False
 
 
-filter = MainWindowFilter()
-mw = FreeCADGui.getMainWindow()
-mw.installEventFilter(filter)
+# filter = MainWindowFilter()
+# mw = FreeCADGui.getMainWindow()
+# mw.installEventFilter(filter)
+
+dir = sys.argv[3]
+
+make_pulley().exportStl(f"{dir}/pulley.stl")
+make_pulley().exportStep(f"{dir}/pulley.step")
+
+exit()

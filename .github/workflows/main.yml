@@ -6,14 +6,13 @@ on:
     branches: [ main ]
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install g++ cmake ninja-build libasound2-dev
-          sudo snap install freecad
+          sudo apt-get install g++ cmake ninja-build libasound2-dev freecad
       - name: Build
         run: |
           ./build.sh
