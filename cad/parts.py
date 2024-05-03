@@ -3,7 +3,7 @@ from FreeCAD import DocumentObject, newDocument, Placement, Rotation, Vector
 from PySide2 import QtCore
 from freecad.gears.commands import CreateInvoluteGear
 from typing import Optional
-import FreeCAD
+import xml.etree.ElementTree as ET
 import FreeCADGui
 import Part
 import math
@@ -513,4 +513,12 @@ dir = sys.argv[3]
 make_pulley().exportStl(f"{dir}/pulley.stl")
 make_pulley().exportStep(f"{dir}/pulley.step")
 
-exit()
+root = ET.Element("robot", {"name": "kiaukutas"})
+base = ET.SubElement(root, "link", {"name": "base"})
+for i in range(6):
+    ET.SubElement(root, "link", {"name": f"segment{i}"})
+
+tree = ET.ElementTree(root)
+tree.write("../robot.urdf")
+
+exit(0)
