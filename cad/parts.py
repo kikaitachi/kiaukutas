@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from FreeCAD import DocumentObject, newDocument, Placement, Rotation, Vector
 from PySide2 import QtCore
-from freecad.gears.commands import CreateInvoluteGear
+# from freecad.gears.commands import CreateInvoluteGear
 from typing import Optional
 import xml.etree.ElementTree as ET
 import FreeCADGui
@@ -492,22 +492,6 @@ class Assembly:
                 pass
 
 
-# Assembly()
-
-
-# # Code bellow if for preventing confirmation dialog on close
-# class MainWindowFilter(QtCore.QObject):
-#     def eventFilter(self, obj, ev):
-#         if ev.type() == QtCore.QEvent.Close:
-#             for i in FreeCAD.listDocuments():
-#                 FreeCAD.closeDocument(i)
-#         return False
-
-
-# filter = MainWindowFilter()
-# mw = FreeCADGui.getMainWindow()
-# mw.installEventFilter(filter)
-
 dir = sys.argv[3]
 
 make_pulley().exportStl(f"{dir}/pulley.stl")
@@ -517,6 +501,10 @@ root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
 for i in range(6):
     ET.SubElement(root, "link", {"name": f"segment{i}"})
+for i in range(6):
+    joint = ET.SubElement(root, "joint", {"name": f"joint{i}", type: "revolute"})
+    ET.SubElement(joint, "parent", {"link": "base" if i == 0 else f"segment{i - 1}"})
+    ET.SubElement(joint, "child", {"link": f"segment{i}"})
 
 tree = ET.ElementTree(root)
 tree.write("../robot.urdf")
