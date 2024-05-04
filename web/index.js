@@ -38,24 +38,37 @@ ground.scale.setScalar(30);
 ground.receiveShadow = true;
 scene.add(ground);
 
-loader.loadMeshCb = (path, manager, onComplete) => {
-    /*const parts = path.split("/");
-    console.log(`loading mesh: ${parts[parts.length - 1]}`);
-    const blob = reader.getFileBlob(`./${parts[parts.length - 1]}`);
-    const url = URL.createObjectURL(blob);*/
-    new STLLoader(manager).load(
-      path,
-      result => {
-          const material = new THREE.MeshPhongMaterial();
-          const mesh = new THREE.Mesh(result, material);
-          onComplete(mesh);
-      }
-    );
-  };
+const meshes = [];
 
-  loader.load(
-    "robot.urdf",
-    robot => {
-      scene.add(robot);
+loader.loadMeshCb = (path, manager, onComplete) => {
+  new STLLoader(manager).load(
+    path,
+    result => {
+        const material = new THREE.MeshPhongMaterial();
+        const mesh = new THREE.Mesh(result, material);
+        meshes.push(mesh);
+        onComplete(mesh);
     }
   );
+};
+
+loader.load(
+  "robot.urdf",
+  robot => {
+    scene.add(robot);
+  }
+);
+
+document.addEventListener("mousedown", (event) => {
+  event.preventDefault();
+  const mouse3D = new THREE.Vector3(
+    (event.clientX / window.innerWidth) * 2 - 1,
+    -(event.clientY / window.innerHeight) * 2 + 1,
+    0.5);
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse3D, camera);
+  const intersects = raycaster.intersectObjects(meshes);
+  if (intersects.length > 0) {
+    intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
+  }
+});
