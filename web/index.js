@@ -1,4 +1,3 @@
-import { TarReader } from 'https://esm.sh/@gera2ld/tarjs@0.3.1';
 import * as THREE from "https://esm.sh/three@0.164.1";
 import { OrbitControls } from 'https://esm.sh/three@0.164.1/addons/controls/OrbitControls.js';
 import { STLLoader } from 'https://esm.sh/three@0.164.1/addons/loaders/STLLoader.js';
@@ -39,41 +38,24 @@ ground.scale.setScalar(30);
 ground.receiveShadow = true;
 scene.add(ground);
 
-const response = await fetch("resources.tar.gz");
-const ds = new DecompressionStream("gzip");
-const decompressedStream = response.body.pipeThrough(ds);
-const chunks = [];
-for await (const chunk of decompressedStream) {
-  chunks.push(chunk);
-}
-const blob = new Blob(chunks);
-const buffer = await blob.arrayBuffer();
-TarReader.load(buffer)
-  .then(reader => {
-    loader.loadMeshCb = (path, manager, onComplete) => {
-      const parts = path.split("/");
-      console.log(`loading mesh: ${parts[parts.length - 1]}`);
-      const blob = reader.getFileBlob(`./${parts[parts.length - 1]}`);
-      const url = URL.createObjectURL(blob);
-      new STLLoader(manager).load(
-        url,
-        result => {
-            const material = new THREE.MeshPhongMaterial();
-            const mesh = new THREE.Mesh(result, material);
-            onComplete(mesh);
-        }
-      );
-    };
-    for (let i = 0; i < reader.fileInfos.length; i++) {
-      const fileName = reader.fileInfos[i].name;
-      console.log(`file ${i}: ${fileName}`);
-      if (reader.fileInfos[i].name.endsWith(".urdf")) {
-        loader.load(
-          URL.createObjectURL(reader.getFileBlob(fileName, "application/xml")),
-          robot => {
-            scene.add(robot);
-          }
-        );
+loader.loadMeshCb = (path, manager, onComplete) => {
+    /*const parts = path.split("/");
+    console.log(`loading mesh: ${parts[parts.length - 1]}`);
+    const blob = reader.getFileBlob(`./${parts[parts.length - 1]}`);
+    const url = URL.createObjectURL(blob);*/
+    new STLLoader(manager).load(
+      path,
+      result => {
+          const material = new THREE.MeshPhongMaterial();
+          const mesh = new THREE.Mesh(result, material);
+          onComplete(mesh);
       }
+    );
+  };
+
+  loader.load(
+    "robot.urdf",
+    robot => {
+      scene.add(robot);
     }
-  });
+  );

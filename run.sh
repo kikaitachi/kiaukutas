@@ -1,5 +1,9 @@
 #!/bin/bash
 
+(cd dist &&  python3 -m http.server)
+
+exit 0
+
 if [ -f "build/bin/kiaukutas" ]; then
   build/bin/kiaukutas "$@"
 elif [ -f "build/kiaukutas" ]; then

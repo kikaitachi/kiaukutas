@@ -500,13 +500,17 @@ make_pulley().exportStep(f"{dir}/pulley.step")
 root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
 for i in range(6):
-    ET.SubElement(root, "link", {"name": f"segment{i}"})
+    link = ET.SubElement(root, "link", {"name": f"segment{i}"})
+    visual = ET.SubElement(link, "visual")
+    origin = ET.SubElement(visual, "origin", {"xyz": f"0 0 {i * 5}", "rpy": "0 0 0"})
+    geometry = ET.SubElement(visual, "geometry")
+    mesh = ET.SubElement(geometry, "mesh", {"filename": "pulley.stl"})
 for i in range(6):
     joint = ET.SubElement(root, "joint", {"name": f"joint{i}", type: "revolute"})
     ET.SubElement(joint, "parent", {"link": "base" if i == 0 else f"segment{i - 1}"})
     ET.SubElement(joint, "child", {"link": f"segment{i}"})
 
 tree = ET.ElementTree(root)
-tree.write("../robot.urdf")
+tree.write(f"{dir}/robot.urdf")
 
 exit(0)

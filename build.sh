@@ -9,10 +9,7 @@ fi
 
 cmake --build "${build_dir}"
 
-web_build_dir=$(mktemp -d)
+rm -rf dist
+cp -r web dist
 
-( cd cad && freecad -c parts.py "${web_build_dir}" )
-
-tar czf docs/resources.tar.gz robot.urdf -C "${web_build_dir}" .
-
-rm -rf "${web_build_dir}" robot.urdf
+( cd cad && freecad -c parts.py "../dist" )
