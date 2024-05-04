@@ -495,11 +495,21 @@ class Assembly:
 dir = sys.argv[3]
 
 Part.read("XM430-W350-T.stp").exportStl(f"{dir}/XM430-W350-T.stl")
-make_pulley().exportStl(f"{dir}/shaft-pulley.stl")
-make_pulley().exportStep(f"{dir}/shaft-pulley.stp")
+pulley = make_pulley()
+pulley.exportStl(f"{dir}/shaft-pulley.stl")
+pulley.exportStep(f"{dir}/shaft-pulley.stp")
+shaft = make_joint_shaft()
+shaft.exportStl(f"{dir}/shaft.stl")
+shaft.exportStep(f"{dir}/shaft.stp")
 
 root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
+
+visual = ET.SubElement(base, "visual")
+origin = ET.SubElement(visual, "origin", {"xyz": "0 0 0", "rpy": "0 0 0"})
+geometry = ET.SubElement(visual, "geometry")
+mesh = ET.SubElement(geometry, "mesh", {"filename": "shaft.stl"})
+
 for i in range(NUMBER_OF_MOTORS):
     visual = ET.SubElement(base, "visual")
     origin = ET.SubElement(visual, "origin", {"xyz": f"{i * 30} 0 0", "rpy": "0 0 0"})
