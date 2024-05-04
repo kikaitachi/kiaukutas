@@ -494,17 +494,23 @@ class Assembly:
 
 dir = sys.argv[3]
 
-make_pulley().exportStl(f"{dir}/pulley.stl")
-make_pulley().exportStep(f"{dir}/pulley.step")
+Part.read("XM430-W350-T.stp").exportStl(f"{dir}/XM430-W350-T.stl")
+make_pulley().exportStl(f"{dir}/shaft-pulley.stl")
+make_pulley().exportStep(f"{dir}/shaft-pulley.stp")
 
 root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
+for i in range(NUMBER_OF_MOTORS):
+    visual = ET.SubElement(base, "visual")
+    origin = ET.SubElement(visual, "origin", {"xyz": f"{i * 30} 0 0", "rpy": "0 0 0"})
+    geometry = ET.SubElement(visual, "geometry")
+    mesh = ET.SubElement(geometry, "mesh", {"filename": "XM430-W350-T.stl"})
 for i in range(6):
     link = ET.SubElement(root, "link", {"name": f"segment{i}"})
     visual = ET.SubElement(link, "visual")
     origin = ET.SubElement(visual, "origin", {"xyz": f"0 0 {i * 5}", "rpy": "0 0 0"})
     geometry = ET.SubElement(visual, "geometry")
-    mesh = ET.SubElement(geometry, "mesh", {"filename": "pulley.stl"})
+    mesh = ET.SubElement(geometry, "mesh", {"filename": "shaft-pulley.stl"})
 for i in range(6):
     joint = ET.SubElement(root, "joint", {"name": f"joint{i}", type: "revolute"})
     ET.SubElement(joint, "parent", {"link": "base" if i == 0 else f"segment{i - 1}"})
