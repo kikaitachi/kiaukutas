@@ -32,34 +32,38 @@ class Segment:
     """Parts of the segment."""
 
 
+JOINT_SHAFT_LENGTH = 100
+SHAFT_TO_PLATE = 10
+
+
 SEGMENTS = [
     Segment(
         Placement(
-            Vector(-110, 0, 110),
+            Vector(-(JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE), 0, JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE),
             Rotation(Vector(0, -1, 0), -90),
         )
     ),
     Segment(
         Placement(
-            Vector(-110, 0, 0),
+            Vector(-(JOINT_SHAFT_LENGTH + 2 * SHAFT_TO_PLATE), 0, 0),
             Rotation(Vector(0, 1, 0), 0),
         )
     ),
     Segment(
         Placement(
-            Vector(-110, 0, 0),
+            Vector(-(JOINT_SHAFT_LENGTH + 2 * SHAFT_TO_PLATE), 0, 0),
             Rotation(Vector(0, 1, 0), 0),
         )
     ),
     Segment(
         Placement(
-            Vector(-110, 0, 110),
+            Vector(-(JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE), 0, JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE),
             Rotation(Vector(0, 1, 0), 90),
         )
     ),
     Segment(
         Placement(
-            Vector(-10, 0, -10),
+            Vector(-SHAFT_TO_PLATE, 0, -SHAFT_TO_PLATE),
             Rotation(Vector(0, 1, 0), -90),
         )
     ),
@@ -87,7 +91,6 @@ MOTOR_SPACING = 30
 
 SEGMENT_THICKNESS = 16
 
-JOINT_SHAFT_LENGTH = 100
 JOINT_SHAFT_OD = 5
 JOINT_SHAFT_ID = 4
 JOINT_SHAFT_COLOR = (0.5, 0.0, 0.0, 0.0)
@@ -171,6 +174,12 @@ def make_joint_shaft():
     ).cut(Part.makeCylinder(
         JOINT_SHAFT_ID / 2, JOINT_SHAFT_LENGTH, Vector(0, 0, 0), Vector(0, 0, 1)
     )).removeSplitter()
+
+
+def make_segment_plate():
+    return Part.makeBox(
+        JOINT_SHAFT_LENGTH, 3, JOINT_SHAFT_LENGTH
+    )
 
 
 def makeTendonOnPulley():
@@ -527,6 +536,9 @@ pulley.exportStep(f"{dir}/shaft-pulley.stp")
 shaft = make_joint_shaft()
 shaft.exportStl(f"{dir}/shaft.stl")
 shaft.exportStep(f"{dir}/shaft.stp")
+segment_plate = make_segment_plate()
+segment_plate.exportStl(f"{dir}/segment-plate.stl")
+segment_plate.exportStep(f"{dir}/segment-plate.stp")
 
 root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
@@ -548,6 +560,15 @@ for i in range(len(SEGMENTS)):
     link = ET.SubElement(root, "link", {"name": f"segment{i * 2}"})
     add_visual(link, "shaft", placement=placement)
     add_shaft_pulleys(link, 14 - i, placement)
+    add_visual(
+        link,
+        "segment-plate", placement=placement.multiply(
+            Placement(
+                Vector(-JOINT_SHAFT_LENGTH - 10, 0, 0),
+                Rotation(0, 0, 0),
+            )
+        )
+    )
     placement = placement.multiply(segment.placement)
     link = ET.SubElement(root, "link", {"name": f"segment{i * 2 + 1}"})
     if i != len(SEGMENTS) - 1:
