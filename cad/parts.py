@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
 from FreeCAD import DocumentObject, newDocument, Placement, Rotation, Vector
 from PySide2 import QtCore
+from math import acos, cos, degrees, pi, sin, sqrt
 # from freecad.gears.commands import CreateInvoluteGear
 from typing import Optional
 import xml.etree.ElementTree as ET
 import FreeCADGui
 import Part
-import math
 import sys
 
 
@@ -72,7 +72,7 @@ SEGMENTS = [
 ]
 
 EXTRA_PULLEYS_PER_JOINT = 3
-NUMBER_OF_MOTORS = 8
+NUMBER_OF_MOTORS = 2
 TENDON_RADIUS = 1 / 2
 
 PULLEY_RADIUS = 10 / 2
@@ -512,7 +512,7 @@ mesh = ET.SubElement(geometry, "mesh", {"filename": "shaft.stl"})
 
 for i in range(NUMBER_OF_MOTORS):
     visual = ET.SubElement(base, "visual")
-    origin = ET.SubElement(visual, "origin", {"xyz": f"{i * 30} 0 0", "rpy": "0 0 0"})
+    origin = ET.SubElement(visual, "origin", {"xyz": f"{i * 30 + 30} 0 0", "rpy": f"{pi / 2} {pi} 0"})
     geometry = ET.SubElement(visual, "geometry")
     mesh = ET.SubElement(geometry, "mesh", {"filename": "XM430-W350-T.stl"})
 for i in range(6):

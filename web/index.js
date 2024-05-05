@@ -1,32 +1,40 @@
 import * as THREE from "https://esm.sh/three@0.164.1";
-import { OrbitControls } from 'https://esm.sh/three@0.164.1/addons/controls/OrbitControls.js';
+import { TrackballControls } from 'https://esm.sh/three@0.164.1/addons/controls/TrackballControls.js';
 import { STLLoader } from 'https://esm.sh/three@0.164.1/addons/loaders/STLLoader.js';
 import URDFLoader from "https://esm.sh/urdf-loader@0.12.1";
 
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x263238);
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
 });
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-new OrbitControls(camera, renderer.domElement);
+const controls = new TrackballControls(camera, renderer.domElement);
+controls.rotateSpeed = 2.0;
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
-directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.setScalar(1024);
-directionalLight.position.set(5, 30, 5);
-scene.add(directionalLight);
+const backLight = new THREE.DirectionalLight(0xffffff, 1.0);
+backLight.position.set(0, 1000, 0);
+scene.add(backLight);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+const frontLight = new THREE.DirectionalLight(0xffffff, 1.0);
+frontLight.position.set(0, -1000, 0);
+scene.add(frontLight);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
 
 camera.position.z = 400;
 
 function animate() {
 	requestAnimationFrame(animate);
+  controls.update();
 	renderer.render(scene, camera);
 }
 animate();
@@ -39,20 +47,40 @@ const ground = new THREE.Mesh(
   new THREE.MeshPhysicalMaterial({
     opacity: 0.5,
     transparent: true,
+    side: THREE.DoubleSide,
   })
 );
 scene.add(ground);
 
 const meshes = [];
 
+const get_part_material = (part) => {
+  if (part.endsWith("shaft.stl")) {
+    console.log("shaft");
+    return new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0,
+    });
+  }
+  if (part.endsWith("XM430-W350-T.stl")) {
+    console.log("dynamixel");
+    return new THREE.MeshBasicMaterial({
+      color: 0x100000,
+    });
+  }
+  return new THREE.MeshPhongMaterial();
+};
+
 loader.loadMeshCb = (path, manager, onComplete) => {
+  console.log(`Loading: ${path}`);
   new STLLoader(manager).load(
     path,
     result => {
-        const material = new THREE.MeshPhongMaterial();
-        const mesh = new THREE.Mesh(result, material);
+        console.log(`Loaded: ${path}`);
+        const mesh = new THREE.Mesh(result, new THREE.MeshPhongMaterial());
         meshes.push(mesh);
         onComplete(mesh);
+        //mesh.material = get_part_material(path);
     }
   );
 };
@@ -74,6 +102,6 @@ document.addEventListener("mousedown", (event) => {
   raycaster.setFromCamera(mouse3D, camera);
   const intersects = raycaster.intersectObjects(meshes);
   if (intersects.length > 0) {
-    intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
+    //intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
   }
 });
