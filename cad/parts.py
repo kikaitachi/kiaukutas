@@ -514,7 +514,7 @@ root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
 
 for i in range(NUMBER_OF_MOTORS):
-    add_visual(base, "XM430-W350-T", f"{i * 30 + 30} 0 0", f"{pi / 2} {pi} 0", "0.05 0.05 0.05 1")
+    add_visual(base, "XM430-W350-T", f"{i * 30 + 40} 0 0", f"{pi / 2} {pi} 0", "0.05 0.05 0.05 1")
 
 placement = Placement(Vector(0, 0, 10), Rotation(0, 0, 0))
 add_visual(base, "shaft", placement=placement)
@@ -528,6 +528,17 @@ for i in range(len(SEGMENTS)):
     )
     link = ET.SubElement(root, "link", {"name": f"segment{i * 2}"})
     add_visual(link, "shaft", placement=placement)
+    for j in range(14 - i):
+        add_visual(
+            link,
+            "shaft-pulley",
+            placement=placement.multiply(
+                Placement(
+                    Vector(0, 0, 100 - j * 6 - 8 - PULLEY_HEIGHT),
+                    Rotation(0, 0, 0),
+                )
+            )
+        )
     placement = placement.multiply(segment.placement)
     link = ET.SubElement(root, "link", {"name": f"segment{i * 2 + 1}"})
     if i != len(SEGMENTS) - 1:
