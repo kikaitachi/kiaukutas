@@ -515,6 +515,9 @@ for i in range(NUMBER_OF_MOTORS):
     origin = ET.SubElement(visual, "origin", {"xyz": f"{i * 30 + 30} 0 0", "rpy": f"{pi / 2} {pi} 0"})
     geometry = ET.SubElement(visual, "geometry")
     mesh = ET.SubElement(geometry, "mesh", {"filename": "XM430-W350-T.stl"})
+    material = ET.SubElement(visual, "material", {"name": ""})
+    color = ET.SubElement(material, "color", {"rgba": "0.05 0.05 0.05 1"})
+
 for i in range(6):
     link = ET.SubElement(root, "link", {"name": f"segment{i}"})
     visual = ET.SubElement(link, "visual")
