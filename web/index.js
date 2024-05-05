@@ -103,11 +103,16 @@ loader.load(
   "robot.urdf",
   robot => {
     scene.add(robot);
+    for (let i = 0; i < 12; i++) {
+      robot.setJointValue(`joint${i}`, 0);
+    }
   }
 );
 
 const animate = () => {
-	requestAnimationFrame(animate);
+  setTimeout(() => {
+    requestAnimationFrame(animate);
+  }, 1000 / 24);
   controls.update();
 	renderer.render(scene, camera);
 }

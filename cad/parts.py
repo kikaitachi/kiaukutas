@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from FreeCAD import DocumentObject, newDocument, Placement, Rotation, Vector
 from PySide2 import QtCore
-from math import acos, cos, degrees, pi, sin, sqrt
+from math import acos, cos, degrees, pi, radians, sin, sqrt
 # from freecad.gears.commands import CreateInvoluteGear
 from typing import Optional
 import xml.etree.ElementTree as ET
@@ -35,25 +35,25 @@ class Segment:
 SEGMENTS = [
     Segment(
         Placement(
-            Vector(110, 0, 110),
-            Rotation(Vector(0, -1, 0), 90),
+            Vector(-110, 0, 110),
+            Rotation(Vector(0, -1, 0), -90),
         )
     ),
     Segment(
         Placement(
-            Vector(110, 0, 0),
+            Vector(-110, 0, 0),
             Rotation(Vector(0, 1, 0), 0),
         )
     ),
     Segment(
         Placement(
-            Vector(110, 0, 0),
+            Vector(-110, 0, 0),
             Rotation(Vector(0, 1, 0), 0),
         )
     ),
     Segment(
         Placement(
-            Vector(110, 0, 110),
+            Vector(-110, 0, 110),
             Rotation(Vector(0, 1, 0), -90),
         )
     ),
@@ -479,18 +479,6 @@ class Assembly:
 
             pulley_count -= 1
 
-    def animate(self):
-        for i in range(NUMBER_OF_MOTORS):
-            self.servo_angles[i] += self.speed
-            winch = self.winches[i]
-            winch.Placement = Placement(winch.Placement.Base, Rotation(self.servo_angles[i], 0, 0))
-        for segment in SEGMENTS:
-            for part in segment.parts:
-                # part.object.Placement = part.object.Placement.multiply(
-                #     Placement(Vector(0, 0, 0), Rotation(self.speed, 0, 0))
-                # )
-                pass
-
 
 dir = sys.argv[3]
 
@@ -500,7 +488,12 @@ def add_visual(
         stl: str,
         xyz: str = "0 0 0",
         rpy: str = "0 0 0",
-        rgba: str = "1 1 1 1"):
+        rgba: str = "1 1 1 1",
+        placement: Optional[Placement] = None
+):
+    if placement is not None:
+        xyz = " ".join(str(x) for x in placement.Base)
+        rpy = " ".join(str(radians(x)) for x in placement.Rotation.toEuler())
     visual = ET.SubElement(link, "visual")
     ET.SubElement(visual, "origin", {"xyz": xyz, "rpy": rpy})
     geometry = ET.SubElement(visual, "geometry")
@@ -520,19 +513,30 @@ shaft.exportStep(f"{dir}/shaft.stp")
 root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
 
-add_visual(base, "shaft")
-
 for i in range(NUMBER_OF_MOTORS):
     add_visual(base, "XM430-W350-T", f"{i * 30 + 30} 0 0", f"{pi / 2} {pi} 0", "0.05 0.05 0.05 1")
 
+placement = Placement(Vector(0, 0, 10), Rotation(0, 0, 0))
+add_visual(base, "shaft", placement=placement)
 for i in range(len(SEGMENTS)):
     segment = SEGMENTS[i]
-    link = ET.SubElement(root, "link", {"name": f"segment{i}"})
-    visual = ET.SubElement(link, "visual")
-    origin = ET.SubElement(visual, "origin", {"xyz": f"0 0 {i * 5}", "rpy": "0 0 0"})
-    geometry = ET.SubElement(visual, "geometry")
-    mesh = ET.SubElement(geometry, "mesh", {"filename": "shaft-pulley.stl"})
-for i in range(6):
+    placement = placement.multiply(
+        Placement(
+            Vector(-SEGMENT_THICKNESS, 0, 0),
+            Rotation(0, 0, 0),
+        )
+    )
+    link = ET.SubElement(root, "link", {"name": f"segment{i * 2}"})
+    add_visual(link, "shaft", placement=placement)
+    placement = placement.multiply(segment.placement)
+    link = ET.SubElement(root, "link", {"name": f"segment{i * 2 + 1}"})
+    if i != len(SEGMENTS) - 1:
+        add_visual(link, "shaft", placement=placement)
+    # visual = ET.SubElement(link, "visual")
+    # origin = ET.SubElement(visual, "origin", {"xyz": f"0 0 {i * 5}", "rpy": "0 0 0"})
+    # geometry = ET.SubElement(visual, "geometry")
+    # mesh = ET.SubElement(geometry, "mesh", {"filename": "shaft-pulley.stl"})
+for i in range(12):
     joint = ET.SubElement(root, "joint", {"name": f"joint{i}", type: "revolute"})
     ET.SubElement(joint, "parent", {"link": "base" if i == 0 else f"segment{i - 1}"})
     ET.SubElement(joint, "child", {"link": f"segment{i}"})
