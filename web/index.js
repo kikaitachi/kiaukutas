@@ -5,7 +5,10 @@ import URDFLoader from "https://esm.sh/urdf-loader@0.12.1";
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x263238);
+
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+camera.position.z = 100;
+camera.position.y = -400;
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
@@ -29,15 +32,6 @@ scene.add(frontLight);
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
-
-camera.position.z = 400;
-
-function animate() {
-	requestAnimationFrame(animate);
-  controls.update();
-	renderer.render(scene, camera);
-}
-animate();
 
 const manager = new THREE.LoadingManager();
 const loader = new URDFLoader(manager);
@@ -80,7 +74,7 @@ loader.loadMeshCb = (path, manager, onComplete) => {
       const mesh = new THREE.Mesh(stl.geometry, new THREE.MeshPhongMaterial());
       meshes.push(mesh);
       onComplete(mesh);
-      console.log(`${path} already loaded`);
+      console.log(`${path} is already loaded`);
     } else {
       stl.onLoadCallbacks.push(onComplete);
       console.log(`${path} is being loaded`);
@@ -94,7 +88,7 @@ loader.loadMeshCb = (path, manager, onComplete) => {
     new STLLoader(manager).load(
       path,
       result => {
-          console.log(`${path} was loaded, there are ${stl.onLoadCallbacks.length} callbacks`);
+          console.log(`${path} loaded, there are ${stl.onLoadCallbacks.length} callbacks`);
           for (const callback of stl.onLoadCallbacks) {
             const mesh = new THREE.Mesh(result, new THREE.MeshPhongMaterial());
             meshes.push(mesh);
@@ -111,6 +105,13 @@ loader.load(
     scene.add(robot);
   }
 );
+
+const animate = () => {
+	requestAnimationFrame(animate);
+  controls.update();
+	renderer.render(scene, camera);
+}
+animate();
 
 document.addEventListener("mousedown", (event) => {
   event.preventDefault();
