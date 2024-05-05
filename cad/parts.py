@@ -54,13 +54,13 @@ SEGMENTS = [
     Segment(
         Placement(
             Vector(-110, 0, 110),
-            Rotation(Vector(0, 1, 0), -90),
+            Rotation(Vector(0, 1, 0), 90),
         )
     ),
     Segment(
         Placement(
-            Vector(10, 0, -10),
-            Rotation(Vector(0, 1, 0), 90),
+            Vector(-10, 0, -10),
+            Rotation(Vector(0, 1, 0), -90),
         )
     ),
     Segment(
