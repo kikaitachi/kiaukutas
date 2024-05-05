@@ -71,18 +71,38 @@ const get_part_material = (part) => {
   return new THREE.MeshPhongMaterial();
 };
 
+const stls = new Map();
+
 loader.loadMeshCb = (path, manager, onComplete) => {
-  console.log(`Loading: ${path}`);
-  new STLLoader(manager).load(
-    path,
-    result => {
-        console.log(`Loaded: ${path}`);
-        const mesh = new THREE.Mesh(result, new THREE.MeshPhongMaterial());
-        meshes.push(mesh);
-        onComplete(mesh);
-        //mesh.material = get_part_material(path);
+  if (stls.has(path)) {
+    const stl = stls.get(path);
+    if (stl.geometry != null) {
+      const mesh = new THREE.Mesh(stl.geometry, new THREE.MeshPhongMaterial());
+      meshes.push(mesh);
+      onComplete(mesh);
+      console.log(`${path} already loaded`);
+    } else {
+      stl.onLoadCallbacks.push(onComplete);
+      console.log(`${path} is being loaded`);
     }
-  );
+  } else {
+    const stl = {
+      geometry: null,
+      onLoadCallbacks: [onComplete],
+    };
+    stls.set(path, stl);
+    new STLLoader(manager).load(
+      path,
+      result => {
+          console.log(`${path} was loaded, there are ${stl.onLoadCallbacks.length} callbacks`);
+          for (const callback of stl.onLoadCallbacks) {
+            const mesh = new THREE.Mesh(result, new THREE.MeshPhongMaterial());
+            meshes.push(mesh);
+            callback(mesh);
+          }
+      }
+    );
+  }
 };
 
 loader.load(
