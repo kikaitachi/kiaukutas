@@ -4,7 +4,7 @@ import { STLLoader } from 'https://esm.sh/three@0.164.1/addons/loaders/STLLoader
 import URDFLoader from "https://esm.sh/urdf-loader@0.12.1";
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
@@ -12,7 +12,7 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const controls = new OrbitControls(camera, renderer.domElement);
+new OrbitControls(camera, renderer.domElement);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
 directionalLight.castShadow = true;
@@ -23,7 +23,7 @@ scene.add(directionalLight);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
 scene.add(ambientLight);
 
-camera.position.z = 50;
+camera.position.z = 400;
 
 function animate() {
 	requestAnimationFrame(animate);
@@ -34,10 +34,13 @@ animate();
 const manager = new THREE.LoadingManager();
 const loader = new URDFLoader(manager);
 
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(), new THREE.ShadowMaterial({ opacity: 0.25 }));
-ground.rotation.x = -Math.PI / 2;
-ground.scale.setScalar(30);
-ground.receiveShadow = true;
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(250, 128),
+  new THREE.MeshPhysicalMaterial({
+    opacity: 0.5,
+    transparent: true,
+  })
+);
 scene.add(ground);
 
 const meshes = [];
