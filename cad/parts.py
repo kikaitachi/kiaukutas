@@ -78,7 +78,7 @@ TENDON_RADIUS = 1 / 2
 PULLEY_RADIUS = 10 / 2
 PULLEY_HEIGHT = 4
 PULLEY_HOLE_RADIUS = 7.4 / 2
-JOINT_PULLEY_SPACING = 5
+JOINT_PULLEY_SPACING = 6
 
 BRACKET_THICKNESS = 4
 MOTOR_LENGTH = 28.5
@@ -502,6 +502,24 @@ def add_visual(
     ET.SubElement(material, "color", {"rgba": rgba})
 
 
+def add_shaft_pulleys(
+        link: ET.Element,
+        count: int,
+        placement: Placement
+):
+    for i in range(count):
+        add_visual(
+            link,
+            "shaft-pulley",
+            placement=placement.multiply(
+                Placement(
+                    Vector(0, 0, JOINT_SHAFT_LENGTH - i * JOINT_PULLEY_SPACING - 8 - PULLEY_HEIGHT),
+                    Rotation(0, 0, 0),
+                )
+            )
+        )
+
+
 Part.read("XM430-W350-T.stp").exportStl(f"{dir}/XM430-W350-T.stl")
 pulley = make_pulley()
 pulley.exportStl(f"{dir}/shaft-pulley.stl")
@@ -518,6 +536,7 @@ for i in range(NUMBER_OF_MOTORS):
 
 placement = Placement(Vector(0, 0, 10), Rotation(0, 0, 0))
 add_visual(base, "shaft", placement=placement)
+add_shaft_pulleys(base, 14, placement)
 for i in range(len(SEGMENTS)):
     segment = SEGMENTS[i]
     placement = placement.multiply(
@@ -528,25 +547,13 @@ for i in range(len(SEGMENTS)):
     )
     link = ET.SubElement(root, "link", {"name": f"segment{i * 2}"})
     add_visual(link, "shaft", placement=placement)
-    for j in range(14 - i):
-        add_visual(
-            link,
-            "shaft-pulley",
-            placement=placement.multiply(
-                Placement(
-                    Vector(0, 0, 100 - j * 6 - 8 - PULLEY_HEIGHT),
-                    Rotation(0, 0, 0),
-                )
-            )
-        )
+    add_shaft_pulleys(link, 14 - i, placement)
     placement = placement.multiply(segment.placement)
     link = ET.SubElement(root, "link", {"name": f"segment{i * 2 + 1}"})
     if i != len(SEGMENTS) - 1:
         add_visual(link, "shaft", placement=placement)
-    # visual = ET.SubElement(link, "visual")
-    # origin = ET.SubElement(visual, "origin", {"xyz": f"0 0 {i * 5}", "rpy": "0 0 0"})
-    # geometry = ET.SubElement(visual, "geometry")
-    # mesh = ET.SubElement(geometry, "mesh", {"filename": "shaft-pulley.stl"})
+        add_shaft_pulleys(link, 13 - i, placement)
+
 for i in range(12):
     joint = ET.SubElement(root, "joint", {"name": f"joint{i}", type: "revolute"})
     ET.SubElement(joint, "parent", {"link": "base" if i == 0 else f"segment{i - 1}"})
