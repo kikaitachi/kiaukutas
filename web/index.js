@@ -125,3 +125,10 @@ document.addEventListener("mousedown", (event) => {
     //intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
   }
 });
+
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+});
