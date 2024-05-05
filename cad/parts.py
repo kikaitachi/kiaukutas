@@ -494,6 +494,21 @@ class Assembly:
 
 dir = sys.argv[3]
 
+
+def add_visual(
+        link: ET.Element,
+        stl: str,
+        xyz: str = "0 0 0",
+        rpy: str = "0 0 0",
+        rgba: str = "1 1 1 1"):
+    visual = ET.SubElement(link, "visual")
+    ET.SubElement(visual, "origin", {"xyz": xyz, "rpy": rpy})
+    geometry = ET.SubElement(visual, "geometry")
+    ET.SubElement(geometry, "mesh", {"filename": f"{stl}.stl"})
+    material = ET.SubElement(visual, "material", {"name": ""})
+    ET.SubElement(material, "color", {"rgba": rgba})
+
+
 Part.read("XM430-W350-T.stp").exportStl(f"{dir}/XM430-W350-T.stl")
 pulley = make_pulley()
 pulley.exportStl(f"{dir}/shaft-pulley.stl")
@@ -505,20 +520,13 @@ shaft.exportStep(f"{dir}/shaft.stp")
 root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
 
-visual = ET.SubElement(base, "visual")
-origin = ET.SubElement(visual, "origin", {"xyz": "0 0 0", "rpy": "0 0 0"})
-geometry = ET.SubElement(visual, "geometry")
-mesh = ET.SubElement(geometry, "mesh", {"filename": "shaft.stl"})
+add_visual(base, "shaft")
 
 for i in range(NUMBER_OF_MOTORS):
-    visual = ET.SubElement(base, "visual")
-    origin = ET.SubElement(visual, "origin", {"xyz": f"{i * 30 + 30} 0 0", "rpy": f"{pi / 2} {pi} 0"})
-    geometry = ET.SubElement(visual, "geometry")
-    mesh = ET.SubElement(geometry, "mesh", {"filename": "XM430-W350-T.stl"})
-    material = ET.SubElement(visual, "material", {"name": ""})
-    color = ET.SubElement(material, "color", {"rgba": "0.05 0.05 0.05 1"})
+    add_visual(base, "XM430-W350-T", f"{i * 30 + 30} 0 0", f"{pi / 2} {pi} 0", "0.05 0.05 0.05 1")
 
-for i in range(6):
+for i in range(len(SEGMENTS)):
+    segment = SEGMENTS[i]
     link = ET.SubElement(root, "link", {"name": f"segment{i}"})
     visual = ET.SubElement(link, "visual")
     origin = ET.SubElement(visual, "origin", {"xyz": f"0 0 {i * 5}", "rpy": "0 0 0"})
