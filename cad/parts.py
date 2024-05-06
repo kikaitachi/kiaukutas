@@ -557,7 +557,7 @@ for i in range(len(SEGMENTS)):
             Rotation(0, 0, 0),
         )
     )
-    link = ET.SubElement(root, "link", {"name": f"segment{i * 2}"})
+    link = ET.SubElement(root, "link", {"name": f"segment{i}a"})
     add_visual(link, "shaft", placement=placement)
     add_shaft_pulleys(link, 14 - i, placement)
     add_visual(
@@ -570,15 +570,20 @@ for i in range(len(SEGMENTS)):
         )
     )
     placement = placement.multiply(segment.placement)
-    link = ET.SubElement(root, "link", {"name": f"segment{i * 2 + 1}"})
+    link = ET.SubElement(root, "link", {"name": f"segment{i}b"})
     if i != len(SEGMENTS) - 1:
         add_visual(link, "shaft", placement=placement)
         add_shaft_pulleys(link, 13 - i, placement)
 
-for i in range(12):
-    joint = ET.SubElement(root, "joint", {"name": f"joint{i}", type: "revolute"})
-    ET.SubElement(joint, "parent", {"link": "base" if i == 0 else f"segment{i - 1}"})
-    ET.SubElement(joint, "child", {"link": f"segment{i}"})
+for i in range(len(SEGMENTS)):
+    joint = ET.SubElement(root, "joint", {"name": f"joint{i}a", type: "revolute"})
+    ET.SubElement(joint, "parent", {"link": "base" if i == 0 else f"segment{i - 1}b"})
+    ET.SubElement(joint, "child", {"link": f"segment{i}a"})
+
+    joint = ET.SubElement(root, "joint", {"name": f"joint{i}b", type: "revolute"})
+    ET.SubElement(joint, "parent", {"link": f"segment{i}a"})
+    ET.SubElement(joint, "child", {"link": f"segment{i}b"})
+    ET.SubElement(joint, "mimic", {"joint": f"joint{i}a"})
 
 tree = ET.ElementTree(root)
 tree.write(f"{dir}/robot.urdf")

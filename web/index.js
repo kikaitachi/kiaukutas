@@ -103,8 +103,9 @@ loader.load(
   "robot.urdf",
   robot => {
     scene.add(robot);
-    for (let i = 0; i < 12; i++) {
-      robot.setJointValue(`joint${i}`, 0);
+    for (let i = 0; i < 6; i++) {
+      robot.setJointValue(`joint${i}a`, 0);
+      robot.setJointValue(`joint${i}b`, 0);
     }
   }
 );
