@@ -492,6 +492,18 @@ class Assembly:
 dir = sys.argv[3]
 
 
+def add_origin(
+    element: ET.Element,
+    xyz: str = "0 0 0",
+    rpy: str = "0 0 0",
+    placement: Optional[Placement] = None
+) -> ET.Element:
+    if placement is not None:
+        xyz = " ".join(str(x) for x in placement.Base)
+        rpy = " ".join(str(radians(x)) for x in placement.Rotation.toEuler())
+    return ET.SubElement(element, "origin", {"xyz": xyz, "rpy": rpy})
+
+
 def add_visual(
         link: ET.Element,
         stl: str,
@@ -500,11 +512,8 @@ def add_visual(
         rgba: str = "1 1 1 1",
         placement: Optional[Placement] = None
 ):
-    if placement is not None:
-        xyz = " ".join(str(x) for x in placement.Base)
-        rpy = " ".join(str(radians(x)) for x in placement.Rotation.toEuler())
     visual = ET.SubElement(link, "visual")
-    ET.SubElement(visual, "origin", {"xyz": xyz, "rpy": rpy})
+    add_origin(visual, xyz, rpy, placement)
     geometry = ET.SubElement(visual, "geometry")
     ET.SubElement(geometry, "mesh", {"filename": f"{stl}.stl"})
     material = ET.SubElement(visual, "material", {"name": ""})
@@ -546,7 +555,8 @@ base = ET.SubElement(root, "link", {"name": "base"})
 for i in range(NUMBER_OF_MOTORS):
     add_visual(base, "XM430-W350-T", f"{i * 30 + 40} 0 0", f"{pi / 2} {pi} 0", "0.05 0.05 0.05 1")
 
-placement = Placement(Vector(0, 0, 10), Rotation(0, 0, 0))
+initial_placement = Placement(Vector(0, 0, 10), Rotation(0, 0, 0))
+placement = initial_placement
 add_visual(base, "shaft", placement=placement)
 add_shaft_pulleys(base, 14, placement)
 for i in range(len(SEGMENTS)):
@@ -575,16 +585,29 @@ for i in range(len(SEGMENTS)):
         add_visual(link, "shaft", placement=placement)
         add_shaft_pulleys(link, 13 - i, placement)
 
+placement = initial_placement
 for i in range(len(SEGMENTS)):
-    joint = ET.SubElement(root, "joint", {"name": f"joint{i}a", type: "revolute"})
+    segment = SEGMENTS[i]
+    placement = placement.multiply(
+        Placement(
+            Vector(-SEGMENT_THICKNESS, 0, 0),
+            Rotation(0, 0, 0),
+        )
+    )
+    joint = ET.SubElement(root, "joint", {"name": f"joint{i}a", "type": "revolute"})
     ET.SubElement(joint, "parent", {"link": "base" if i == 0 else f"segment{i - 1}b"})
     ET.SubElement(joint, "child", {"link": f"segment{i}a"})
+    add_origin(joint, placement=placement)
 
-    joint = ET.SubElement(root, "joint", {"name": f"joint{i}b", type: "revolute"})
+    placement = placement.multiply(segment.placement)
+
+    joint = ET.SubElement(root, "joint", {"name": f"joint{i}b", "type": "revolute"})
     ET.SubElement(joint, "parent", {"link": f"segment{i}a"})
     ET.SubElement(joint, "child", {"link": f"segment{i}b"})
     ET.SubElement(joint, "mimic", {"joint": f"joint{i}a"})
+    add_origin(joint, placement=placement)
 
+ET.indent(root)
 tree = ET.ElementTree(root)
 tree.write(f"{dir}/robot.urdf")
 

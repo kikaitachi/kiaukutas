@@ -104,8 +104,7 @@ loader.load(
   robot => {
     scene.add(robot);
     for (let i = 0; i < 6; i++) {
-      robot.setJointValue(`joint${i}a`, 0);
-      robot.setJointValue(`joint${i}b`, 0);
+      robot.setJointValue(`joint${i}a`, Math.PI / 8);
     }
   }
 );
