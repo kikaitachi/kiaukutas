@@ -20,7 +20,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 const controls = new TrackballControls(camera, renderer.domElement);
-controls.rotateSpeed = 2.0;
+controls.rotateSpeed = 4.0;
 
 const backLight = new THREE.DirectionalLight(0xffffff, 1.0);
 backLight.position.set(0, 1000, 0);
@@ -105,7 +105,6 @@ loader.load(
     scene.add(robot);
     for (let i = 0; i < 6; i++) {
       robot.setJointValue(`joint${i}a`, Math.PI / 8);
-      robot.setJointValue(`joint${i}b`, Math.PI / 8);
     }
   }
 );
