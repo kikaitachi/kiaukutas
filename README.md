@@ -17,17 +17,17 @@
 ## Building & running
 
 Install build tools and dependencies:
-```
+```bash
 sudo apt-get install g++ cmake ninja-build libasound2-dev
 ```
 
 Build:
-```
+```bash
 ./build.sh
 ```
 
 Run:
-```
+```bash
 ./run.sh
 ```
 
