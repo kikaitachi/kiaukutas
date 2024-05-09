@@ -34,6 +34,7 @@ Run:
 ## Credits
 
 This project directly or indirectly uses these open source projects:
+* [A Gear module for FreeCAD](https://github.com/looooo/freecad.gears)
 * [Advanced Linux Sound Architecture project](https://www.alsa-project.org/alsa-doc/alsa-lib/)
 * [CMake](https://cmake.org/cmake/help/git-master/)
 * [FreeCAD](https://freecad-python-stubs.readthedocs.io/en/latest/autoapi/)
