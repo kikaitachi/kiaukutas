@@ -603,7 +603,7 @@ for i in range(len(SEGMENTS)):
     joint = ET.SubElement(root, "joint", {"name": f"joint{i}b", "type": "revolute"})
     ET.SubElement(joint, "parent", {"link": f"segment{i}a"})
     ET.SubElement(joint, "child", {"link": f"segment{i}b"})
-    # ET.SubElement(joint, "mimic", {"joint": f"joint{i}a"})
+    ET.SubElement(joint, "mimic", {"joint": f"joint{i}a"})
     ET.SubElement(joint, "axis", {"xyz": f"{segment.axis}"})
     ET.SubElement(joint, "limit", {"lower": f"{-pi}", "upper": f"{pi}", "effort": "1", "velocity": "1"})
     add_origin(joint, placement=segment.placement)

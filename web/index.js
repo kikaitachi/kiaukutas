@@ -20,7 +20,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 const controls = new TrackballControls(camera, renderer.domElement);
-controls.rotateSpeed = 4.0;
+controls.rotateSpeed = 5.0;
 
 const backLight = new THREE.DirectionalLight(0xffffff, 1.0);
 backLight.position.set(0, 1000, 0);
