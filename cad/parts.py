@@ -42,6 +42,13 @@ SHAFT_TO_PLATE = 10
 SEGMENTS = [
     Segment(
         Placement(
+            Vector(0, 0, 0),
+            Rotation(0, 0, 0),
+        ),
+        "0 0 1",
+    ),
+    Segment(
+        Placement(
             Vector(-(JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE), 0, JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE),
             Rotation(Vector(0, -1, 0), -90),
         ),
@@ -72,13 +79,6 @@ SEGMENTS = [
         Placement(
             Vector(-SHAFT_TO_PLATE, 0, -SHAFT_TO_PLATE),
             Rotation(Vector(0, 1, 0), -90),
-        ),
-        "0 0 1",
-    ),
-    Segment(
-        Placement(
-            Vector(0, 0, 0),
-            Rotation(0, 0, 0),
         ),
         "0 0 1",
     ),
@@ -566,12 +566,15 @@ for i in range(NUMBER_OF_MOTORS):
 
 initial_placement = Placement(Vector(0, 0, 10), Rotation(0, 0, 0))
 placement = Placement(Vector(0, 0, 0), Rotation(0, 0, 0))
-add_visual(base, "shaft", placement=placement)
-add_shaft_pulleys(base, 14, placement)
 for i in range(len(SEGMENTS)):
     segment = SEGMENTS[i]
+
     link = ET.SubElement(root, "link", {"name": f"segment{i}a"})
-    add_visual(link, "shaft", placement=placement)
+    add_visual(link, "shaft", placement=placement, rgba="0 1 0 1")
+    add_shaft_pulleys(link, 14 - i, placement)
+
+    link = ET.SubElement(root, "link", {"name": f"segment{i}b"})
+    add_visual(link, "shaft", placement=placement, rgba="1 0 0 1")
     add_shaft_pulleys(link, 14 - i, placement)
     add_visual(
         link,
@@ -582,10 +585,6 @@ for i in range(len(SEGMENTS)):
             )
         )
     )
-    link = ET.SubElement(root, "link", {"name": f"segment{i}b"})
-    if i != len(SEGMENTS) - 1:
-        add_visual(link, "shaft", placement=placement)
-        add_shaft_pulleys(link, 13 - i, placement)
 
 placement = initial_placement
 for i in range(len(SEGMENTS)):
@@ -594,19 +593,19 @@ for i in range(len(SEGMENTS)):
     ET.SubElement(joint, "parent", {"link": "base" if i == 0 else f"segment{i - 1}b"})
     ET.SubElement(joint, "child", {"link": f"segment{i}a"})
     ET.SubElement(joint, "axis", {"xyz": f"{segment.axis}"})
-    ET.SubElement(joint, "limit", {"lower": f"{-pi}", "upper": f"{pi}", "effort": "1", "velocity": "1"})
-    add_origin(joint, placement=Placement(
-        Vector(-SEGMENT_THICKNESS, 0, 0),
-        Rotation(0, 0, 0),
-    ))
+    ET.SubElement(joint, "limit", {"lower": f"{-pi / 2}", "upper": f"{pi / 2}", "effort": "1", "velocity": "1"})
+    add_origin(joint, placement=initial_placement if i == 0 else segment.placement)
 
     joint = ET.SubElement(root, "joint", {"name": f"joint{i}b", "type": "revolute"})
     ET.SubElement(joint, "parent", {"link": f"segment{i}a"})
     ET.SubElement(joint, "child", {"link": f"segment{i}b"})
     ET.SubElement(joint, "mimic", {"joint": f"joint{i}a"})
     ET.SubElement(joint, "axis", {"xyz": f"{segment.axis}"})
-    ET.SubElement(joint, "limit", {"lower": f"{-pi}", "upper": f"{pi}", "effort": "1", "velocity": "1"})
-    add_origin(joint, placement=segment.placement)
+    ET.SubElement(joint, "limit", {"lower": f"{-pi / 2}", "upper": f"{pi / 2}", "effort": "1", "velocity": "1"})
+    add_origin(joint, placement=Placement(
+        Vector(-SEGMENT_THICKNESS, 0, 0),
+        Rotation(0, 0, 0),
+    ))
 
 ET.indent(root)
 tree = ET.ElementTree(root)
