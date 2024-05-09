@@ -1,5 +1,5 @@
-#ifndef AUDIO_H_
-#define AUDIO_H_
+#ifndef SRC_AUDIO_HPP_
+#define SRC_AUDIO_HPP_
 
 #include <alsa/asoundlib.h>
 
@@ -7,4 +7,4 @@ class Audio {
  public:
 };
 
-#endif  // AUDIO_H_
+#endif  // SRC_AUDIO_HPP_
