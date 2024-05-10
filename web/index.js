@@ -48,7 +48,7 @@ scene.add(ground)
 
 const meshes = []
 
-const get_part_material = (part) => {
+const getPartMaterial = (part) => {
   if (part.endsWith('shaft.stl')) {
     return new THREE.MeshStandardMaterial({
       color: 0xffffff,
@@ -67,30 +67,30 @@ const stls = new Map()
 
 loader.loadMeshCb = (path, manager, onComplete) => {
   if (stls.has(path)) {
-    const stl = stls.get(path);
+    const stl = stls.get(path)
     if (stl.geometry != null) {
-      const mesh = new THREE.Mesh(stl.geometry, new THREE.MeshPhongMaterial());
-      meshes.push(mesh);
-      onComplete(mesh);
-      console.log(`${path} is already loaded`);
+      const mesh = new THREE.Mesh(stl.geometry, new THREE.MeshPhongMaterial())
+      meshes.push(mesh)
+      onComplete(mesh)
+      console.log(`${path} is already loaded`)
     } else {
-      stl.onLoadCallbacks.push(onComplete);
-      console.log(`${path} is being loaded`);
+      stl.onLoadCallbacks.push(onComplete)
+      console.log(`${path} is being loaded`)
     }
   } else {
     const stl = {
       geometry: null,
-      onLoadCallbacks: [onComplete],
+      onLoadCallbacks: [onComplete]
     };
-    stls.set(path, stl);
+    stls.set(path, stl)
     new STLLoader(manager).load(
       path,
       result => {
-          console.log(`${path} loaded, there are ${stl.onLoadCallbacks.length} callbacks`);
+          console.log(`${path} loaded, there are ${stl.onLoadCallbacks.length} callbacks`)
           for (const callback of stl.onLoadCallbacks) {
-            const mesh = new THREE.Mesh(result, new THREE.MeshPhongMaterial());
-            meshes.push(mesh);
-            callback(mesh);
+            const mesh = new THREE.Mesh(result, new THREE.MeshPhongMaterial())
+            meshes.push(mesh)
+            callback(mesh)
           }
       }
     );
@@ -100,9 +100,9 @@ loader.loadMeshCb = (path, manager, onComplete) => {
 loader.load(
   'robot.urdf',
   robot => {
-    scene.add(robot);
+    scene.add(robot)
     for (let i = 0; i < 6; i++) {
-      robot.setJointValue(`joint${i}a`, Math.PI / 8);
+      robot.setJointValue(`joint${i}a`, Math.PI / 8)
     }
   }
 )
@@ -117,22 +117,22 @@ const animate = () => {
 animate()
 
 document.addEventListener("mousedown", (event) => {
-  event.preventDefault();
+  event.preventDefault()
   const mouse3D = new THREE.Vector3(
     (event.clientX / window.innerWidth) * 2 - 1,
     -(event.clientY / window.innerHeight) * 2 + 1,
-    0.5);
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse3D, camera);
-  const intersects = raycaster.intersectObjects(meshes);
+    0.5)
+  const raycaster = new THREE.Raycaster()
+  raycaster.setFromCamera(mouse3D, camera)
+  const intersects = raycaster.intersectObjects(meshes)
   if (intersects.length > 0) {
-    //intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
+    // intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
   }
-});
+})
 
 window.addEventListener('resize', () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-});
+  renderer.setSize(window.innerWidth, window.innerHeight)
+  renderer.setPixelRatio(window.devicePixelRatio)
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
+})
