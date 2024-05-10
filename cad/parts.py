@@ -98,7 +98,7 @@ MOTOR_LENGTH = 28.5
 MOTOR_WIDTH = 46.5
 MOTOR_SPACING = 30
 
-SEGMENT_THICKNESS = 16
+SEGMENT_THICKNESS = 20
 
 JOINT_SHAFT_OD = 5
 JOINT_SHAFT_ID = 4
@@ -198,11 +198,17 @@ def makeTendonOnPulley():
 
 
 def make_joint_gear():
-    result = CreateInvoluteGear.create()
-    result.teeth = 15
-    result.module = 1.9
-    result.height = 8
-    return result.Proxy.generate_gear_shape(result)
+    gear = CreateInvoluteGear.create()
+    gear.teeth = 11
+    gear.beta = 30
+    gear.double_helix = True
+    gear.module = SEGMENT_THICKNESS / gear.teeth
+    gear.height = (JOINT_SHAFT_LENGTH - 14 * JOINT_PULLEY_SPACING) / 2
+    return gear.Proxy.generate_gear_shape(gear).cut(
+        Part.makeCylinder(
+            JOINT_SHAFT_OD / 2, gear.height * 2, Vector(0, 0, -gear.height / 2), Vector(0, 0, 1)
+        )
+    ).removeSplitter()
 
 
 def servo_horn_screw_holes():
