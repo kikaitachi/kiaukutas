@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from FreeCAD import DocumentObject, newDocument, Placement, Rotation, Vector
 from PySide2 import QtCore
 from math import acos, cos, degrees, pi, radians, sin, sqrt
-# from freecad.gears.commands import CreateInvoluteGear
+from freecad.gears.commands import CreateInvoluteGear
 from typing import Optional
 import xml.etree.ElementTree as ET
 import FreeCADGui
@@ -197,13 +197,12 @@ def makeTendonOnPulley():
     return Part.Wire(helix).makePipe(Part.Wire([circle]))
 
 
-def joint_gear(*, translation=Vector(0, 0, 0), rotation=Rotation(0, 0, 0)):
+def make_joint_gear():
     result = CreateInvoluteGear.create()
     result.teeth = 15
     result.module = 1.9
-    result.height = 4
-    result.Placement = Placement(translation, rotation)
-    return result
+    result.height = 8
+    return result.Proxy.generate_gear_shape(result)
 
 
 def servo_horn_screw_holes():
@@ -557,6 +556,9 @@ shaft.exportStep(f"{dir}/shaft.stp")
 segment_plate = make_segment_plate()
 segment_plate.exportStl(f"{dir}/segment-plate.stl")
 segment_plate.exportStep(f"{dir}/segment-plate.stp")
+joint_gear = make_joint_gear()
+joint_gear.exportStl(f"{dir}/joint-gear.stl")
+joint_gear.exportStep(f"{dir}/joint-gear.stp")
 
 root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
@@ -572,6 +574,7 @@ for i in range(len(SEGMENTS)):
     link = ET.SubElement(root, "link", {"name": f"segment{i}a"})
     add_visual(link, "shaft", placement=placement, rgba="0 1 0 1")
     add_shaft_pulleys(link, 14 - i, placement)
+    add_visual(link, "joint-gear", placement=placement, rgba="0 0 1 1")
 
     link = ET.SubElement(root, "link", {"name": f"segment{i}b"})
     add_visual(link, "shaft", placement=placement, rgba="1 0 0 1")
