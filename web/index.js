@@ -3,69 +3,67 @@ import { TrackballControls } from 'https://esm.sh/three@0.164.1/addons/controls/
 import { STLLoader } from 'https://esm.sh/three@0.164.1/addons/loaders/STLLoader.js'
 import URDFLoader from 'https://esm.sh/urdf-loader@0.12.1'
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x263238);
+const scene = new THREE.Scene()
+scene.background = new THREE.Color(0x263238)
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-camera.position.z = 100;
-camera.position.y = -400;
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000)
+camera.position.z = 100
+camera.position.y = -400
 
 const renderer = new THREE.WebGLRenderer({
-  antialias: true,
-});
-renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+  antialias: true
+})
+renderer.outputEncoding = THREE.sRGBEncoding
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
+renderer.setSize(window.innerWidth, window.innerHeight)
+document.body.appendChild(renderer.domElement)
 
-const controls = new TrackballControls(camera, renderer.domElement);
-controls.rotateSpeed = 5.0;
+const controls = new TrackballControls(camera, renderer.domElement)
+controls.rotateSpeed = 5.0
 
-const backLight = new THREE.DirectionalLight(0xffffff, 1.0);
-backLight.position.set(0, 1000, 0);
-scene.add(backLight);
+const backLight = new THREE.DirectionalLight(0xffffff, 1.0)
+backLight.position.set(0, 1000, 0)
+scene.add(backLight)
 
-const frontLight = new THREE.DirectionalLight(0xffffff, 1.0);
-frontLight.position.set(0, -1000, 0);
-scene.add(frontLight);
+const frontLight = new THREE.DirectionalLight(0xffffff, 1.0)
+frontLight.position.set(0, -1000, 0)
+scene.add(frontLight)
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-scene.add(ambientLight);
+const ambientLight = new THREE.AmbientLight(0xffffff, 1)
+scene.add(ambientLight)
 
-const manager = new THREE.LoadingManager();
-const loader = new URDFLoader(manager);
+const manager = new THREE.LoadingManager()
+const loader = new URDFLoader(manager)
 
 const ground = new THREE.Mesh(
   new THREE.CircleGeometry(250, 128),
   new THREE.MeshPhysicalMaterial({
     opacity: 0.5,
     transparent: true,
-    side: THREE.DoubleSide,
+    side: THREE.DoubleSide
   })
-);
-scene.add(ground);
+)
+scene.add(ground)
 
-const meshes = [];
+const meshes = []
 
 const get_part_material = (part) => {
-  if (part.endsWith("shaft.stl")) {
-    console.log("shaft");
+  if (part.endsWith('shaft.stl')) {
     return new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      roughness: 0,
-    });
+      roughness: 0
+    })
   }
-  if (part.endsWith("XM430-W350-T.stl")) {
-    console.log("dynamixel");
+  if (part.endsWith('XM430-W350-T.stl')) {
     return new THREE.MeshBasicMaterial({
       color: 0x100000,
-    });
+    })
   }
-  return new THREE.MeshPhongMaterial();
-};
+  return new THREE.MeshPhongMaterial()
+}
 
-const stls = new Map();
+const stls = new Map()
 
 loader.loadMeshCb = (path, manager, onComplete) => {
   if (stls.has(path)) {
@@ -100,23 +98,23 @@ loader.loadMeshCb = (path, manager, onComplete) => {
 };
 
 loader.load(
-  "robot.urdf",
+  'robot.urdf',
   robot => {
     scene.add(robot);
     for (let i = 0; i < 6; i++) {
       robot.setJointValue(`joint${i}a`, Math.PI / 8);
     }
   }
-);
+)
 
 const animate = () => {
   setTimeout(() => {
-    requestAnimationFrame(animate);
-  }, 1000 / 24);
-  controls.update();
-	renderer.render(scene, camera);
+    requestAnimationFrame(animate)
+  }, 1000 / 24)
+  controls.update()
+	renderer.render(scene, camera)
 }
-animate();
+animate()
 
 document.addEventListener("mousedown", (event) => {
   event.preventDefault();
