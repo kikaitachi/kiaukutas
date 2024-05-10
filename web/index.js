@@ -48,21 +48,6 @@ scene.add(ground)
 
 const meshes = []
 
-const getPartMaterial = (part) => {
-  if (part.endsWith('shaft.stl')) {
-    return new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0
-    })
-  }
-  if (part.endsWith('XM430-W350-T.stl')) {
-    return new THREE.MeshBasicMaterial({
-      color: 0x100000,
-    })
-  }
-  return new THREE.MeshPhongMaterial()
-}
-
 const stls = new Map()
 
 loader.loadMeshCb = (path, manager, onComplete) => {
@@ -81,21 +66,21 @@ loader.loadMeshCb = (path, manager, onComplete) => {
     const stl = {
       geometry: null,
       onLoadCallbacks: [onComplete]
-    };
+    }
     stls.set(path, stl)
     new STLLoader(manager).load(
       path,
       result => {
-          console.log(`${path} loaded, there are ${stl.onLoadCallbacks.length} callbacks`)
-          for (const callback of stl.onLoadCallbacks) {
-            const mesh = new THREE.Mesh(result, new THREE.MeshPhongMaterial())
-            meshes.push(mesh)
-            callback(mesh)
-          }
+        console.log(`${path} loaded, there are ${stl.onLoadCallbacks.length} callbacks`)
+        for (const callback of stl.onLoadCallbacks) {
+          const mesh = new THREE.Mesh(result, new THREE.MeshPhongMaterial())
+          meshes.push(mesh)
+          callback(mesh)
+        }
       }
-    );
+    )
   }
-};
+}
 
 loader.load(
   'robot.urdf',
@@ -126,7 +111,7 @@ document.addEventListener("mousedown", (event) => {
   raycaster.setFromCamera(mouse3D, camera)
   const intersects = raycaster.intersectObjects(meshes)
   if (intersects.length > 0) {
-    // intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
+    // intersects[0].object.material.color.setHex(Math.random() * 0xffffff)
   }
 })
 
