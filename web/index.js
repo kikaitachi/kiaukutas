@@ -1,7 +1,7 @@
-import * as THREE from "https://esm.sh/three@0.164.1";
-import { TrackballControls } from 'https://esm.sh/three@0.164.1/addons/controls/TrackballControls.js';
-import { STLLoader } from 'https://esm.sh/three@0.164.1/addons/loaders/STLLoader.js';
-import URDFLoader from "https://esm.sh/urdf-loader@0.12.1";
+import * as THREE from 'https://esm.sh/three@0.164.1'
+import { TrackballControls } from 'https://esm.sh/three@0.164.1/addons/controls/TrackballControls.js'
+import { STLLoader } from 'https://esm.sh/three@0.164.1/addons/loaders/STLLoader.js'
+import URDFLoader from 'https://esm.sh/urdf-loader@0.12.1'
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x263238);
