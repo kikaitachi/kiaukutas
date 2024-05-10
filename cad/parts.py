@@ -105,6 +105,8 @@ JOINT_SHAFT_ID = 4
 JOINT_SHAFT_COLOR = (0.5, 0.0, 0.0, 0.0)
 JOINT_SHAFT_PULLEY_AREA_LENGTH = 70
 
+JOINT_GEAR_TEETH = 11
+
 doc = newDocument("kiaukutas")
 
 
@@ -197,10 +199,10 @@ def makeTendonOnPulley():
     return Part.Wire(helix).makePipe(Part.Wire([circle]))
 
 
-def make_joint_gear():
+def make_joint_gear(beta):
     gear = CreateInvoluteGear.create()
-    gear.teeth = 11
-    gear.beta = 30
+    gear.teeth = JOINT_GEAR_TEETH
+    gear.beta = beta
     gear.double_helix = True
     gear.module = SEGMENT_THICKNESS / gear.teeth
     gear.height = (JOINT_SHAFT_LENGTH - 14 * JOINT_PULLEY_SPACING) / 2
@@ -562,9 +564,12 @@ shaft.exportStep(f"{dir}/shaft.stp")
 segment_plate = make_segment_plate()
 segment_plate.exportStl(f"{dir}/segment-plate.stl")
 segment_plate.exportStep(f"{dir}/segment-plate.stp")
-joint_gear = make_joint_gear()
-joint_gear.exportStl(f"{dir}/joint-gear.stl")
-joint_gear.exportStep(f"{dir}/joint-gear.stp")
+joint_gear_right = make_joint_gear(30)
+joint_gear_right.exportStl(f"{dir}/joint-gear-right.stl")
+joint_gear_right.exportStep(f"{dir}/joint-gear-right.stp")
+joint_gear_left = make_joint_gear(-30)
+joint_gear_left.exportStl(f"{dir}/joint-gear-left.stl")
+joint_gear_left.exportStep(f"{dir}/joint-gear-left.stp")
 
 root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
@@ -580,11 +585,18 @@ for i in range(len(SEGMENTS)):
     link = ET.SubElement(root, "link", {"name": f"segment{i}a"})
     add_visual(link, "shaft", placement=placement, rgba="0 1 0 1")
     add_shaft_pulleys(link, 14 - i, placement)
-    add_visual(link, "joint-gear", placement=placement, rgba="0 0 1 1")
+    add_visual(link, "joint-gear-right", placement=Placement(
+        Vector(0, 0, 0),
+        Rotation(0, 0, -360.0 / (JOINT_GEAR_TEETH * 2)),
+    ), rgba="0 0 1 1")
 
     link = ET.SubElement(root, "link", {"name": f"segment{i}b"})
     add_visual(link, "shaft", placement=placement, rgba="1 0 0 1")
     add_shaft_pulleys(link, 14 - i, placement)
+    add_visual(link, "joint-gear-left", placement=Placement(
+        Vector(0, 0, 0),
+        Rotation(0, 0, 360.0 / (JOINT_GEAR_TEETH * 2)),
+    ), rgba="0 1 1 1")
     add_visual(
         link,
         "segment-plate", placement=placement.multiply(

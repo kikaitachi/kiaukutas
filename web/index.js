@@ -82,15 +82,18 @@ loader.loadMeshCb = (path, manager, onComplete) => {
   }
 }
 
+let robot = null;
+
 loader.load(
   'robot.urdf',
-  robot => {
+  r => {
+    robot = r
     scene.add(robot)
-    for (let i = 0; i < 6; i++) {
-      robot.setJointValue(`joint${i}a`, Math.PI / 8)
-    }
   }
 )
+
+let angle = 0
+let delta = 0.01
 
 const animate = () => {
   setTimeout(() => {
@@ -98,6 +101,15 @@ const animate = () => {
   }, 1000 / 24)
   controls.update()
 	renderer.render(scene, camera)
+  if (robot != null) {
+    for (let i = 0; i < 6; i++) {
+      robot.setJointValue(`joint${i}a`, angle)
+    }
+    angle += delta
+    if (angle >= Math.PI / 8 || angle <= -Math.PI / 8) {
+      delta = -delta
+    }
+  }
 }
 animate()
 
