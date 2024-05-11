@@ -207,7 +207,8 @@ def make_joint_gear(beta):
     gear.module = SEGMENT_THICKNESS / gear.teeth
     gear.height = (JOINT_SHAFT_LENGTH - 14 * JOINT_PULLEY_SPACING) / 2
     direction = beta / abs(beta)
-    connector_len = SHAFT_TO_PLATE + 10
+    grab_len = 16
+    connector_len = SHAFT_TO_PLATE + grab_len
     result = gear.Proxy.generate_gear_shape(gear)
     return result.fuse(
         Part.makeBox(connector_len, 10, gear.height).translate(
@@ -218,8 +219,8 @@ def make_joint_gear(beta):
             360.0 / (JOINT_GEAR_TEETH * 4) * -direction
         )
     ).cut(
-        Part.makeBox(10, 6, gear.height * 2).translate(
-            Vector(SHAFT_TO_PLATE if direction > 0 else -SHAFT_TO_PLATE - 10, -3, -gear.height / 2)
+        Part.makeBox(grab_len, 6, gear.height * 2).translate(
+            Vector(SHAFT_TO_PLATE if direction > 0 else -SHAFT_TO_PLATE - grab_len, -3, -gear.height / 2)
         ).rotate(
             Vector(0, 0, 0),
             Vector(0, 0, 1),
@@ -233,6 +234,14 @@ def make_joint_gear(beta):
         Vector(0, 0, 0),
         Vector(0, 0, 1),
         360.0 / (JOINT_GEAR_TEETH * 4) * direction
+    ).cut(
+        Part.makeCylinder(
+            3.4 / 2, 10, Vector((SHAFT_TO_PLATE + grab_len / 4) * direction, -5, gear.height / 2), Vector(0, 1, 0)
+        )
+    ).cut(
+        Part.makeCylinder(
+            3.4 / 2, 10, Vector((SHAFT_TO_PLATE + grab_len * 3 / 4) * direction, -5, gear.height / 2), Vector(0, 1, 0)
+        )
     ).removeSplitter()
 
 
