@@ -105,7 +105,7 @@ JOINT_SHAFT_ID = 4
 JOINT_SHAFT_COLOR = (0.5, 0.0, 0.0, 0.0)
 JOINT_SHAFT_PULLEY_AREA_LENGTH = 70
 
-JOINT_GEAR_TEETH = 12
+JOINT_GEAR_TEETH = 11
 
 doc = newDocument("kiaukutas")
 
@@ -206,17 +206,34 @@ def make_joint_gear(beta):
     gear.double_helix = True
     gear.module = SEGMENT_THICKNESS / gear.teeth
     gear.height = (JOINT_SHAFT_LENGTH - 14 * JOINT_PULLEY_SPACING) / 2
-    result = gear.Proxy.generate_gear_shape(gear).cut(
+    direction = beta / abs(beta)
+    connector_len = SHAFT_TO_PLATE + 10
+    result = gear.Proxy.generate_gear_shape(gear)
+    return result.fuse(
+        Part.makeBox(connector_len, 10, gear.height).translate(
+            Vector(0 if direction > 0 else -connector_len, -5, 0)
+        ).rotate(
+            Vector(0, 0, 0),
+            Vector(0, 0, 1),
+            360.0 / (JOINT_GEAR_TEETH * 4) * -direction
+        )
+    ).cut(
+        Part.makeBox(10, 6, gear.height * 2).translate(
+            Vector(SHAFT_TO_PLATE if direction > 0 else -SHAFT_TO_PLATE - 10, -3, -gear.height / 2)
+        ).rotate(
+            Vector(0, 0, 0),
+            Vector(0, 0, 1),
+            360.0 / (JOINT_GEAR_TEETH * 4) * -direction
+        )
+    ).cut(
         Part.makeCylinder(
             JOINT_SHAFT_OD / 2, gear.height * 2, Vector(0, 0, -gear.height / 2), Vector(0, 0, 1)
         )
-    ).removeSplitter()
-    result.rotate(
+    ).rotate(
         Vector(0, 0, 0),
         Vector(0, 0, 1),
-        360.0 / (JOINT_GEAR_TEETH * 8) * beta / abs(beta)
-    )
-    return result
+        360.0 / (JOINT_GEAR_TEETH * 4) * direction
+    ).removeSplitter()
 
 
 def servo_horn_screw_holes():
@@ -570,10 +587,10 @@ shaft.exportStep(f"{dir}/shaft.stp")
 segment_plate = make_segment_plate()
 segment_plate.exportStl(f"{dir}/segment-plate.stl")
 segment_plate.exportStep(f"{dir}/segment-plate.stp")
-joint_gear_right = make_joint_gear(30)
+joint_gear_right = make_joint_gear(30.0)
 joint_gear_right.exportStl(f"{dir}/joint-gear-right.stl")
 joint_gear_right.exportStep(f"{dir}/joint-gear-right.stp")
-joint_gear_left = make_joint_gear(-30)
+joint_gear_left = make_joint_gear(-30.0)
 joint_gear_left.exportStl(f"{dir}/joint-gear-left.stl")
 joint_gear_left.exportStep(f"{dir}/joint-gear-left.stp")
 
@@ -601,7 +618,7 @@ for i in range(len(SEGMENTS)):
     add_shaft_pulleys(link, 14 - i, placement)
     add_visual(link, "joint-gear-left", placement=Placement(
         Vector(0, 0, 0),
-        Rotation(0, 0, 360.0 / (JOINT_GEAR_TEETH * 2)),
+        Rotation(0, 0, 0),
     ), rgba="0 1 1 1")
     add_visual(
         link,
