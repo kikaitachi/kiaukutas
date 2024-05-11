@@ -82,7 +82,7 @@ loader.loadMeshCb = (path, manager, onComplete) => {
   }
 }
 
-let robot = null;
+let robot = null
 
 loader.load(
   'robot.urdf',
@@ -101,7 +101,7 @@ const animate = () => {
     requestAnimationFrame(animate)
   }, 1000 / 24)
   controls.update()
-	renderer.render(scene, camera)
+  renderer.render(scene, camera)
   if (robot != null) {
     for (let i = 0; i < 6; i++) {
       robot.setJointValue(`joint${i}a`, angle)
@@ -114,7 +114,7 @@ const animate = () => {
 }
 animate()
 
-document.addEventListener("mousedown", (event) => {
+document.addEventListener('mousedown', (event) => {
   event.preventDefault()
   const mouse3D = new THREE.Vector3(
     (event.clientX / window.innerWidth) * 2 - 1,
