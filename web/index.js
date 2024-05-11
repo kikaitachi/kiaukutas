@@ -93,6 +93,7 @@ loader.load(
 )
 
 let angle = 0
+const maxAngle = Math.PI / 6
 let delta = 0.01
 
 const animate = () => {
@@ -106,7 +107,7 @@ const animate = () => {
       robot.setJointValue(`joint${i}a`, angle)
     }
     angle += delta
-    if (angle >= Math.PI / 8 || angle <= -Math.PI / 8) {
+    if (angle <= -maxAngle || angle >= maxAngle) {
       delta = -delta
     }
   }

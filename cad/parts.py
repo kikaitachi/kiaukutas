@@ -573,6 +573,10 @@ joint_gear_left.exportStep(f"{dir}/joint-gear-left.stp")
 
 root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
+add_visual(base, "joint-gear-right", placement=Placement(
+    Vector(0, 0, 10),
+    Rotation(0, 0, -360.0 / (JOINT_GEAR_TEETH * 2)),
+), rgba="0 0 1 1")
 
 for i in range(NUMBER_OF_MOTORS):
     add_visual(base, "XM430-W350-T", f"{i * 30 + 40} 0 0", f"{pi / 2} {pi} 0", "0.05 0.05 0.05 1")
@@ -585,10 +589,6 @@ for i in range(len(SEGMENTS)):
     link = ET.SubElement(root, "link", {"name": f"segment{i}a"})
     add_visual(link, "shaft", placement=placement, rgba="0 1 0 1")
     add_shaft_pulleys(link, 14 - i, placement)
-    add_visual(link, "joint-gear-right", placement=Placement(
-        Vector(0, 0, 0),
-        Rotation(0, 0, -360.0 / (JOINT_GEAR_TEETH * 2)),
-    ), rgba="0 0 1 1")
 
     link = ET.SubElement(root, "link", {"name": f"segment{i}b"})
     add_visual(link, "shaft", placement=placement, rgba="1 0 0 1")
