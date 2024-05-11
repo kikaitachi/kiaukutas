@@ -105,7 +105,7 @@ JOINT_SHAFT_ID = 4
 JOINT_SHAFT_COLOR = (0.5, 0.0, 0.0, 0.0)
 JOINT_SHAFT_PULLEY_AREA_LENGTH = 70
 
-JOINT_GEAR_TEETH = 11
+JOINT_GEAR_TEETH = 12
 
 doc = newDocument("kiaukutas")
 
@@ -206,11 +206,17 @@ def make_joint_gear(beta):
     gear.double_helix = True
     gear.module = SEGMENT_THICKNESS / gear.teeth
     gear.height = (JOINT_SHAFT_LENGTH - 14 * JOINT_PULLEY_SPACING) / 2
-    return gear.Proxy.generate_gear_shape(gear).cut(
+    result = gear.Proxy.generate_gear_shape(gear).cut(
         Part.makeCylinder(
             JOINT_SHAFT_OD / 2, gear.height * 2, Vector(0, 0, -gear.height / 2), Vector(0, 0, 1)
         )
     ).removeSplitter()
+    result.rotate(
+        Vector(0, 0, 0),
+        Vector(0, 0, 1),
+        360.0 / (JOINT_GEAR_TEETH * 8) * beta / abs(beta)
+    )
+    return result
 
 
 def servo_horn_screw_holes():
@@ -575,7 +581,7 @@ root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
 add_visual(base, "joint-gear-right", placement=Placement(
     Vector(0, 0, 10),
-    Rotation(0, 0, -360.0 / (JOINT_GEAR_TEETH * 2)),
+    Rotation(0, 0, 0),
 ), rgba="0 0 1 1")
 
 for i in range(NUMBER_OF_MOTORS):
@@ -606,6 +612,8 @@ for i in range(len(SEGMENTS)):
             )
         )
     )
+    if i != len(SEGMENTS) - 1:
+        add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement, rgba="1 0 1 1")
 
 placement = initial_placement
 for i in range(len(SEGMENTS)):

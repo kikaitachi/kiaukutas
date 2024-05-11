@@ -94,7 +94,7 @@ loader.load(
 
 let angle = 0
 const maxAngle = Math.PI / 6
-let delta = 0.01
+let delta = 0.001
 
 const animate = () => {
   setTimeout(() => {
