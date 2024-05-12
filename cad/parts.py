@@ -106,6 +106,7 @@ JOINT_SHAFT_COLOR = (0.5, 0.0, 0.0, 0.0)
 JOINT_SHAFT_PULLEY_AREA_LENGTH = 70
 
 JOINT_GEAR_TEETH = 11
+JOINT_GEAR_HEIGHT = (JOINT_SHAFT_LENGTH - 14 * JOINT_PULLEY_SPACING) / 2
 
 doc = newDocument("kiaukutas")
 
@@ -205,7 +206,7 @@ def make_joint_gear(beta):
     gear.beta = beta
     gear.double_helix = True
     gear.module = SEGMENT_THICKNESS / gear.teeth
-    gear.height = (JOINT_SHAFT_LENGTH - 14 * JOINT_PULLEY_SPACING) / 2
+    gear.height = JOINT_GEAR_HEIGHT
     direction = beta / abs(beta)
     grab_len = 16
     connector_len = SHAFT_TO_PLATE + grab_len
@@ -629,6 +630,10 @@ for i in range(len(SEGMENTS)):
         Vector(0, 0, 0),
         Rotation(0, 0, 0),
     ), rgba="0 1 1 1")
+    add_visual(link, "joint-gear-left", placement=Placement(
+        Vector(0, 0, JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT),
+        Rotation(0, 0, 0),
+    ), rgba="0 1 1 1")
     add_visual(
         link,
         "segment-plate", placement=placement.multiply(
@@ -640,6 +645,12 @@ for i in range(len(SEGMENTS)):
     )
     if i != len(SEGMENTS) - 1:
         add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement, rgba="1 0 1 1")
+        add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement.multiply(
+            Placement(
+                Vector(0, 0, JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT),
+                Rotation(0, 0, 0),
+            )
+        ), rgba="1 0 1 1")
 
 placement = initial_placement
 for i in range(len(SEGMENTS)):
