@@ -610,6 +610,10 @@ add_visual(base, "joint-gear-right", placement=Placement(
     Vector(0, 0, 10),
     Rotation(0, 0, 0),
 ), rgba="0 0 1 1")
+add_visual(base, "joint-gear-right", placement=Placement(
+    Vector(0, 0, 10 + JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT),
+    Rotation(0, 0, 0),
+), rgba="0 0 1 1")
 
 for i in range(NUMBER_OF_MOTORS):
     add_visual(base, "XM430-W350-T", f"{i * 30 + 40} 0 0", f"{pi / 2} {pi} 0", "0.05 0.05 0.05 1")
