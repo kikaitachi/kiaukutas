@@ -16,6 +16,6 @@ indent_size = 4
 [*.html]
 indent_style = tab
 
-[*.stp,LICENSE]
+[/cad/XM430-W350-T.stp,/LICENSE]
 end_of_line = unset
 insert_final_newline = unset
