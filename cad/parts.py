@@ -246,88 +246,51 @@ def make_joint_gear(beta):
     ).removeSplitter()
 
 
-def servo_horn_screw_holes():
-    screw_holes = []
-    for i in range(8):
-        screw_holes.append(
-            cylinder(
-                diameter=2.2,
-                height=1,
-                translation=Vector(8, 0, 0),
-                rotation=Rotation(Vector(0, 0, 1), i * 360 / 8),
-                center=Vector(-8, 0, 0),
-            ),
+def make_winch():
+    winch = Part.makeCylinder(
+        19.5 / 2, 3, Vector(0, 0, 0), Vector(0, 0, 1)
+    ).fuse(
+        Part.makeCone(
+            12 / 2, 10 / 2, 1, Vector(0, 0, 3), Vector(0, 0, 1)
         )
-        screw_holes.append(
-            cylinder(
-                diameter=4,
-                height=2,
-                translation=Vector(8, 0, 1),
-                rotation=Rotation(Vector(0, 0, 1), i * 360 / 8),
-                center=Vector(-8, 0, 0),
-            ),
+    ).fuse(
+        Part.makeCylinder(
+            10 / 2, PULLEY_HEIGHT, Vector(0, 0, 3), Vector(0, 0, 1)
         )
-    return screw_holes
-
-
-def servo_horn_center_holes(height):
-    cone = doc.addObject("Part::Cone")
-    cone.Radius1 = 8.3 / 2
-    cone.Radius2 = 8.3 / 2 - 2
-    cone.Height = 2
-    cone.Placement = Placement(Vector(0, 0, 2.3), Rotation(0, 0, 0))
-
-    return [
-        cylinder(
-            diameter=6,
-            height=3 + height + 1,
-        ),
-        cylinder(
-            diameter=8.3,
-            height=2.3,
-        ),
-        cone
-    ]
-
-
-def winch():
-    cone_bottom = doc.addObject("Part::Cone")
-    cone_bottom.Radius1 = 12 / 2
-    cone_bottom.Radius2 = 10 / 2
-    cone_bottom.Height = 1
-    cone_bottom.Placement = Placement(Vector(0, 0, 3), Rotation(0, 0, 0))
-
-    cone_top = doc.addObject("Part::Cone")
-    cone_top.Radius1 = 10 / 2
-    cone_top.Radius2 = 12 / 2
-    cone_top.Height = 1
-    cone_top.Placement = Placement(Vector(0, 0, 3 + PULLEY_HEIGHT - 1), Rotation(0, 0, 0))
-
-    result = cut(
-        fuse(
-            cylinder(
-                diameter=19.5,
-                height=3
-            ),
-            cylinder(
-                diameter=10,
-                height=PULLEY_HEIGHT,
-                translation=Vector(0, 0, 3)
-            ),
-            cone_bottom,
-            cone_top
-        ),
-        *servo_horn_center_holes(PULLEY_HEIGHT),
-        *servo_horn_screw_holes(),
-        cylinder(
-            diameter=2,
-            height=10,
-            translation=Vector(0, 0, 3 + PULLEY_HEIGHT / 2),
-            rotation=Rotation(Vector(0, 1, 0), 90)
+    ).fuse(
+        Part.makeCone(
+            10 / 2, 12 / 2, 1, Vector(0, 0, 3 + PULLEY_HEIGHT - 1), Vector(0, 0, 1)
+        )
+    ).cut(
+        Part.makeCylinder(
+            2 / 2, 10, Vector(0, 0, 3 + PULLEY_HEIGHT / 2), Vector(0, 1, 0)
         )
     )
-    result.Label = "winch"
-    return result
+
+    for i in range(8):
+        winch = winch.cut(
+            Part.makeCylinder(
+                2.2 / 2, 1, Vector(8 * sin(i * 2 * pi / 8), 8 * cos(i * 2 * pi / 8), 0), Vector(0, 0, 1)
+            )
+        ).cut(
+            Part.makeCylinder(
+                4 / 2, 2, Vector(8 * sin(i * 2 * pi / 8), 8 * cos(i * 2 * pi / 8), 1), Vector(0, 0, 1)
+            )
+        )
+
+    return winch.cut(
+        Part.makeCylinder(
+            6 / 2, 3 + PULLEY_HEIGHT + 1, Vector(0, 0, 0), Vector(0, 0, 1)
+        )
+    ).cut(
+        Part.makeCylinder(
+            8.3 / 2, 2.3, Vector(0, 0, 0), Vector(0, 0, 1)
+        )
+    ).cut(
+        Part.makeCone(
+            8.3 / 2, 8.3 / 2 - 2, 2, Vector(0, 0, 2.3), Vector(0, 0, 1)
+        )
+    ).removeSplitter()
 
 
 def makeServoToJointBracket():
@@ -603,6 +566,9 @@ joint_gear_right.exportStep(f"{dir}/joint-gear-right.stp")
 joint_gear_left = make_joint_gear(-30.0)
 joint_gear_left.exportStl(f"{dir}/joint-gear-left.stl")
 joint_gear_left.exportStep(f"{dir}/joint-gear-left.stp")
+winch = make_winch()
+winch.exportStl(f"{dir}/winch.stl")
+winch.exportStep(f"{dir}/winch.stp")
 
 root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
@@ -615,8 +581,27 @@ add_visual(base, "joint-gear-right", placement=Placement(
     Rotation(0, 0, 0),
 ), rgba="0 0 1 1")
 
-for i in range(NUMBER_OF_MOTORS):
-    add_visual(base, "XM430-W350-T", f"{i * 30 + 40} 0 0", f"{pi / 2} {pi} 0", "0.05 0.05 0.05 1")
+for i in range(NUMBER_OF_MOTORS // 2):
+    add_visual(
+        base,
+        "XM430-W350-T",
+        f"{i * 30 + 40} 0 {46.5 - 11.25 + i * 10}",
+        f"{pi / 2} 0 0",
+        "0.05 0.05 0.05 1"
+    )
+    add_visual(
+        base,
+        "XM430-W350-T",
+        f"{i * 30 + 40} 0 {46.5 + 11.25 + i * 10}",
+        f"{pi / 2} {pi} 0",
+        "0.05 0.05 0.05 1"
+    )
+    add_visual(
+        base,
+        "winch",
+        f"{i * 30 + 40} {-(34 / 2 + 2)} {46.5 - 11.25 + i * 10}",
+        f"{pi / 2} 0 0"
+    )
 
 initial_placement = Placement(Vector(0, 0, 10), Rotation(0, 0, 0))
 placement = Placement(Vector(0, 0, 0), Rotation(0, 0, 0))

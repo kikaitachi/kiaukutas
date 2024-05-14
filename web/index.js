@@ -103,7 +103,7 @@ const animate = () => {
   renderer.render(scene, camera)
   if (robot != null) {
     for (let i = 0; i < 6; i++) {
-      robot.setJointValue(`joint${i}a`, i % 2 == 0 ? angle : -angle)
+      robot.setJointValue(`joint${i}a`, i % 2 === 0 ? angle : -angle)
     }
     angle += delta
     if (angle <= -maxAngle || angle >= maxAngle) {
