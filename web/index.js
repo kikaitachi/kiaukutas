@@ -50,17 +50,19 @@ const meshes = []
 
 const stls = new Map()
 
+const stl2mesh = (stl) => {
+  const mesh = new THREE.Mesh(stl, new THREE.MeshPhongMaterial())
+  meshes.push(mesh)
+  return mesh
+}
+
 loader.loadMeshCb = (path, manager, onComplete) => {
   if (stls.has(path)) {
     const stl = stls.get(path)
     if (stl.geometry != null) {
-      const mesh = new THREE.Mesh(stl.geometry, new THREE.MeshPhongMaterial())
-      meshes.push(mesh)
-      onComplete(mesh)
-      console.log(`${path} is already loaded`)
+      onComplete(stl2mesh(stl.geometry))
     } else {
       stl.onLoadCallbacks.push(onComplete)
-      console.log(`${path} is being loaded`)
     }
   } else {
     const stl = {
@@ -71,11 +73,8 @@ loader.loadMeshCb = (path, manager, onComplete) => {
     new STLLoader(manager).load(
       path,
       result => {
-        console.log(`${path} loaded, there are ${stl.onLoadCallbacks.length} callbacks`)
         for (const callback of stl.onLoadCallbacks) {
-          const mesh = new THREE.Mesh(result, new THREE.MeshPhongMaterial())
-          meshes.push(mesh)
-          callback(mesh)
+          callback(stl2mesh(result))
         }
       }
     )
@@ -94,7 +93,7 @@ loader.load(
 
 let angle = 0
 const maxAngle = Math.PI / 2
-let delta = 0.01
+let delta = 0.001
 
 const animate = () => {
   setTimeout(() => {
