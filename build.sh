@@ -6,6 +6,9 @@ freecad_gears_dir=~/.local/share/FreeCAD/Mod/freecad.gears
 
 if [ ! -d "${freecad_gears_dir}" ]; then
   git clone --depth=1 https://github.com/looooo/freecad.gears.git "${freecad_gears_dir}"
+  # For compatibility with FreeCAD 0.19 (see https://wiki.freecad.org/Installing_more_workbenches)
+  mkdir -p ~/.FreeCAD/Mod
+  ln -s "${freecad_gears_dir}" ~/.FreeCAD/Mod/freecad.gears
 fi
 
 build_dir=build
