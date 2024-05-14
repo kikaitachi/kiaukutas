@@ -25,6 +25,7 @@ jobs:
           # To report GitHub Actions status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DISABLE_ERRORS: true
+          LINTER_RULES_PATH: .
   build:
     runs-on: ubuntu-latest
     steps:
