@@ -532,6 +532,31 @@ def add_visual(
     ET.SubElement(material, "color", {"rgba": rgba})
 
 
+def add_tendon(
+        link: ET.Element,
+        start: Vector,
+        length: float,
+        rotation: Vector,
+):
+    visual = ET.SubElement(link, "visual")
+    add_origin(
+        visual,
+        f"{start.x + length / 2} {start.z + length / 2} {start.y + length / 2}",
+        f"{rotation.x} {rotation.y} {rotation.z}",
+    )
+    geometry = ET.SubElement(visual, "geometry")
+    ET.SubElement(
+        geometry,
+        "cylinder",
+        {
+            "radius": "0.5",
+            "length": f"{length}",
+        }
+    )
+    material = ET.SubElement(visual, "material", {"name": ""})
+    ET.SubElement(material, "color", {"rgba": "0 0.4 0 1"})
+
+
 def add_shaft_pulleys(
         link: ET.Element,
         count: int,
@@ -601,6 +626,12 @@ for i in range(NUMBER_OF_MOTORS // 2):
         "winch",
         f"{i * 30 + 40} {-(34 / 2 + 2)} {46.5 - 11.25 + i * 10}",
         f"{pi / 2} 0 0"
+    )
+    add_tendon(
+        base,
+        Vector(0, PULLEY_RADIUS + TENDON_RADIUS, 10 + 8 + 6 * 3 + 6 * i),
+        i + 40 + 30 / 2,
+        Vector(0, pi / 2, 0),
     )
 
 initial_placement = Placement(Vector(0, 0, 10), Rotation(0, 0, 0))
