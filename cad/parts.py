@@ -534,15 +534,18 @@ def add_visual(
 
 def add_tendon(
         link: ET.Element,
-        start: Vector,
         length: float,
-        rotation: Vector,
+        placement: Placement,
 ):
     visual = ET.SubElement(link, "visual")
     add_origin(
         visual,
-        f"{start.x + length / 2} {start.z + length / 2} {start.y + length / 2}",
-        f"{rotation.x} {rotation.y} {rotation.z}",
+        placement=placement.multiply(
+            Placement(
+                Vector(0, 0, length / 2),
+                Rotation(0, 0, 0),
+            )
+        )
     )
     geometry = ET.SubElement(visual, "geometry")
     ET.SubElement(
@@ -610,14 +613,14 @@ for i in range(NUMBER_OF_MOTORS // 2):
     add_visual(
         base,
         "XM430-W350-T",
-        f"{i * 30 + 40} 0 {46.5 - 11.25 + i * 10}",
+        f"{i * 30 + 40} {34 / 2 + 2 + 3 + PULLEY_HEIGHT / 2} {46.5 - 11.25 + i * 10}",
         f"{pi / 2} 0 0",
         "0.05 0.05 0.05 1"
     )
     add_visual(
         base,
         "XM430-W350-T",
-        f"{i * 30 + 40} 0 {46.5 + 11.25 + i * 10}",
+        f"{i * 30 + 40} {34 / 2 + 2 + 3 + PULLEY_HEIGHT / 2 + PULLEY_RADIUS * 2} {46.5 + 11.25 + i * 10}",
         f"{pi / 2} {pi} 0",
         "0.05 0.05 0.05 1"
     )
@@ -629,9 +632,15 @@ for i in range(NUMBER_OF_MOTORS // 2):
     )
     add_tendon(
         base,
-        Vector(0, PULLEY_RADIUS + TENDON_RADIUS, 10 + 8 + 6 * 3 + 6 * i),
-        i + 40 + 30 / 2,
-        Vector(0, pi / 2, 0),
+        i * 30 + 40 + 30 / 2,
+        Placement(
+            Vector(
+                0,
+                -PULLEY_RADIUS - TENDON_RADIUS,
+                10 + JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 3.5),
+            ),
+            Rotation(0, 90, 0),
+        )
     )
 
 initial_placement = Placement(Vector(0, 0, 10), Rotation(0, 0, 0))
