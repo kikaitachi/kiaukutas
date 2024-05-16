@@ -613,26 +613,26 @@ for i in range(NUMBER_OF_MOTORS // 2):
     add_visual(
         base,
         "XM430-W350-T",
-        f"{i * 30 + 40} {34 / 2 + 2 + 3 + PULLEY_HEIGHT / 2} {46.5 - 11.25 + i * 10}",
+        f"{i * 30 + 40} {34 / 2 - 0.5 + PULLEY_HEIGHT / 2} {46.5 - 11.25 + i * JOINT_PULLEY_SPACING}",
         f"{pi / 2} 0 0",
         "0.05 0.05 0.05 1"
     )
     add_visual(
         base,
         "XM430-W350-T",
-        f"{i * 30 + 40} {34 / 2 + 2 + 3 + PULLEY_HEIGHT / 2 + PULLEY_RADIUS * 2} {46.5 + 11.25 + i * 10}",
+        f"{i * 30 + 40} {34 / 2 - 0.5 + PULLEY_HEIGHT / 2 + PULLEY_RADIUS * 2} {46.5 + 11.25 + i * JOINT_PULLEY_SPACING}",
         f"{pi / 2} {pi} 0",
         "0.05 0.05 0.05 1"
     )
     add_visual(
         base,
         "winch",
-        f"{i * 30 + 40} {-PULLEY_RADIUS + PULLEY_HEIGHT / 2 + 3} {46.5 - 11.25 + i * 10}",
+        f"{i * 30 + 40} {-PULLEY_RADIUS + PULLEY_HEIGHT / 2 + 3 - TENDON_RADIUS} {46.5 - 11.25 + i * JOINT_PULLEY_SPACING}",
         f"{pi / 2} 0 0"
     )
     add_tendon(
         base,
-        i * 30 + 40 + 30 / 2,
+        i * 30 + 40,
         Placement(
             Vector(
                 0,
