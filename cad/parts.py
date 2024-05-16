@@ -552,7 +552,7 @@ def add_tendon(
         geometry,
         "cylinder",
         {
-            "radius": "0.5",
+            "radius": f"{TENDON_RADIUS}",
             "length": f"{length}",
         }
     )
@@ -571,7 +571,7 @@ def add_shaft_pulleys(
             "shaft-pulley",
             placement=placement.multiply(
                 Placement(
-                    Vector(0, 0, JOINT_SHAFT_LENGTH - i * JOINT_PULLEY_SPACING - 8 - PULLEY_HEIGHT),
+                    Vector(0, 0, JOINT_SHAFT_LENGTH - i * JOINT_PULLEY_SPACING - 8 - PULLEY_HEIGHT - (JOINT_PULLEY_SPACING - PULLEY_HEIGHT) / 2),
                     Rotation(0, 0, 0),
                 )
             )
@@ -601,11 +601,11 @@ winch.exportStep(f"{dir}/winch.stp")
 root = ET.Element("robot", {"name": "kiaukutas"})
 base = ET.SubElement(root, "link", {"name": "base"})
 add_visual(base, "joint-gear-right", placement=Placement(
-    Vector(0, 0, 10),
+    Vector(0, 0, 11.25),
     Rotation(0, 0, 0),
 ), rgba="0 0 1 1")
 add_visual(base, "joint-gear-right", placement=Placement(
-    Vector(0, 0, 10 + JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT),
+    Vector(0, 0, 11.25 + JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT),
     Rotation(0, 0, 0),
 ), rgba="0 0 1 1")
 
@@ -627,7 +627,7 @@ for i in range(NUMBER_OF_MOTORS // 2):
     add_visual(
         base,
         "winch",
-        f"{i * 30 + 40} {-(34 / 2 + 2)} {46.5 - 11.25 + i * 10}",
+        f"{i * 30 + 40} {-PULLEY_RADIUS + PULLEY_HEIGHT / 2 + 3} {46.5 - 11.25 + i * 10}",
         f"{pi / 2} 0 0"
     )
     add_tendon(
@@ -637,13 +637,13 @@ for i in range(NUMBER_OF_MOTORS // 2):
             Vector(
                 0,
                 -PULLEY_RADIUS - TENDON_RADIUS,
-                10 + JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 3.5),
+                11.25 + JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 3.5),
             ),
             Rotation(0, 90, 0),
         )
     )
 
-initial_placement = Placement(Vector(0, 0, 10), Rotation(0, 0, 0))
+initial_placement = Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0))
 placement = Placement(Vector(0, 0, 0), Rotation(0, 0, 0))
 for i in range(len(SEGMENTS)):
     segment = SEGMENTS[i]
@@ -667,7 +667,7 @@ for i in range(len(SEGMENTS)):
         link,
         "segment-plate", placement=placement.multiply(
             Placement(
-                Vector(-JOINT_SHAFT_LENGTH - 10, 0, 0),
+                Vector(-JOINT_SHAFT_LENGTH - 11.25, 0, 0),
                 Rotation(0, 0, 0),
             )
         )
