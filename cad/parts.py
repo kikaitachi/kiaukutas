@@ -610,27 +610,33 @@ add_visual(base, "joint-gear-right", placement=Placement(
 ), rgba="0 0 1 1")
 
 for i in range(NUMBER_OF_MOTORS // 2):
-    add_visual(
+    add_visual(  # Bottom
         base,
         "XM430-W350-T",
         f"{i * 30 + 40} {34 / 2 - 0.5 + PULLEY_HEIGHT / 2} {46.5 - 11.25 + i * JOINT_PULLEY_SPACING}",
         f"{pi / 2} 0 0",
         "0.05 0.05 0.05 1"
     )
-    add_visual(
+    add_visual(  # Top
         base,
         "XM430-W350-T",
-        f"{i * 30 + 40} {34 / 2 - 0.5 + PULLEY_HEIGHT / 2 + PULLEY_RADIUS * 2} {46.5 + 11.25 + i * JOINT_PULLEY_SPACING}",
+        f"{i * 30 + 40} {34 / 2 + 0.5 + PULLEY_HEIGHT / 2 + PULLEY_RADIUS * 2} {46.5 + 11.25 + i * JOINT_PULLEY_SPACING + (JOINT_PULLEY_SPACING * 4 - 2 * 11.25)}",
         f"{pi / 2} {pi} 0",
         "0.05 0.05 0.05 1"
     )
-    add_visual(
+    add_visual(  # Bottom
         base,
         "winch",
         f"{i * 30 + 40} {-PULLEY_RADIUS + PULLEY_HEIGHT / 2 + 3 - TENDON_RADIUS} {46.5 - 11.25 + i * JOINT_PULLEY_SPACING}",
         f"{pi / 2} 0 0"
     )
-    add_tendon(
+    add_visual(  # Top
+        base,
+        "winch",
+        f"{i * 30 + 40} {PULLEY_RADIUS + PULLEY_HEIGHT / 2 + 3 + TENDON_RADIUS} {46.5 - 11.25 + (i + 4) * JOINT_PULLEY_SPACING}",
+        f"{pi / 2} 0 0"
+    )
+    add_tendon(  # Bottom
         base,
         i * 30 + 40,
         Placement(
@@ -638,6 +644,18 @@ for i in range(NUMBER_OF_MOTORS // 2):
                 0,
                 -PULLEY_RADIUS - TENDON_RADIUS,
                 11.25 + JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 3.5),
+            ),
+            Rotation(0, 90, 0),
+        )
+    )
+    add_tendon(  # Top
+        base,
+        i * 30 + 40,
+        Placement(
+            Vector(
+                0,
+                PULLEY_RADIUS + TENDON_RADIUS,
+                11.25 + JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 3.5 + 4),
             ),
             Rotation(0, 90, 0),
         )
