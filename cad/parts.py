@@ -180,6 +180,16 @@ def make_pulley():
     )).removeSplitter()
 
 
+def make_tackle_pulley():
+    return Part.makeCylinder(
+        5 / 2, 2.1, Vector(0, 0, 0), Vector(0, 0, 1)
+    ).fuse(
+        Part.makeCylinder(
+            7 / 2, 0.6, Vector(0, 0, 2.1), Vector(0, 0, 1)
+        )
+    ).removeSplitter()
+
+
 def make_joint_shaft():
     return Part.makeCylinder(
         JOINT_SHAFT_OD / 2, JOINT_SHAFT_LENGTH, Vector(0, 0, 0), Vector(0, 0, 1)
@@ -582,6 +592,9 @@ Part.read("XM430-W350-T.stp").exportStl(f"{dir}/XM430-W350-T.stl")
 pulley = make_pulley()
 pulley.exportStl(f"{dir}/shaft-pulley.stl")
 pulley.exportStep(f"{dir}/shaft-pulley.stp")
+tackle_pulley = make_tackle_pulley()
+tackle_pulley.exportStl(f"{dir}/tackle-pulley.stl")
+tackle_pulley.exportStep(f"{dir}/tackle-pulley.stp")
 shaft = make_joint_shaft()
 shaft.exportStl(f"{dir}/shaft.stl")
 shaft.exportStep(f"{dir}/shaft.stp")
@@ -661,6 +674,11 @@ for i in range(NUMBER_OF_MOTORS // 2):
         )
     )
 
+add_visual(
+    base,
+    "jetson",
+)
+
 initial_placement = Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0))
 placement = Placement(Vector(0, 0, 0), Rotation(0, 0, 0))
 for i in range(len(SEGMENTS)):
@@ -669,6 +687,21 @@ for i in range(len(SEGMENTS)):
     link = ET.SubElement(root, "link", {"name": f"segment{i}a"})
     add_visual(link, "shaft", placement=placement, rgba="0 1 0 1")
     add_shaft_pulleys(link, 14 - i, placement)
+
+    if i == 0:
+        for j in range(4):
+            add_tendon(
+                link,
+                SEGMENT_THICKNESS,
+                Placement(
+                    Vector(
+                        0,
+                        -PULLEY_RADIUS - TENDON_RADIUS,
+                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 0.5),
+                    ),
+                    Rotation(0, -90, 0),
+                )
+            )
 
     link = ET.SubElement(root, "link", {"name": f"segment{i}b"})
     add_visual(link, "shaft", placement=placement, rgba="1 0 0 1")
