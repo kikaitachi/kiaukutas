@@ -186,7 +186,11 @@ def make_tackle_pulley():
         5 / 2, 2.1, Vector(0, 0, 0), Vector(0, 0, 1)
     ).fuse(
         Part.makeCylinder(
-            7 / 2, 0.6, Vector(0, 0, 2.1), Vector(0, 0, 1)
+            7 / 2, 0.6, Vector(0, 0, 2.1 - 0.6), Vector(0, 0, 1)
+        )
+    ).cut(
+        Part.makeCylinder(
+            3 / 2, 2.1, Vector(0, 0, 0), Vector(0, 0, 1)
         )
     ).removeSplitter()
 
@@ -682,6 +686,7 @@ add_visual(
 
 initial_placement = Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0))
 placement = Placement(Vector(0, 0, 0), Rotation(0, 0, 0))
+prev_link = base
 for i in range(len(SEGMENTS)):
     segment = SEGMENTS[i]
 
@@ -725,10 +730,15 @@ for i in range(len(SEGMENTS)):
         )
     )
 
-    add_visual(link, "tackle-pulley", placement=Placement(
-        Vector(-SHAFT_TO_PLATE - 7, -JOINT_GEAR_HEIGHT - JOINT_PULLEY_SPACING / 2, 0), #, PLATE_THICKNESS / 2),
-        Rotation(90, 0, 0),
-    ), rgba="0.3 0.2 .6 1")
+    for j in range(2):
+        add_visual(link if j % 2 == 12 else prev_link, "tackle-pulley", placement=Placement(
+            Vector(
+                -SHAFT_TO_PLATE - 7 if j % 2 == 0 else SHAFT_TO_PLATE + 7,
+                -PLATE_THICKNESS / 2,
+                JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1),
+            ),
+            Rotation(90, 0, 0),
+        ), rgba="0.3 0.2 .6 1")
 
     if i != len(SEGMENTS) - 1:
         add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement, rgba="1 0 1 1")
@@ -738,6 +748,8 @@ for i in range(len(SEGMENTS)):
                 Rotation(0, 0, 0),
             )
         ), rgba="1 0 1 1")
+
+    prev_link = link
 
 placement = initial_placement
 for i in range(len(SEGMENTS)):
