@@ -235,9 +235,6 @@ def make_winch():
     ).removeSplitter()
 
 
-dir = sys.argv[3]
-
-
 def add_origin(
     element: ET.Element,
     xyz: str = "0 0 0",
@@ -312,6 +309,7 @@ def add_shaft_pulleys(
         )
 
 
+dir = sys.argv[3]
 Part.read("XM430-W350-T.stp").exportStl(f"{dir}/XM430-W350-T.stl")
 pulley = make_pulley()
 pulley.exportStl(f"{dir}/shaft-pulley.stl")
@@ -499,8 +497,6 @@ for i in range(len(SEGMENTS)):
         Rotation(0, 0, 0),
     ))
 
-ET.indent(root)
-tree = ET.ElementTree(root)
-tree.write(f"{dir}/robot.urdf")
+ET.ElementTree(root).write(f"{dir}/robot.urdf")
 
 exit(0)
