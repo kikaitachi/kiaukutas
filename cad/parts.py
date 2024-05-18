@@ -1,24 +1,11 @@
-from dataclasses import dataclass, field
-from FreeCAD import DocumentObject, newDocument, Placement, Rotation, Vector
-from PySide2 import QtCore
-from math import acos, cos, degrees, pi, radians, sin, sqrt
+from dataclasses import dataclass
+from FreeCAD import newDocument, Placement, Rotation, Vector
+from math import cos, pi, radians, sin
 from freecad.gears.commands import CreateInvoluteGear
 from typing import Optional
 import xml.etree.ElementTree as ET
-import FreeCADGui
 import Part
 import sys
-
-
-@dataclass
-class RobotPart:
-    """Robot part."""
-
-    object: DocumentObject
-    """FreeCAD object."""
-
-    placement: Placement
-    """Relative placement."""
 
 
 @dataclass
@@ -30,9 +17,6 @@ class Segment:
 
     axis: Vector
     """Axis of rotation."""
-
-    parts: list[RobotPart] = field(default_factory=list)
-    """Parts of the segment."""
 
 
 JOINT_SHAFT_LENGTH = 100
