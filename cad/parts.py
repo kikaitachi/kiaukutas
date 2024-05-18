@@ -37,6 +37,7 @@ class Segment:
 
 JOINT_SHAFT_LENGTH = 100
 SHAFT_TO_PLATE = 10
+PLATE_THICKNESS = 6
 
 
 SEGMENTS = [
@@ -723,6 +724,12 @@ for i in range(len(SEGMENTS)):
             )
         )
     )
+
+    add_visual(link, "tackle-pulley", placement=Placement(
+        Vector(-SHAFT_TO_PLATE - 7, -JOINT_GEAR_HEIGHT - JOINT_PULLEY_SPACING / 2, 0), #, PLATE_THICKNESS / 2),
+        Rotation(90, 0, 0),
+    ), rgba="0.3 0.2 .6 1")
+
     if i != len(SEGMENTS) - 1:
         add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement, rgba="1 0 1 1")
         add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement.multiply(
