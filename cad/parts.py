@@ -112,63 +112,6 @@ JOINT_GEAR_HEIGHT = (JOINT_SHAFT_LENGTH - 14 * JOINT_PULLEY_SPACING) / 2
 doc = newDocument("kiaukutas")
 
 
-def cylinder(
-    *,
-    height: float,
-    radius: Optional[float] = None,
-    diameter: Optional[float] = None,
-    translation: Optional[Vector] = Vector(0, 0, 0),
-    rotation: Optional[Rotation] = Rotation(0, 0, 0),
-    center=None,
-    title: Optional[str] = "cylinder",
-):
-    result = doc.addObject("Part::Cylinder")
-    result.Radius = radius if diameter is None else diameter / 2.0
-    result.Height = height
-    if center is None:
-        result.Placement = Placement(translation, rotation)
-    else:
-        result.Placement = Placement(translation, rotation, center)
-    result.Label = title
-    return result
-
-
-def boolean(type, base, tool):
-    result = doc.addObject(type)
-    result.Base = base
-    result.Tool = tool
-    result.Refine = True
-    base.Visibility = False
-    tool.Visibility = False
-    return result
-
-
-def fuse(*objects):
-    if len(objects) == 1:
-        return objects[0]
-    if len(objects) == 2:
-        return boolean(
-            "Part::Fuse",
-            objects[0],
-            objects[1],
-        )
-    else:
-        return fuse(*[fuse(*objects[:2]), *objects[2:]])
-
-
-def cut(*objects):
-    if len(objects) == 1:
-        return objects[0]
-    if len(objects) == 2:
-        return boolean(
-            "Part::Cut",
-            objects[0],
-            objects[1],
-        )
-    else:
-        return cut(*[cut(*objects[:2]), *objects[2:]])
-
-
 def make_pulley():
     return Part.makeCylinder(
         PULLEY_RADIUS, PULLEY_HEIGHT, Vector(0, 0, 0), Vector(0, 0, 1)
@@ -183,14 +126,14 @@ def make_pulley():
 
 def make_tackle_pulley():
     return Part.makeCylinder(
-        5 / 2, 2.1, Vector(0, 0, 0), Vector(0, 0, 1)
+        5 / 2, 2.1, Vector(0, 0, 0), Vector(0, 1, 0)
     ).fuse(
         Part.makeCylinder(
-            7 / 2, 0.6, Vector(0, 0, 2.1 - 0.6), Vector(0, 0, 1)
+            7 / 2, 0.6, Vector(0, 0, 0), Vector(0, 1, 0)
         )
     ).cut(
         Part.makeCylinder(
-            3 / 2, 2.1, Vector(0, 0, 0), Vector(0, 0, 1)
+            3 / 2, 2.1, Vector(0, 0, 0), Vector(0, 1, 0)
         )
     ).removeSplitter()
 
@@ -699,14 +642,14 @@ for i in range(len(SEGMENTS)):
     )
 
     for j in range(0, 3, 2):
-        add_visual(link if j % 2 == 0 else prev_link, "tackle-pulley", placement=Placement(
+        add_visual(link, "tackle-pulley", placement=Placement(
             Vector(
-                -SHAFT_TO_PLATE - 7 / 2 if j % 2 == 0 else -JOINT_SHAFT_LENGTH - SHAFT_TO_PLATE + 7 / 2,
-                -PLATE_THICKNESS / 2,
+                -SHAFT_TO_PLATE - 7 / 2,
+                -PLATE_THICKNESS / 2 - 2.1,
                 JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1 + i),
             ),
-            Rotation(90, 0, 0),
-        ), rgba="0.3 0.2 .6 1")
+            Rotation(0, 0, 0),
+        ), rgba="0.3 0.2 0.6 1")
 
     if i != len(SEGMENTS) - 1:
         add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement, rgba="1 0 1 1")
@@ -716,8 +659,16 @@ for i in range(len(SEGMENTS)):
                 Rotation(0, 0, 0),
             )
         ), rgba="1 0 1 1")
-
-    prev_link = link
+        add_visual(link, "tackle-pulley", placement=SEGMENTS[i + 1].placement.multiply(
+            Placement(
+                Vector(
+                    SHAFT_TO_PLATE + 7 / 2,
+                    -PLATE_THICKNESS / 2 - 2.1,
+                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (1 + 1 + i),
+                ),
+                Rotation(0, 0, 0),
+            )
+        ), rgba="0.3 0.2 0.6 1")
 
 placement = initial_placement
 for i in range(len(SEGMENTS)):
