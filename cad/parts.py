@@ -72,14 +72,14 @@ SEGMENTS = [
     Segment(
         Placement(
             Vector(-(JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE), 0, JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE),
-            Rotation(Vector(0, 1, 0), 90),
+            Rotation(Vector(0, 1, 0), JOINT_SHAFT_LENGTH - SHAFT_TO_PLATE),
         ),
         "0 0 1",
     ),
     Segment(
         Placement(
             Vector(-SHAFT_TO_PLATE, 0, -SHAFT_TO_PLATE),
-            Rotation(Vector(0, 1, 0), -90),
+            Rotation(Vector(0, 1, 0), -JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE),
         ),
         "0 0 1",
     ),
@@ -270,11 +270,11 @@ def make_winch():
         )
     ).fuse(
         Part.makeCylinder(
-            10 / 2, PULLEY_HEIGHT, Vector(0, 0, 3), Vector(0, 0, 1)
+            PULLEY_RADIUS, PULLEY_HEIGHT, Vector(0, 0, 3), Vector(0, 0, 1)
         )
     ).fuse(
         Part.makeCone(
-            10 / 2, 12 / 2, 1, Vector(0, 0, 3 + PULLEY_HEIGHT - 1), Vector(0, 0, 1)
+            PULLEY_RADIUS, 12 / 2, 1, Vector(0, 0, 3 + PULLEY_HEIGHT - 1), Vector(0, 0, 1)
         )
     ).cut(
         Part.makeCylinder(
@@ -306,38 +306,6 @@ def make_winch():
             8.3 / 2, 8.3 / 2 - 2, 2, Vector(0, 0, 2.3), Vector(0, 0, 1)
         )
     ).removeSplitter()
-
-
-def makeServoToJointBracket():
-    result = doc.addObject("Part::Feature")
-    bracketHeight = 16
-    servoScrewRadius = 3 / 2
-    motorChamferLength = 3.5
-    motorChamferWidth = 2
-    front = Part.makeBox(BRACKET_THICKNESS, MOTOR_WIDTH + BRACKET_THICKNESS - motorChamferWidth, bracketHeight).translate(
-        Vector(-MOTOR_LENGTH / 2 - BRACKET_THICKNESS, -MOTOR_WIDTH + 11.25 + motorChamferWidth, -bracketHeight / 2)
-    ).cut(Part.makeCylinder(
-        servoScrewRadius, BRACKET_THICKNESS, Vector(-MOTOR_LENGTH / 2, -4, 6), Vector(-1, 0, 0))
-    ).cut(Part.makeCylinder(
-        servoScrewRadius, BRACKET_THICKNESS, Vector(-MOTOR_LENGTH / 2, -4, -6), Vector(-1, 0, 0))
-    ).cut(Part.makeCylinder(
-        servoScrewRadius, BRACKET_THICKNESS, Vector(-MOTOR_LENGTH / 2, -4 - 24, 6), Vector(-1, 0, 0))
-    ).cut(Part.makeCylinder(
-        servoScrewRadius, BRACKET_THICKNESS, Vector(-MOTOR_LENGTH / 2, -4 - 24, -6), Vector(-1, 0, 0))
-    )
-    side = Part.makeBox(MOTOR_SPACING * NUMBER_OF_MOTORS - motorChamferLength, BRACKET_THICKNESS, bracketHeight).translate(
-        Vector(-MOTOR_LENGTH / 2, 11.25, -bracketHeight / 2)
-    )
-    for i in range(NUMBER_OF_MOTORS):
-        x = MOTOR_SPACING * i - (MOTOR_LENGTH + motorChamferLength - 16) / 2
-        side = side.cut(Part.makeCylinder(
-            servoScrewRadius, BRACKET_THICKNESS, Vector(x, 11.25, 6), Vector(0, 1, 0))
-        ).cut(Part.makeCylinder(
-            servoScrewRadius, BRACKET_THICKNESS, Vector(x + 16, 11.25, 6), Vector(0, 1, 0))
-        )
-    result.Shape = front.fuse(side)
-    result.Label = "Servo to Joint Bracket"
-    return result
 
 
 class Assembly:
@@ -724,16 +692,16 @@ for i in range(len(SEGMENTS)):
         link,
         "segment-plate", placement=placement.multiply(
             Placement(
-                Vector(-JOINT_SHAFT_LENGTH - 11.25, 0, 0),
+                Vector(-JOINT_SHAFT_LENGTH - SHAFT_TO_PLATE, 0, 0),
                 Rotation(0, 0, 0),
             )
         )
     )
 
-    for j in range(2):
-        add_visual(link if j % 2 == 12 else prev_link, "tackle-pulley", placement=Placement(
+    for j in range(3):
+        add_visual(link if True else prev_link, "tackle-pulley", placement=Placement(
             Vector(
-                -SHAFT_TO_PLATE - 7 if j % 2 == 0 else SHAFT_TO_PLATE + 7,
+                -SHAFT_TO_PLATE - 7 / 2 if True else SHAFT_TO_PLATE + 7,
                 -PLATE_THICKNESS / 2,
                 JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1),
             ),
