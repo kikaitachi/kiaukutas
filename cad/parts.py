@@ -396,10 +396,14 @@ for i in range(NUMBER_OF_MOTORS // 2):
         )
     )
 
-add_visual(
-    base,
-    "jetson",
-)
+add_visual(base, "tackle-pulley", placement=Placement(
+    Vector(
+        SHAFT_TO_PLATE + 7 / 2,
+        -PLATE_THICKNESS / 2 - 2.1,
+        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * 2 + 11.25,
+    ),
+    Rotation(0, 0, 0),
+), rgba="0.3 0.2 0.6 1")
 
 initial_placement = Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0))
 placement = Placement(Vector(0, 0, 0), Rotation(0, 0, 0))
