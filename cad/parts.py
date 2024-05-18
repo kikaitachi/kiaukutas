@@ -698,12 +698,12 @@ for i in range(len(SEGMENTS)):
         )
     )
 
-    for j in range(3):
-        add_visual(link if True else prev_link, "tackle-pulley", placement=Placement(
+    for j in range(0, 3, 2):
+        add_visual(link if j % 2 == 0 else prev_link, "tackle-pulley", placement=Placement(
             Vector(
-                -SHAFT_TO_PLATE - 7 / 2 if True else SHAFT_TO_PLATE + 7,
+                -SHAFT_TO_PLATE - 7 / 2 if j % 2 == 0 else -JOINT_SHAFT_LENGTH - SHAFT_TO_PLATE + 7 / 2,
                 -PLATE_THICKNESS / 2,
-                JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1),
+                JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1 + i),
             ),
             Rotation(90, 0, 0),
         ), rgba="0.3 0.2 .6 1")
