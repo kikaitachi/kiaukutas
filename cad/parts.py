@@ -499,20 +499,34 @@ for i in range(len(SEGMENTS)):
     add_visual(link, "shaft", placement=placement, rgba="0 1 0 1")
     add_shaft_pulleys(link, 14 - i, placement)
 
-    if i == 0:
-        for j in range(4):
-            add_tendon(
-                link,
-                SEGMENT_THICKNESS,
-                Placement(
-                    Vector(
-                        0,
-                        -PULLEY_RADIUS - TENDON_RADIUS,
-                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 0.5),
-                    ),
-                    Rotation(0, -90, 0),
-                )
-            )
+    for j in range(4):
+        add_tendon(
+            link,
+            SEGMENT_THICKNESS,
+            Placement(
+                Vector(
+                    0,
+                    -PULLEY_RADIUS - TENDON_RADIUS,
+                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + j + 0.5),
+                ),
+                Rotation(0, -90, 0),
+            ),
+            i,
+        )
+    for j in range(i, len(SEGMENTS) + 1):
+        add_tendon(
+            link,
+            SEGMENT_THICKNESS,
+            Placement(
+                Vector(
+                    0,
+                    -PULLEY_RADIUS - TENDON_RADIUS if j <= len(SEGMENTS) // 2 else PULLEY_RADIUS + TENDON_RADIUS,
+                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + j + 3.5),
+                ),
+                Rotation(0, -90, 0),
+            ),
+            j,
+        )
 
     link = ET.SubElement(root, "link", {"name": f"segment{i}b"})
     add_visual(link, "shaft", placement=placement, rgba="1 0 0 1")
