@@ -435,21 +435,57 @@ for i in range(NUMBER_OF_MOTORS // 2):
     )
 
 
-def add_tension_pulleys(link, placement=Placement(Vector(0, 0, 0), Rotation(0, 0, 0))):
+def add_tension_pulleys(
+        link,
+        index: int,
+        placement=Placement(Vector(0, 0, 0), Rotation(0, 0, 0)),
+):
     add_visual(link, "tackle-pulley", placement=placement.multiply(
         Placement(
             Vector(
                 SHAFT_TO_PLATE + 7 / 2,
-                -PLATE_THICKNESS / 2 - 2.1,
+                -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
                 JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * 2,
             ),
             Rotation(0, 0, 0),
         )
     ), rgba="0.3 0.2 0.6 1")
+    add_visual(
+        link,
+        "tackle-pulley-tendon",
+        placement=placement.multiply(
+            Placement(
+                Vector(
+                    SHAFT_TO_PLATE + 7 / 2,
+                    -PULLEY_RADIUS - TENDON_RADIUS,
+                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * 2,
+                ),
+                Rotation(0, 0, 0),
+            )
+        ),
+        name=f"tendon{index}"
+    )
+    for k in [-JOINT_PULLEY_SPACING * 1.5, -JOINT_PULLEY_SPACING / 2, JOINT_PULLEY_SPACING / 2]:
+        add_tendon(
+            link,
+            7 / 2 + SHAFT_TO_PLATE,
+            placement.multiply(
+                Placement(
+                    Vector(
+                        SHAFT_TO_PLATE + 7 / 2,
+                        -PULLEY_RADIUS - TENDON_RADIUS,
+                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (2 + index) + k,
+                    ),
+                    Rotation(0, -90, 0),
+                )
+            ),
+            index,
+        )
 
 
 add_tension_pulleys(
     base,
+    0,
     placement=Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0))
 )
 
@@ -546,6 +582,7 @@ for i in range(len(SEGMENTS)):
         ), rgba="1 0 1 1")
         add_tension_pulleys(
             link,
+            i + 1,
             placement=SEGMENTS[i + 1].placement.multiply(
                 Placement(
                     Vector(
@@ -555,7 +592,7 @@ for i in range(len(SEGMENTS)):
                     ),
                     Rotation(0, 0, 0),
                 )
-            )
+            ),
         )
 
 placement = initial_placement
