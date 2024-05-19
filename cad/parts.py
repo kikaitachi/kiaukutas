@@ -465,7 +465,7 @@ def add_tension_pulleys(
         ),
         name=f"tendon{index}"
     )
-    for k in [-JOINT_PULLEY_SPACING * 1.5, -JOINT_PULLEY_SPACING / 2, JOINT_PULLEY_SPACING / 2]:
+    for k in range(3):
         add_tendon(
             link,
             7 / 2 + SHAFT_TO_PLATE,
@@ -474,7 +474,7 @@ def add_tension_pulleys(
                     Vector(
                         SHAFT_TO_PLATE + 7 / 2,
                         -PULLEY_RADIUS - TENDON_RADIUS,
-                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (2 + index) + k,
+                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (0.5 + k),
                     ),
                     Rotation(0, -90, 0),
                 )
