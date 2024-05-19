@@ -22,6 +22,7 @@ class Segment:
 JOINT_SHAFT_LENGTH = 100
 SHAFT_TO_PLATE = 10
 PLATE_THICKNESS = 6
+TACKLE_PULLEY_RADIUS = 5 / 2
 
 
 SEGMENTS = [
@@ -110,7 +111,7 @@ def make_pulley():
 
 def make_tackle_pulley():
     return Part.makeCylinder(
-        5 / 2, 2.1, Vector(0, 0, 0), Vector(0, 1, 0)
+        TACKLE_PULLEY_RADIUS, 2.1, Vector(0, 0, 0), Vector(0, 1, 0)
     ).fuse(
         Part.makeCylinder(
             7 / 2, 0.6, Vector(0, 0, 0), Vector(0, 1, 0)
@@ -475,11 +476,25 @@ for i in range(len(SEGMENTS)):
         add_visual(link, "tackle-pulley", placement=Placement(
             Vector(
                 -SHAFT_TO_PLATE - 7 / 2,
-                -PLATE_THICKNESS / 2 - 2.1,
+                -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
                 JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1 + i),
             ),
             Rotation(0, 0, 0),
         ), rgba="0.3 0.2 0.6 1")
+        for k in [-JOINT_PULLEY_SPACING / 2, JOINT_PULLEY_SPACING / 2]:
+            add_tendon(
+                link,
+                7 / 2 + SHAFT_TO_PLATE,
+                Placement(
+                    Vector(
+                        -SHAFT_TO_PLATE - 7 / 2,
+                        -PULLEY_RADIUS - TENDON_RADIUS,
+                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1 + i) + k,
+                    ),
+                    Rotation(0, 90, 0),
+                ),
+                i,
+            )
 
     if i != len(SEGMENTS) - 1:
         add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement, rgba="1 0 1 1")
