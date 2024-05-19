@@ -123,6 +123,18 @@ def make_tackle_pulley():
     ).removeSplitter()
 
 
+def make_tackle_pulley_tendon():
+    return Part.makeTorus(
+        TACKLE_PULLEY_RADIUS + TENDON_RADIUS,
+        TENDON_RADIUS,
+        Vector(0, 0, 0),
+        Vector(0, 1, 0),
+        0,
+        360,
+        180,
+    )
+
+
 def make_joint_shaft():
     return Part.makeCylinder(
         JOINT_SHAFT_OD / 2, JOINT_SHAFT_LENGTH, Vector(0, 0, 0), Vector(0, 0, 1)
@@ -254,14 +266,16 @@ def add_visual(
         xyz: str = "0 0 0",
         rpy: str = "0 0 0",
         rgba: str = "1 1 1 1",
-        placement: Optional[Placement] = None
+        placement: Optional[Placement] = None,
+        name: Optional[str] = None
 ):
     visual = ET.SubElement(link, "visual")
     add_origin(visual, xyz, rpy, placement)
     geometry = ET.SubElement(visual, "geometry")
     ET.SubElement(geometry, "mesh", {"filename": f"{stl}.stl"})
-    material = ET.SubElement(visual, "material", {"name": ""})
-    ET.SubElement(material, "color", {"rgba": rgba})
+    material = ET.SubElement(visual, "material", {"name": "" if name is None else name})
+    if name is None:
+        ET.SubElement(material, "color", {"rgba": rgba})
 
 
 def add_tendon(
@@ -318,6 +332,9 @@ pulley.exportStep(f"{dir}/shaft-pulley.stp")
 tackle_pulley = make_tackle_pulley()
 tackle_pulley.exportStl(f"{dir}/tackle-pulley.stl")
 tackle_pulley.exportStep(f"{dir}/tackle-pulley.stp")
+tackle_pulley_tendon = make_tackle_pulley_tendon()
+tackle_pulley_tendon.exportStl(f"{dir}/tackle-pulley-tendon.stl")
+tackle_pulley_tendon.exportStep(f"{dir}/tackle-pulley-tendon.stp")
 shaft = make_joint_shaft()
 shaft.exportStl(f"{dir}/shaft.stl")
 shaft.exportStep(f"{dir}/shaft.stp")
@@ -495,6 +512,19 @@ for i in range(len(SEGMENTS)):
                 ),
                 i,
             )
+        add_visual(
+            link,
+            "tackle-pulley-tendon",
+            placement=Placement(
+                Vector(
+                    -SHAFT_TO_PLATE - 7 / 2,
+                    -PULLEY_RADIUS - TENDON_RADIUS,
+                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1 + i),
+                ),
+                Rotation(0, 180, 0),
+            ),
+            name=f"tendon{i}"
+        )
 
     if i != len(SEGMENTS) - 1:
         add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement, rgba="1 0 1 1")
