@@ -267,6 +267,7 @@ def add_tendon(
         link: ET.Element,
         length: float,
         placement: Placement,
+        index: int = 0,
 ):
     visual = ET.SubElement(link, "visual")
     add_origin(
@@ -287,8 +288,7 @@ def add_tendon(
             "length": f"{length}",
         }
     )
-    material = ET.SubElement(visual, "material", {"name": ""})
-    ET.SubElement(material, "color", {"rgba": "0 0.4 0 1"})
+    ET.SubElement(visual, "material", {"name": f"tendon{index}"})
 
 
 def add_shaft_pulleys(
@@ -334,6 +334,24 @@ winch.exportStl(f"{dir}/winch.stl")
 winch.exportStep(f"{dir}/winch.stp")
 
 root = ET.Element("robot", {"name": "kiaukutas"})
+
+
+def define_material(name: str, r: float, g: float, b: float, a: float = 1) -> None:
+    global root
+    material = ET.SubElement(root, "material", {"name": name})
+    ET.SubElement(material, "color", {"rgba": f"{r} {g} {b} {a}"})
+
+
+define_material("tendon0", 1, 0, 0)  # Red
+define_material("tendon1", 1, 165 / 256, 0)  # Orange
+define_material("tendon2", 1, 1, 0)  # Yellow
+define_material("tendon3", 0, 1, 0)  # Green
+define_material("tendon4", 0, 1, 1)  # Cyan
+define_material("tendon5", 0, 0, 1)  # Blue
+define_material("tendon6", 127 / 256, 0, 1)  # Violet
+define_material("tendon7", 192 / 256, 192 / 256, 192 / 256)  # Silver
+
+
 base = ET.SubElement(root, "link", {"name": "base"})
 add_visual(base, "joint-gear-right", placement=Placement(
     Vector(0, 0, 11.25),
@@ -381,7 +399,8 @@ for i in range(NUMBER_OF_MOTORS // 2):
                 11.25 + JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 3.5),
             ),
             Rotation(0, 90, 0),
-        )
+        ),
+        i,
     )
     add_tendon(  # Top
         base,
@@ -393,7 +412,8 @@ for i in range(NUMBER_OF_MOTORS // 2):
                 11.25 + JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 3.5 + 4),
             ),
             Rotation(0, 90, 0),
-        )
+        ),
+        i + 4,
     )
 
 add_visual(base, "tackle-pulley", placement=Placement(
