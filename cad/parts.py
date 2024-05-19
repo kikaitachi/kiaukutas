@@ -434,14 +434,24 @@ for i in range(NUMBER_OF_MOTORS // 2):
         i + 4,
     )
 
-add_visual(base, "tackle-pulley", placement=Placement(
-    Vector(
-        SHAFT_TO_PLATE + 7 / 2,
-        -PLATE_THICKNESS / 2 - 2.1,
-        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * 2 + 11.25,
-    ),
-    Rotation(0, 0, 0),
-), rgba="0.3 0.2 0.6 1")
+
+def add_tension_pulleys(link, placement=Placement(Vector(0, 0, 0), Rotation(0, 0, 0))):
+    add_visual(link, "tackle-pulley", placement=placement.multiply(
+        Placement(
+            Vector(
+                SHAFT_TO_PLATE + 7 / 2,
+                -PLATE_THICKNESS / 2 - 2.1,
+                JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * 2,
+            ),
+            Rotation(0, 0, 0),
+        )
+    ), rgba="0.3 0.2 0.6 1")
+
+
+add_tension_pulleys(
+    base,
+    placement=Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0))
+)
 
 initial_placement = Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0))
 placement = Placement(Vector(0, 0, 0), Rotation(0, 0, 0))
@@ -534,16 +544,19 @@ for i in range(len(SEGMENTS)):
                 Rotation(0, 0, 0),
             )
         ), rgba="1 0 1 1")
-        add_visual(link, "tackle-pulley", placement=SEGMENTS[i + 1].placement.multiply(
-            Placement(
-                Vector(
-                    SHAFT_TO_PLATE + 7 / 2,
-                    -PLATE_THICKNESS / 2 - 2.1,
-                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (1 + 1 + i),
-                ),
-                Rotation(0, 0, 0),
+        add_tension_pulleys(
+            link,
+            placement=SEGMENTS[i + 1].placement.multiply(
+                Placement(
+                    Vector(
+                        0,
+                        0,
+                        JOINT_PULLEY_SPACING * (i + 1),
+                    ),
+                    Rotation(0, 0, 0),
+                )
             )
-        ), rgba="0.3 0.2 0.6 1")
+        )
 
 placement = initial_placement
 for i in range(len(SEGMENTS)):
