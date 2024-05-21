@@ -557,12 +557,14 @@ for i in range(len(SEGMENTS)):
     ), rgba="0 1 1 1")
     add_visual(
         link,
-        "segment-plate", placement=placement.multiply(
+        "segment-plate",
+        placement=placement.multiply(
             Placement(
                 Vector(-JOINT_SHAFT_LENGTH - SHAFT_TO_PLATE, 0, 0),
                 Rotation(0, 0, 0),
             )
-        )
+        ),
+        rgba="1 1 1 0.5",
     )
 
     # Direction changing pulleys, TODO: add them only on direction changing segments
@@ -576,13 +578,26 @@ for i in range(len(SEGMENTS)):
                 ),
                 Rotation(0, 0, 0),
             ), rgba="0.3 0.2 0.6 1")
+            add_tendon(
+                link,
+                JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - j * JOINT_PULLEY_SPACING,
+                Placement(
+                    Vector(
+                        0,
+                        -PULLEY_RADIUS - TENDON_RADIUS,
+                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1 + i) - JOINT_PULLEY_SPACING / 2,
+                    ),
+                    Rotation(0, -90, 0),
+                ),
+                i,
+            )
 
     for j in range(0, 3, 2):
         add_visual(link, "tackle-pulley", placement=Placement(
             Vector(
                 -SHAFT_TO_PLATE - 7 / 2,
                 -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
-                JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1 + i),
+                JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (12 - j + 1 + i),
             ),
             Rotation(0, 0, 0),
         ), rgba="0.3 0.2 0.6 1")
@@ -594,7 +609,7 @@ for i in range(len(SEGMENTS)):
                     Vector(
                         -SHAFT_TO_PLATE - 7 / 2,
                         -PULLEY_RADIUS - TENDON_RADIUS,
-                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1 + i) + k,
+                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (12 - j + 1 + i) + k,
                     ),
                     Rotation(0, 90, 0),
                 ),
@@ -607,7 +622,7 @@ for i in range(len(SEGMENTS)):
                 Vector(
                     -SHAFT_TO_PLATE - 7 / 2,
                     -PULLEY_RADIUS - TENDON_RADIUS,
-                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1 + i),
+                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (12 - j + 1 + i),
                 ),
                 Rotation(0, 180, 0),
             ),
