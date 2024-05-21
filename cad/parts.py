@@ -146,7 +146,23 @@ def make_joint_shaft():
 def make_segment_plate():
     return Part.makeBox(
         JOINT_SHAFT_LENGTH, 3, JOINT_SHAFT_LENGTH
-    )
+    ).cut(
+        Part.makeCylinder(
+            3.4 / 2, 3, Vector(JOINT_GEAR_HEIGHT / 2, 0, JOINT_GEAR_HEIGHT / 2), Vector(0, 1, 0)
+        )
+    ).cut(
+        Part.makeCylinder(
+            3.4 / 2, 3, Vector(JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT / 2, 0, JOINT_GEAR_HEIGHT / 2), Vector(0, 1, 0)
+        )
+    ).cut(
+        Part.makeCylinder(
+            3.4 / 2, 3, Vector(JOINT_GEAR_HEIGHT / 2, 0, JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT / 2), Vector(0, 1, 0)
+        )
+    ).cut(
+        Part.makeCylinder(
+            3.4 / 2, 3, Vector(JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT / 2, 0, JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT / 2), Vector(0, 1, 0)
+        )
+    ).removeSplitter()
 
 
 def makeTendonOnPulley():
@@ -551,12 +567,12 @@ for i in range(len(SEGMENTS)):
 
     # Direction changing pulleys, TODO: add them only on direction changing segments
     if i == 0:
-        for j in range(3):
+        for j in range(7):
             add_visual(link, "tackle-pulley", placement=Placement(
                 Vector(
                     -JOINT_SHAFT_LENGTH + JOINT_GEAR_HEIGHT + j * JOINT_PULLEY_SPACING,
                     -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
-                    JOINT_GEAR_HEIGHT + (j + 4) * JOINT_PULLEY_SPACING,
+                    JOINT_GEAR_HEIGHT + (j + 1) * JOINT_PULLEY_SPACING,
                 ),
                 Rotation(0, 0, 0),
             ), rgba="0.3 0.2 0.6 1")
