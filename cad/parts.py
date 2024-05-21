@@ -589,7 +589,7 @@ for i in range(len(SEGMENTS)):
                     ),
                     Rotation(0, -90, 0),
                 ),
-                i,
+                i if j < i + 3 else j - 3,
             )
 
     for j in range(0, 3, 2):
