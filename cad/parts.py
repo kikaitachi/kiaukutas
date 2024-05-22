@@ -24,7 +24,6 @@ SHAFT_TO_PLATE = 10
 PLATE_THICKNESS = 6
 TACKLE_PULLEY_RADIUS = 5 / 2
 
-
 SEGMENTS = [
     Segment(
         Placement(
@@ -97,16 +96,27 @@ JOINT_GEAR_HEIGHT = (JOINT_SHAFT_LENGTH - 14 * JOINT_PULLEY_SPACING) / 2
 doc = newDocument("kiaukutas")
 
 
-def make_pulley():
+def make_pulley(
+        height: float = PULLEY_HEIGHT,
+        pulley_radius: float = PULLEY_RADIUS,
+        flange_radius: float = PULLEY_RADIUS + 1,
+        hole_radius: float = PULLEY_HOLE_RADIUS,
+):
     return Part.makeCylinder(
-        PULLEY_RADIUS, PULLEY_HEIGHT, Vector(0, 0, 0), Vector(0, 0, 1)
-    ).fuse(Part.makeCone(
-        PULLEY_RADIUS + 1, PULLEY_RADIUS, 1, Vector(0, 0, 0), Vector(0, 0, 1)
-    )).fuse(Part.makeCone(
-        PULLEY_RADIUS, PULLEY_RADIUS + 1, 1, Vector(0, 0, PULLEY_HEIGHT - 1), Vector(0, 0, 1)
-    )).cut(Part.makeCylinder(
-        PULLEY_HOLE_RADIUS, PULLEY_HEIGHT, Vector(0, 0, 0), Vector(0, 0, 1)
-    )).removeSplitter()
+        pulley_radius, height, Vector(0, 0, 0), Vector(0, 0, 1)
+    ).fuse(
+        Part.makeCone(
+            flange_radius, pulley_radius, 1, Vector(0, 0, 0), Vector(0, 0, 1)
+        )
+    ).fuse(
+        Part.makeCone(
+            pulley_radius, flange_radius, 1, Vector(0, 0, height - 1), Vector(0, 0, 1)
+        )
+    ).cut(
+        Part.makeCylinder(
+            hole_radius, height, Vector(0, 0, 0), Vector(0, 0, 1)
+        )
+    ).removeSplitter()
 
 
 def make_tackle_pulley():
@@ -145,7 +155,11 @@ def make_joint_shaft():
 
 def make_segment_plate():
     return Part.makeBox(
-        JOINT_SHAFT_LENGTH, 3, JOINT_SHAFT_LENGTH
+        JOINT_SHAFT_LENGTH,
+        6,
+        JOINT_SHAFT_LENGTH,
+        Vector(0, -3, 0),
+        Vector(0, 0, 1),
     ).cut(
         Part.makeCylinder(
             3.4 / 2, 3, Vector(JOINT_GEAR_HEIGHT / 2, 0, JOINT_GEAR_HEIGHT / 2), Vector(0, 1, 0)
