@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from FreeCAD import newDocument, Placement, Rotation, Vector
-from math import cos, pi, radians, sin
+from math import cos, pi, radians, sin, sqrt
 from freecad.gears.commands import CreateInvoluteGear
 from typing import Optional
 import xml.etree.ElementTree as ET
@@ -154,12 +154,79 @@ def make_joint_shaft():
 
 
 def make_segment_plate():
+    corner_length = SEGMENT_THICKNESS - PLATE_THICKNESS
+    joiner_length = sqrt(JOINT_GEAR_HEIGHT ** 2 * 2)
+    joiner_center = sqrt(joiner_length ** 2 * 2) / 2
     return Part.makeBox(
         JOINT_SHAFT_LENGTH,
-        6,
+        PLATE_THICKNESS,
         JOINT_SHAFT_LENGTH,
-        Vector(0, -3, 0),
+        Vector(0, -PLATE_THICKNESS / 2, 0),
         Vector(0, 0, 1),
+    ).fuse(
+        Part.makeBox(
+            corner_length,
+            PLATE_THICKNESS,
+            corner_length,
+            Vector(JOINT_SHAFT_LENGTH, -PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH),
+            Vector(0, 0, 1),
+        )
+    ).fuse(
+        Part.makeBox(
+            joiner_length,
+            PLATE_THICKNESS,
+            joiner_length,
+            Vector(JOINT_SHAFT_LENGTH - joiner_center, -PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH),
+            Vector(1, 0, 1),
+        )
+    ).fuse(
+        Part.makeBox(
+            corner_length,
+            PLATE_THICKNESS,
+            corner_length,
+            Vector(-corner_length, -PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH),
+            Vector(0, 0, 1),
+        )
+    ).fuse(
+        Part.makeBox(
+            joiner_length,
+            PLATE_THICKNESS,
+            joiner_length,
+            Vector(joiner_center, -PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH),
+            Vector(-1, 0, -1),
+        )
+    ).fuse(
+        Part.makeBox(
+            corner_length,
+            PLATE_THICKNESS,
+            corner_length,
+            Vector(JOINT_SHAFT_LENGTH, -PLATE_THICKNESS / 2, -corner_length),
+            Vector(0, 0, 1),
+        )
+    ).fuse(
+        Part.makeBox(
+            joiner_length,
+            PLATE_THICKNESS,
+            joiner_length,
+            Vector(JOINT_SHAFT_LENGTH + joiner_center, -PLATE_THICKNESS / 2, 0),
+            Vector(-1, 0, -1),
+        )
+    ).fuse(
+        Part.makeBox(
+            corner_length,
+            PLATE_THICKNESS,
+            corner_length,
+            Vector(-corner_length, -PLATE_THICKNESS / 2, -corner_length),
+            Vector(0, 0, 1),
+        )
+    ).fuse(
+        Part.makeBox(
+            joiner_length,
+            PLATE_THICKNESS,
+            joiner_length,
+            Vector(joiner_center, -PLATE_THICKNESS / 2, 0),
+            Vector(-1, 0, -1),
+        )
     ).cut(
         Part.makeCylinder(
             3.4 / 2, 3, Vector(JOINT_GEAR_HEIGHT / 2, 0, JOINT_GEAR_HEIGHT / 2), Vector(0, 1, 0)
