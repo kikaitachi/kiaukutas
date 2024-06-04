@@ -262,7 +262,31 @@ def make_joint_gear(beta):
     direction = beta / abs(beta)
     grab_len = 16
     connector_len = SHAFT_TO_PLATE + grab_len
+    connector_thickness = 3
     result = gear.Proxy.generate_gear_shape(gear)
+
+    if beta < 0:
+        polygon = Part.makePolygon([
+            Vector(-SEGMENT_THICKNESS / 2, 0, 0),
+            Vector(SEGMENT_THICKNESS / 2 - PLATE_THICKNESS, 0, SEGMENT_THICKNESS - PLATE_THICKNESS),
+            Vector(SEGMENT_THICKNESS / 2 - PLATE_THICKNESS, 0, 0),
+            Vector(-SEGMENT_THICKNESS / 2, 0, 0),
+        ])
+    else:
+        polygon = Part.makePolygon([
+            Vector(SEGMENT_THICKNESS / 2, 0, 0),
+            Vector(-SEGMENT_THICKNESS / 2 + PLATE_THICKNESS, 0, SEGMENT_THICKNESS - PLATE_THICKNESS),
+            Vector(-SEGMENT_THICKNESS / 2 + PLATE_THICKNESS, 0, 0),
+            Vector(SEGMENT_THICKNESS / 2, 0, 0),
+        ])
+    face = Part.Face(polygon)
+    solid_right = face.extrude(Vector(0, connector_thickness, 0)).translate(
+        Vector(0, PLATE_THICKNESS / 2, JOINT_GEAR_HEIGHT)
+    )
+    solid_left = face.extrude(Vector(0, connector_thickness, 0)).translate(
+        Vector(0, -PLATE_THICKNESS / 2, JOINT_GEAR_HEIGHT)
+    )
+
     return result.fuse(
         Part.makeBox(connector_len, 10, gear.height).translate(
             Vector(0 if direction > 0 else -connector_len, -5, 0)
@@ -295,6 +319,10 @@ def make_joint_gear(beta):
         Part.makeCylinder(
             3.4 / 2, 10, Vector((SHAFT_TO_PLATE + grab_len * 3 / 4) * direction, -5, gear.height / 2), Vector(0, 1, 0)
         )
+    ).fuse(
+        solid_right
+    ).fuse(
+        solid_left
     ).removeSplitter()
 
 
