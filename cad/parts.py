@@ -284,7 +284,7 @@ def make_joint_gear(beta):
         Vector(0, PLATE_THICKNESS / 2, JOINT_GEAR_HEIGHT)
     )
     solid_left = face.extrude(Vector(0, connector_thickness, 0)).translate(
-        Vector(0, -PLATE_THICKNESS / 2, JOINT_GEAR_HEIGHT)
+        Vector(0, -PLATE_THICKNESS / 2 - connector_thickness, JOINT_GEAR_HEIGHT)
     )
 
     return result.fuse(
@@ -311,18 +311,16 @@ def make_joint_gear(beta):
         Vector(0, 0, 0),
         Vector(0, 0, 1),
         360.0 / (JOINT_GEAR_TEETH * 4) * direction
-    ).cut(
-        Part.makeCylinder(
-            3.4 / 2, 10, Vector((SHAFT_TO_PLATE + grab_len / 4) * direction, -5, gear.height / 2), Vector(0, 1, 0)
-        )
-    ).cut(
-        Part.makeCylinder(
-            3.4 / 2, 10, Vector((SHAFT_TO_PLATE + grab_len * 3 / 4) * direction, -5, gear.height / 2), Vector(0, 1, 0)
-        )
     ).fuse(
         solid_right
     ).fuse(
         solid_left
+    ).cut(
+        Part.makeCylinder(
+            3.4 / 2, SEGMENT_THICKNESS * 2,
+            Vector(0, -SEGMENT_THICKNESS, JOINT_GEAR_HEIGHT + SEGMENT_THICKNESS / 2 - PLATE_THICKNESS),
+            Vector(0, 1, 0),
+        )
     ).removeSplitter()
 
 
