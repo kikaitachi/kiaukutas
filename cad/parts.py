@@ -302,6 +302,10 @@ def make_joint_gear(beta):
         solid_right
     ).fuse(
         solid_left
+    ).cut(  # Bunt gear teeth
+        Part.makeBox(SEGMENT_THICKNESS / 2 - JOINT_SHAFT_OD / 2, PLATE_THICKNESS + 2 * connector_thickness, gear.height * 2).translate(
+            Vector(JOINT_SHAFT_OD / 2 + (SEGMENT_THICKNESS / 2 - JOINT_SHAFT_OD / 2) if direction > 0 else -SEGMENT_THICKNESS / 2 - (SEGMENT_THICKNESS / 2 - JOINT_SHAFT_OD / 2), -PLATE_THICKNESS / 2 - connector_thickness, -gear.height / 2)
+        )
     ).cut(  # Connector hole
         Part.makeCylinder(
             3.4 / 2, SEGMENT_THICKNESS * 2,
@@ -313,6 +317,20 @@ def make_joint_gear(beta):
             JOINT_SHAFT_OD / 2 + TOLERANCE, JOINT_GEAR_HEIGHT * 2,
             Vector(0, 0, -JOINT_GEAR_HEIGHT / 2),
             Vector(0, 0, 1),
+        )
+    ).cut(  # Plate cavity
+        Part.makeBox(
+            PLATE_THICKNESS, PLATE_THICKNESS, PLATE_THICKNESS
+        ).translate(
+            Vector(-PLATE_THICKNESS / 2, -PLATE_THICKNESS / 2, -PLATE_THICKNESS / 2)
+        ).rotate(
+            Vector(0, 0, 0),
+            Vector(0, 1, 0),
+            45,
+        ).translate(
+            Vector(PLATE_THICKNESS / 2, PLATE_THICKNESS / 2, PLATE_THICKNESS / 2)
+        ).translate(
+            Vector(SEGMENT_THICKNESS / 2 - PLATE_THICKNESS / 2 if direction > 0 else -SEGMENT_THICKNESS / 2 - PLATE_THICKNESS / 2, -PLATE_THICKNESS / 2, JOINT_GEAR_HEIGHT - PLATE_THICKNESS / 2)
         )
     ).removeSplitter()
 
