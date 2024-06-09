@@ -19,6 +19,7 @@ class Segment:
     """Axis of rotation."""
 
 
+TOLERANCE = 0.2
 JOINT_SHAFT_LENGTH = 100
 SHAFT_TO_PLATE = 10
 PLATE_THICKNESS = 6
@@ -260,8 +261,6 @@ def make_joint_gear(beta):
     gear.module = SEGMENT_THICKNESS / gear.teeth
     gear.height = JOINT_GEAR_HEIGHT
     direction = beta / abs(beta)
-    grab_len = 16
-    connector_len = SHAFT_TO_PLATE + grab_len
     connector_thickness = 3
     result = gear.Proxy.generate_gear_shape(gear)
 
@@ -288,24 +287,12 @@ def make_joint_gear(beta):
     )
 
     return result.fuse(
-        Part.makeBox(connector_len, 10, gear.height).translate(
-            Vector(0 if direction > 0 else -connector_len, -5, 0)
+        Part.makeBox(SEGMENT_THICKNESS / 2 - JOINT_SHAFT_OD / 2, PLATE_THICKNESS + 2 * connector_thickness, gear.height).translate(
+            Vector(JOINT_SHAFT_OD / 2 if direction > 0 else -SEGMENT_THICKNESS / 2, -PLATE_THICKNESS / 2 - connector_thickness, 0)
         ).rotate(
             Vector(0, 0, 0),
             Vector(0, 0, 1),
             360.0 / (JOINT_GEAR_TEETH * 4) * -direction
-        )
-    ).cut(
-        Part.makeBox(grab_len, 6, gear.height * 2).translate(
-            Vector(SHAFT_TO_PLATE if direction > 0 else -SHAFT_TO_PLATE - grab_len, -3, -gear.height / 2)
-        ).rotate(
-            Vector(0, 0, 0),
-            Vector(0, 0, 1),
-            360.0 / (JOINT_GEAR_TEETH * 4) * -direction
-        )
-    ).cut(
-        Part.makeCylinder(
-            JOINT_SHAFT_OD / 2, gear.height * 2, Vector(0, 0, -gear.height / 2), Vector(0, 0, 1)
         )
     ).rotate(
         Vector(0, 0, 0),
@@ -315,11 +302,17 @@ def make_joint_gear(beta):
         solid_right
     ).fuse(
         solid_left
-    ).cut(
+    ).cut(  # Connector hole
         Part.makeCylinder(
             3.4 / 2, SEGMENT_THICKNESS * 2,
             Vector(0, -SEGMENT_THICKNESS, JOINT_GEAR_HEIGHT + SEGMENT_THICKNESS / 2 - PLATE_THICKNESS),
             Vector(0, 1, 0),
+        )
+    ).cut(  # Shaft hole
+        Part.makeCylinder(
+            JOINT_SHAFT_OD / 2 + TOLERANCE, JOINT_GEAR_HEIGHT * 2,
+            Vector(0, 0, -JOINT_GEAR_HEIGHT / 2),
+            Vector(0, 0, 1),
         )
     ).removeSplitter()
 
