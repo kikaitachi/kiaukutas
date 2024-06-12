@@ -57,14 +57,14 @@ SEGMENTS = [
     Segment(
         Placement(
             Vector(-(JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE), 0, JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE),
-            Rotation(Vector(0, 1, 0), JOINT_SHAFT_LENGTH - SHAFT_TO_PLATE),
+            Rotation(Vector(0, 1, 0), 90),
         ),
         "0 0 1",
     ),
     Segment(
         Placement(
             Vector(-SHAFT_TO_PLATE, 0, -SHAFT_TO_PLATE),
-            Rotation(Vector(0, 1, 0), -JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE),
+            Rotation(Vector(0, 1, 0), -90),
         ),
         "0 0 1",
     ),
@@ -506,8 +506,8 @@ define_material("tendon7", 192 / 256, 192 / 256, 192 / 256)  # Silver
 
 base = ET.SubElement(root, "link", {"name": "base"})
 add_visual(base, "joint-gear-right", placement=Placement(
-    Vector(0, 0, 11.25),
-    Rotation(0, 0, 0),
+    Vector(0, 0, 11.25 + JOINT_GEAR_HEIGHT),
+    Rotation(180, 0, 0),
 ), rgba="0 0 1 1")
 add_visual(base, "joint-gear-right", placement=Placement(
     Vector(0, 0, 11.25 + JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT),
@@ -748,7 +748,15 @@ for i in range(len(SEGMENTS)):
         )
 
     if i != len(SEGMENTS) - 1:
-        add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement, rgba="1 0 1 1")
+        add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement.multiply(
+            Placement(
+                Vector(0, 0, JOINT_GEAR_HEIGHT),
+                Rotation(180, 0, 0),
+            ) if SEGMENTS[i + 1].placement.Rotation.Angle == 0 else Placement(
+                Vector(0, 0, JOINT_GEAR_HEIGHT),
+                Rotation(180, 180, 0),
+            )
+        ), rgba="1 0 1 1")
         add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement.multiply(
             Placement(
                 Vector(0, 0, JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT),
