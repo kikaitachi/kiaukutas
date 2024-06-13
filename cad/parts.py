@@ -666,8 +666,8 @@ for i in range(len(SEGMENTS)):
     add_visual(link, "shaft", placement=placement, rgba="1 0 0 1")
     add_shaft_pulleys(link, 14 - i, placement)
     add_visual(link, "joint-gear-left", placement=Placement(
-        Vector(0, 0, 0),
-        Rotation(0, 0, 0),
+        Vector(0, 0, JOINT_GEAR_HEIGHT),
+        Rotation(180, 0, 0),
     ), rgba="0 1 1 1")
     add_visual(link, "joint-gear-left", placement=Placement(
         Vector(0, 0, JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT),
