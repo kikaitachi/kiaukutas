@@ -93,7 +93,15 @@ loader.load(
 
 let angle = 0
 const maxAngle = Math.PI / 2
-let delta = 0.000
+
+document.body.addEventListener("keydown", (event) => {
+  if (event.code === 'BracketLeft') {
+    angle += 0.01;
+  }
+  if (event.code === 'BracketRight') {
+    angle -= 0.01;
+  }
+})
 
 const animate = () => {
   setTimeout(() => {
@@ -104,10 +112,6 @@ const animate = () => {
   if (robot != null) {
     for (let i = 0; i < 6; i++) {
       robot.setJointValue(`joint${i}a`, i % 2 === 0 ? angle : -angle)
-    }
-    angle += delta
-    if (angle <= -maxAngle || angle >= maxAngle) {
-      delta = -delta
     }
   }
 }
