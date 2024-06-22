@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from FreeCAD import newDocument, Placement, Rotation, Vector
-from math import cos, pi, radians, sin, sqrt
+from math import asin, cos, degrees, pi, radians, sin, sqrt
 from freecad.gears.commands import CreateInvoluteGear
 from typing import Optional
 import xml.etree.ElementTree as ET
@@ -633,6 +633,7 @@ for i in range(len(SEGMENTS)):
     add_visual(link, "shaft", placement=placement, rgba="0 1 0 1")
     add_shaft_pulleys(link, 14 - i, placement)
 
+    # Bottom tendons between joint pulleys
     for j in range(4):
         add_tendon(
             link,
@@ -647,17 +648,22 @@ for i in range(len(SEGMENTS)):
             ),
             i,
         )
-    for j in range(i, len(SEGMENTS) + 1):
+    # Crossed tendons between joint pulleys
+    for j in range(i + 1, len(SEGMENTS) + 1):
+        angle_radians = asin((PULLEY_RADIUS + TENDON_RADIUS) / (SEGMENT_THICKNESS / 2))
+        angle_degrees = degrees(angle_radians)
+        offset_x = sin(angle_radians) * (PULLEY_RADIUS + TENDON_RADIUS)
+        offset_y = cos(angle_radians) * (PULLEY_RADIUS + TENDON_RADIUS)
         add_tendon(
             link,
-            SEGMENT_THICKNESS,
+            2 * sqrt((SEGMENT_THICKNESS / 2) ** 2 - (PULLEY_RADIUS + TENDON_RADIUS) ** 2),
             Placement(
                 Vector(
-                    0,
-                    -PULLEY_RADIUS - TENDON_RADIUS if j <= len(SEGMENTS) // 2 else PULLEY_RADIUS + TENDON_RADIUS,
+                    -offset_x,
+                    -offset_y if j <= len(SEGMENTS) // 2 else offset_y,
                     JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + j + 3.5),
                 ),
-                Rotation(0, -90, 0),
+                Rotation(0, -90, -angle_degrees if j <= len(SEGMENTS) // 2 else angle_degrees),
             ),
             j,
         )
