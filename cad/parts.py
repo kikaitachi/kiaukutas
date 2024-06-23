@@ -694,13 +694,14 @@ for i in range(len(SEGMENTS)):
     # Direction changing pulleys
     if i in (0, 3, 4):
         for j in range(i + 4, 10 - i):
+            front_side = j < 14 // 2
             add_visual(link, "tackle-pulley", placement=Placement(
                 Vector(
                     -JOINT_SHAFT_LENGTH + JOINT_GEAR_HEIGHT + j * JOINT_PULLEY_SPACING,
-                    -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
+                    PULLEY_RADIUS + TENDON_RADIUS if front_side else -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
                     JOINT_GEAR_HEIGHT + (j + 1) * JOINT_PULLEY_SPACING,
                 ),
-                Rotation(0, 0, 0),
+                Rotation(0, 0, 180 if front_side else 0),
             ), rgba="0.3 0.2 0.6 1")
             add_tendon(
                 link,
@@ -708,7 +709,7 @@ for i in range(len(SEGMENTS)):
                 Placement(
                     Vector(
                         0,
-                        PULLEY_RADIUS + TENDON_RADIUS if j < 14 // 2 else -PULLEY_RADIUS - TENDON_RADIUS,
+                        PULLEY_RADIUS + TENDON_RADIUS if front_side else -PULLEY_RADIUS - TENDON_RADIUS,
                         JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1 + i) - JOINT_PULLEY_SPACING / 2,
                     ),
                     Rotation(0, -90, 0),
