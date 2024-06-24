@@ -648,6 +648,21 @@ for i in range(len(SEGMENTS)):
             ),
             i,
         )
+    # Top tendons between joint pulleys
+    for j in range(14 - 4, 14):
+        add_tendon(
+            link,
+            SEGMENT_THICKNESS,
+            Placement(
+                Vector(
+                    0,
+                    PULLEY_RADIUS + TENDON_RADIUS,
+                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 0.5),
+                ),
+                Rotation(0, -90, 0),
+            ),
+            NUMBER_OF_MOTORS - i - 1,
+        )
     # Crossed tendons between joint pulleys
     for j in range(i + 1, len(SEGMENTS) + 1):
         angle_radians = asin((PULLEY_RADIUS + TENDON_RADIUS) / (SEGMENT_THICKNESS / 2))
