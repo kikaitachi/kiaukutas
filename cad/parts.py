@@ -718,6 +718,7 @@ for i in range(len(SEGMENTS)):
                 ),
                 Rotation(0, 0, 180 if front_side else 0),
             ), rgba="0.3 0.2 0.6 1")
+            # Horizontal tendon
             add_tendon(
                 link,
                 JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - j * JOINT_PULLEY_SPACING,
@@ -728,6 +729,21 @@ for i in range(len(SEGMENTS)):
                         JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1 + i) - JOINT_PULLEY_SPACING / 2,
                     ),
                     Rotation(0, -90, 0),
+                ),
+                i if j < i + 3 else j - 3,
+            )
+            # Vertical tendon
+            tendon_length = JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - j * JOINT_PULLEY_SPACING
+            add_tendon(
+                link,
+                tendon_length,
+                Placement(
+                    Vector(
+                        -tendon_length - JOINT_PULLEY_SPACING / 2,
+                        PULLEY_RADIUS + TENDON_RADIUS if front_side else -PULLEY_RADIUS - TENDON_RADIUS,
+                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1.5 + i) - JOINT_PULLEY_SPACING / 2,
+                    ),
+                    Rotation(0, 0, 0),
                 ),
                 i if j < i + 3 else j - 3,
             )
