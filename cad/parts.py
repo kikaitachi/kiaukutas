@@ -708,8 +708,8 @@ for i in range(len(SEGMENTS)):
 
     # Direction changing pulleys
     if i in (0, 3, 4):
-        for j in range(i + 4, 10 - i):
-            front_side = j < 14 // 2
+        for j in range(i + 4, 14 - i):
+            front_side = j < 14 // 2 or j >= 10
             add_visual(link, "tackle-pulley", placement=Placement(
                 Vector(
                     -JOINT_SHAFT_LENGTH + JOINT_GEAR_HEIGHT + j * JOINT_PULLEY_SPACING,
