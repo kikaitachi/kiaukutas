@@ -710,9 +710,10 @@ for i in range(len(SEGMENTS)):
     if i in (0, 3, 4):
         for j in range(i + 4, 14 - i):
             front_side = j < 14 // 2 or j >= 10
+            tendon_length = JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - j * JOINT_PULLEY_SPACING + JOINT_PULLEY_SPACING / 2 + TENDON_RADIUS * 2
             add_visual(link, "tackle-pulley", placement=Placement(
                 Vector(
-                    -JOINT_SHAFT_LENGTH + JOINT_GEAR_HEIGHT + j * JOINT_PULLEY_SPACING,
+                    -tendon_length,
                     PULLEY_RADIUS + TENDON_RADIUS + 2.1 - (2.1 - 0.6) / 2 if front_side else -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
                     JOINT_GEAR_HEIGHT + (j + 1) * JOINT_PULLEY_SPACING,
                 ),
@@ -721,7 +722,7 @@ for i in range(len(SEGMENTS)):
             # Horizontal tendon
             add_tendon(
                 link,
-                JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - j * JOINT_PULLEY_SPACING,
+                tendon_length,
                 Placement(
                     Vector(
                         0,
@@ -733,7 +734,6 @@ for i in range(len(SEGMENTS)):
                 i if j < i + 3 else j - 3,
             )
             # Vertical tendon
-            tendon_length = JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - j * JOINT_PULLEY_SPACING
             add_tendon(
                 link,
                 tendon_length,
