@@ -770,12 +770,17 @@ for i in range(len(SEGMENTS)):
         rgba="1 1 1 0.5",
     )
 
-    if i == 0:
-        add_direction_changing_pulleys(i + 3, [7, -4, -5, -6, 8, 9, -10, -11, -12, -13])
-    elif i == 1:
-        add_non_direction_changing_tendons([
-            None, 4, 4, 4, 4, 1, 2, 3, -5, -6, None, None, None, None
-        ])
+    match i:
+        case 0:
+            add_direction_changing_pulleys(i + 3, [7, -4, -5, -6, 8, 9, -10, -11, -12, -13])
+        case 1:
+            add_non_direction_changing_tendons([
+                None, 4, 4, 4, 4, 1, 2, 3, -5, -6, None, None, None, None
+            ])
+        case 2:
+            add_non_direction_changing_tendons([
+                None, None, None, None, None, -1, -2, -3, 5, -6, -6, -6, -6, None
+            ])
 
     for j in range(0, 3, 2):
         add_visual(link, "tackle-pulley", placement=Placement(
