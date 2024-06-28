@@ -661,6 +661,26 @@ def add_direction_changing_pulleys(start_index: int, order_and_directions: list[
         )
 
 
+def add_non_direction_changing_tendons(tendons: list[Optional[int]]) -> None:
+    for i in range(len(tendons)):
+        if tendons[i] is not None:
+            front_side = tendons[i] > 0
+            length = JOINT_SHAFT_LENGTH + SHAFT_TO_PLATE * 2
+            add_tendon(
+                link,
+                length,
+                Placement(
+                    Vector(
+                        -length,
+                        PULLEY_RADIUS + TENDON_RADIUS if not front_side else -PULLEY_RADIUS - TENDON_RADIUS,
+                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 1) - JOINT_PULLEY_SPACING / 2,
+                    ),
+                    Rotation(0, 90, 0),
+                ),
+                abs(tendons[i]),
+            )
+
+
 add_tension_pulleys(
     base,
     0,
@@ -752,6 +772,10 @@ for i in range(len(SEGMENTS)):
 
     if i == 0:
         add_direction_changing_pulleys(i + 3, [7, -4, -5, -6, 8, 9, -10, -11, -12, -13])
+    elif i == 1:
+        add_non_direction_changing_tendons([
+            None, 4, 4, 4, 4, 1, 2, 3, -5, -6, None, None, None, None
+        ])
 
     for j in range(0, 3, 2):
         add_visual(link, "tackle-pulley", placement=Placement(
