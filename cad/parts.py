@@ -681,6 +681,74 @@ def add_non_direction_changing_tendons(tendons: list[Optional[int]]) -> None:
             )
 
 
+def add_joint_tendons(*tendons: Optional[tuple[int, bool]]) -> None:
+    for i in range(len(tendons)):
+        if tendons[i] is not None:
+            motor_index = tendons[i][0]
+            tendon_type = tendons[i][1]
+            if tendon_type in ["top", "bottom"]:
+                add_tendon(
+                    link,
+                    SEGMENT_THICKNESS,
+                    Placement(
+                        Vector(
+                            0,
+                            (PULLEY_RADIUS + TENDON_RADIUS) * (1 if tendon_type == "top" else -1),
+                            JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 0.5),
+                        ),
+                        Rotation(0, -90, 0),
+                    ),
+                    motor_index,
+                )
+            # add_tendon(
+            #     link,
+            #     length,
+            #     Placement(
+            #         Vector(
+            #             -length,
+            #             PULLEY_RADIUS + TENDON_RADIUS if not front_side else -PULLEY_RADIUS - TENDON_RADIUS,
+            #             JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 1) - JOINT_PULLEY_SPACING / 2,
+            #         ),
+            #         Rotation(0, 90, 0),
+            #     ),
+            #     motor_index,
+            # )
+                # Bottom tendons between joint pulleys
+    # for j in range(4):
+    #     add_tendon(
+    #         link,
+    #         SEGMENT_THICKNESS,
+    #         Placement(
+    #             Vector(
+    #                 0,
+    #                 -PULLEY_RADIUS - TENDON_RADIUS,
+    #                 JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + j + 0.5),
+    #             ),
+    #             Rotation(0, -90, 0),
+    #         ),
+    #         i,
+    #     )
+    # # Crossed tendons between joint pulleys
+    # for j in range(i + 1, len(SEGMENTS) + 1):
+    #     angle_radians = asin((PULLEY_RADIUS + TENDON_RADIUS) / (SEGMENT_THICKNESS / 2))
+    #     angle_degrees = degrees(angle_radians)
+    #     offset_x = sin(angle_radians) * (PULLEY_RADIUS + TENDON_RADIUS)
+    #     offset_y = cos(angle_radians) * (PULLEY_RADIUS + TENDON_RADIUS)
+    #     add_tendon(
+    #         link,
+    #         2 * sqrt((SEGMENT_THICKNESS / 2) ** 2 - (PULLEY_RADIUS + TENDON_RADIUS) ** 2),
+    #         Placement(
+    #             Vector(
+    #                 -offset_x,
+    #                 -offset_y if j <= len(SEGMENTS) // 2 else offset_y,
+    #                 JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + j + 3.5),
+    #             ),
+    #             Rotation(0, -90, -angle_degrees if j <= len(SEGMENTS) // 2 else angle_degrees),
+    #         ),
+    #         j,
+    #     )
+
+
 add_tension_pulleys(
     base,
     0,
@@ -696,56 +764,6 @@ for i in range(len(SEGMENTS)):
     link = ET.SubElement(root, "link", {"name": f"segment{i}a"})
     add_visual(link, "shaft", placement=placement, rgba="0 1 0 1")
     add_shaft_pulleys(link, 14 - i, placement)
-
-    # Bottom tendons between joint pulleys
-    for j in range(4):
-        add_tendon(
-            link,
-            SEGMENT_THICKNESS,
-            Placement(
-                Vector(
-                    0,
-                    -PULLEY_RADIUS - TENDON_RADIUS,
-                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + j + 0.5),
-                ),
-                Rotation(0, -90, 0),
-            ),
-            i,
-        )
-    # Top tendons between joint pulleys
-    for j in range(14 - 4, 14):
-        add_tendon(
-            link,
-            SEGMENT_THICKNESS,
-            Placement(
-                Vector(
-                    0,
-                    PULLEY_RADIUS + TENDON_RADIUS,
-                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 0.5),
-                ),
-                Rotation(0, -90, 0),
-            ),
-            NUMBER_OF_MOTORS - i - 1,
-        )
-    # Crossed tendons between joint pulleys
-    for j in range(i + 1, len(SEGMENTS) + 1):
-        angle_radians = asin((PULLEY_RADIUS + TENDON_RADIUS) / (SEGMENT_THICKNESS / 2))
-        angle_degrees = degrees(angle_radians)
-        offset_x = sin(angle_radians) * (PULLEY_RADIUS + TENDON_RADIUS)
-        offset_y = cos(angle_radians) * (PULLEY_RADIUS + TENDON_RADIUS)
-        add_tendon(
-            link,
-            2 * sqrt((SEGMENT_THICKNESS / 2) ** 2 - (PULLEY_RADIUS + TENDON_RADIUS) ** 2),
-            Placement(
-                Vector(
-                    -offset_x,
-                    -offset_y if j <= len(SEGMENTS) // 2 else offset_y,
-                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + j + 3.5),
-                ),
-                Rotation(0, -90, -angle_degrees if j <= len(SEGMENTS) // 2 else angle_degrees),
-            ),
-            j,
-        )
 
     link = ET.SubElement(root, "link", {"name": f"segment{i}b"})
     add_visual(link, "shaft", placement=placement, rgba="1 0 0 1")
@@ -774,6 +792,22 @@ for i in range(len(SEGMENTS)):
         case 0:
             add_direction_changing_pulleys(
                 i + 3, [7, -4, -5, -6, 8, 9, -10, -11, -12, -13]
+            )
+            add_joint_tendons(
+                (0, "top"),
+                (0, "top"),
+                (0, "top"),
+                (0, "top"),
+                (1, "falling"),
+                (2, "falling"),
+                (3, "falling"),
+                (4, "rising"),
+                (5, "rising"),
+                (6, "rising"),
+                (7, "bottom"),
+                (7, "bottom"),
+                (7, "bottom"),
+                (7, "bottom"),
             )
         case 1:
             add_non_direction_changing_tendons([
