@@ -383,9 +383,26 @@ def make_winch():
 
 
 def make_arm_to_body_joiner():
+    depth = PLATE_THICKNESS + 34
     return Part.makeBox(
         PLATE_THICKNESS, PLATE_THICKNESS, JOINT_SHAFT_LENGTH
-    )
+    ).fuse(
+        Part.makeBox(
+            PLATE_THICKNESS, depth, PLATE_THICKNESS
+        )
+    ).fuse(
+        Part.makeBox(
+            PLATE_THICKNESS, depth, PLATE_THICKNESS
+        ).translate(
+            Vector(0, 0, JOINT_SHAFT_LENGTH - PLATE_THICKNESS)
+        )
+    ).fuse(
+        Part.makeBox(
+            3, 34, 46.5 * 2
+        ).translate(
+            Vector(0, 20, -10)
+        )
+    ).removeSplitter()
 
 
 def add_origin(
@@ -525,7 +542,7 @@ add_visual(base, "joint-gear-right", placement=Placement(
 add_visual(base, "arm_to_body_joiner", placement=Placement(
     Vector(SEGMENT_THICKNESS / 2, -PLATE_THICKNESS / 2, 11.25),
     Rotation(0, 0, 0),
-), rgba="1 0 0 1")
+), rgba="0 0 1 0.5")
 
 for i in range(NUMBER_OF_MOTORS // 2):
     offset = 28.5 / 2 + SEGMENT_THICKNESS / 2 + PLATE_THICKNESS
