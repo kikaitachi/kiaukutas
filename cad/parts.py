@@ -382,6 +382,12 @@ def make_winch():
     ).removeSplitter()
 
 
+def make_arm_to_body_joiner():
+    return Part.makeBox(
+        PLATE_THICKNESS, PLATE_THICKNESS, JOINT_SHAFT_LENGTH
+    )
+
+
 def add_origin(
     element: ET.Element,
     xyz: str = "0 0 0",
@@ -484,6 +490,9 @@ joint_gear_left.exportStep(f"{dir}/joint-gear-left.stp")
 winch = make_winch()
 winch.exportStl(f"{dir}/winch.stl")
 winch.exportStep(f"{dir}/winch.stp")
+arm_to_body_joiner = make_arm_to_body_joiner()
+arm_to_body_joiner.exportStl(f"{dir}/arm_to_body_joiner.stl")
+arm_to_body_joiner.exportStep(f"{dir}/arm_to_body_joiner.stp")
 
 root = ET.Element("robot", {"name": "kiaukutas"})
 
@@ -513,37 +522,42 @@ add_visual(base, "joint-gear-right", placement=Placement(
     Vector(0, 0, 11.25 + JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT),
     Rotation(0, 0, 0),
 ), rgba="0 0 1 1")
+add_visual(base, "arm_to_body_joiner", placement=Placement(
+    Vector(SEGMENT_THICKNESS / 2, -PLATE_THICKNESS / 2, 11.25),
+    Rotation(0, 0, 0),
+), rgba="1 0 0 1")
 
 for i in range(NUMBER_OF_MOTORS // 2):
+    offset = 28.5 / 2 + SEGMENT_THICKNESS / 2 + PLATE_THICKNESS
     add_visual(  # Bottom
         base,
         "XM430-W350-T",
-        f"{i * 30 + 40} {34 / 2 - 0.5 + PULLEY_HEIGHT / 2} {46.5 - 11.25 + i * JOINT_PULLEY_SPACING}",
+        f"{i * 30 + offset} {34 / 2 - 0.5 + PULLEY_HEIGHT / 2} {46.5 - 11.25 + i * JOINT_PULLEY_SPACING}",
         f"{pi / 2} 0 0",
         "0.05 0.05 0.05 1"
     )
     add_visual(  # Top
         base,
         "XM430-W350-T",
-        f"{i * 30 + 40} {34 / 2 + 0.5 + PULLEY_HEIGHT / 2 + PULLEY_RADIUS * 2} {46.5 + 11.25 + i * JOINT_PULLEY_SPACING + (JOINT_PULLEY_SPACING * 4 - 2 * 11.25)}",
+        f"{i * 30 + offset} {34 / 2 + 0.5 + PULLEY_HEIGHT / 2 + PULLEY_RADIUS * 2} {46.5 + 11.25 + i * JOINT_PULLEY_SPACING + (JOINT_PULLEY_SPACING * 4 - 2 * 11.25)}",
         f"{pi / 2} {pi} 0",
         "0.05 0.05 0.05 1"
     )
     add_visual(  # Bottom
         base,
         "winch",
-        f"{i * 30 + 40} {-PULLEY_RADIUS + PULLEY_HEIGHT / 2 + 3 - TENDON_RADIUS} {46.5 - 11.25 + i * JOINT_PULLEY_SPACING}",
+        f"{i * 30 + offset} {-PULLEY_RADIUS + PULLEY_HEIGHT / 2 + 3 - TENDON_RADIUS} {46.5 - 11.25 + i * JOINT_PULLEY_SPACING}",
         f"{pi / 2} 0 0"
     )
     add_visual(  # Top
         base,
         "winch",
-        f"{i * 30 + 40} {PULLEY_RADIUS + PULLEY_HEIGHT / 2 + 3 + TENDON_RADIUS} {46.5 - 11.25 + (i + 4) * JOINT_PULLEY_SPACING}",
+        f"{i * 30 + offset} {PULLEY_RADIUS + PULLEY_HEIGHT / 2 + 3 + TENDON_RADIUS} {46.5 - 11.25 + (i + 4) * JOINT_PULLEY_SPACING}",
         f"{pi / 2} 0 0"
     )
     add_tendon(  # Bottom
         base,
-        i * 30 + 40,
+        i * 30 + offset,
         Placement(
             Vector(
                 0,
@@ -556,7 +570,7 @@ for i in range(NUMBER_OF_MOTORS // 2):
     )
     add_tendon(  # Top
         base,
-        i * 30 + 40,
+        i * 30 + offset,
         Placement(
             Vector(
                 0,
