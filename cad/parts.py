@@ -94,6 +94,8 @@ JOINT_SHAFT_PULLEY_AREA_LENGTH = 70
 JOINT_GEAR_TEETH = 11
 JOINT_GEAR_HEIGHT = (JOINT_SHAFT_LENGTH - 14 * JOINT_PULLEY_SPACING) / 2
 
+VERTICAL_GAP_BETWEEN_MOTORS = JOINT_PULLEY_SPACING * 4 - 2 * 11.25
+
 doc = newDocument("kiaukutas")
 
 
@@ -384,6 +386,7 @@ def make_winch():
 
 def make_arm_to_body_joiner():
     depth = PLATE_THICKNESS + 34
+    plate_thickness = 3
     return Part.makeBox(
         PLATE_THICKNESS, PLATE_THICKNESS, JOINT_SHAFT_LENGTH
     ).fuse(
@@ -398,9 +401,9 @@ def make_arm_to_body_joiner():
         )
     ).fuse(
         Part.makeBox(
-            3, 34, 46.5 * 2
+            plate_thickness, 34, 46.5 * 2 + VERTICAL_GAP_BETWEEN_MOTORS
         ).translate(
-            Vector(0, 20, -10)
+            Vector(PLATE_THICKNESS - plate_thickness, PLATE_THICKNESS + (SEGMENT_THICKNESS - PLATE_THICKNESS) / 2, -11.25)
         )
     ).removeSplitter()
 
@@ -556,7 +559,7 @@ for i in range(NUMBER_OF_MOTORS // 2):
     add_visual(  # Top
         base,
         "XM430-W350-T",
-        f"{i * 30 + offset} {34 / 2 + 0.5 + PULLEY_HEIGHT / 2 + PULLEY_RADIUS * 2} {46.5 + 11.25 + i * JOINT_PULLEY_SPACING + (JOINT_PULLEY_SPACING * 4 - 2 * 11.25)}",
+        f"{i * 30 + offset} {34 / 2 + 0.5 + PULLEY_HEIGHT / 2 + PULLEY_RADIUS * 2} {46.5 + 11.25 + i * JOINT_PULLEY_SPACING + VERTICAL_GAP_BETWEEN_MOTORS}",
         f"{pi / 2} {pi} 0",
         "0.05 0.05 0.05 1"
     )
