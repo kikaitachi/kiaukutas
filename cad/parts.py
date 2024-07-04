@@ -95,6 +95,7 @@ JOINT_GEAR_TEETH = 11
 JOINT_GEAR_HEIGHT = (JOINT_SHAFT_LENGTH - 14 * JOINT_PULLEY_SPACING) / 2
 
 VERTICAL_GAP_BETWEEN_MOTORS = JOINT_PULLEY_SPACING * 4 - 2 * 11.25
+ARM_START_Z = 11.25
 
 doc = newDocument("kiaukutas")
 
@@ -385,25 +386,28 @@ def make_winch():
 
 
 def make_arm_to_body_joiner():
-    depth = PLATE_THICKNESS + 34
+    motor_plate_depth = 30
+    # motor_plate_height = 46.5 * 2 + VERTICAL_GAP_BETWEEN_MOTORS
+    motor_plate_height = ARM_START_Z + JOINT_SHAFT_LENGTH
+    depth = PLATE_THICKNESS + motor_plate_depth
     plate_thickness = 3
-    return Part.makeBox(
+    return Part.makeBox(  # Bar for tackle pulleys
         PLATE_THICKNESS, PLATE_THICKNESS, JOINT_SHAFT_LENGTH
-    ).fuse(
+    ).fuse(  # Bottom jointer
         Part.makeBox(
             PLATE_THICKNESS, depth, PLATE_THICKNESS
         )
-    ).fuse(
+    ).fuse(  # Top joiner
         Part.makeBox(
             PLATE_THICKNESS, depth, PLATE_THICKNESS
         ).translate(
             Vector(0, 0, JOINT_SHAFT_LENGTH - PLATE_THICKNESS)
         )
-    ).fuse(
+    ).fuse(  # Motor plate
         Part.makeBox(
-            plate_thickness, 34, 46.5 * 2 + VERTICAL_GAP_BETWEEN_MOTORS
+            plate_thickness, motor_plate_depth, motor_plate_height
         ).translate(
-            Vector(PLATE_THICKNESS - plate_thickness, PLATE_THICKNESS + (SEGMENT_THICKNESS - PLATE_THICKNESS) / 2, -11.25)
+            Vector(PLATE_THICKNESS - plate_thickness, PLATE_THICKNESS + (SEGMENT_THICKNESS - PLATE_THICKNESS) / 2, -ARM_START_Z)
         )
     ).removeSplitter()
 
