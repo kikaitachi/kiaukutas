@@ -409,6 +409,18 @@ def make_arm_to_body_joiner():
         ).translate(
             Vector(PLATE_THICKNESS - plate_thickness, PLATE_THICKNESS + (SEGMENT_THICKNESS - PLATE_THICKNESS) / 2, -ARM_START_Z)
         )
+    ).cut(  # Hole for bottom tackle pulley
+        Part.makeCylinder(
+            2.7 / 2, PLATE_THICKNESS, Vector(0, 0, 0), Vector(0, 1, 0)
+        ).translate(
+            Vector(PLATE_THICKNESS / 2, 0, JOINT_GEAR_HEIGHT + 2 * JOINT_PULLEY_SPACING)
+        )
+    ).cut(  # Hole for top tackle pulley
+        Part.makeCylinder(
+            2.7 / 2, PLATE_THICKNESS, Vector(0, 0, 0), Vector(0, 1, 0)
+        ).translate(
+            Vector(PLATE_THICKNESS / 2, 0, JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - 2 * JOINT_PULLEY_SPACING)
+        )
     ).removeSplitter()
 
 
