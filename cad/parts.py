@@ -391,6 +391,7 @@ def make_arm_to_body_joiner():
     motor_plate_height = ARM_START_Z + JOINT_SHAFT_LENGTH
     depth = PLATE_THICKNESS + motor_plate_depth
     plate_thickness = 3
+    motor_plate_y = PLATE_THICKNESS + (SEGMENT_THICKNESS - PLATE_THICKNESS) / 2
     return Part.makeBox(  # Bar for tackle pulleys
         PLATE_THICKNESS, PLATE_THICKNESS, JOINT_SHAFT_LENGTH
     ).fuse(  # Bottom jointer
@@ -407,7 +408,7 @@ def make_arm_to_body_joiner():
         Part.makeBox(
             plate_thickness, motor_plate_depth, motor_plate_height
         ).translate(
-            Vector(PLATE_THICKNESS - plate_thickness, PLATE_THICKNESS + (SEGMENT_THICKNESS - PLATE_THICKNESS) / 2, -ARM_START_Z)
+            Vector(PLATE_THICKNESS - plate_thickness, motor_plate_y, -ARM_START_Z)
         )
     ).cut(  # Hole for bottom tackle pulley
         Part.makeCylinder(
@@ -420,6 +421,54 @@ def make_arm_to_body_joiner():
             2.7 / 2, PLATE_THICKNESS, Vector(0, 0, 0), Vector(0, 1, 0)
         ).translate(
             Vector(PLATE_THICKNESS / 2, 0, JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - 2 * JOINT_PULLEY_SPACING)
+        )
+    ).cut(  # Close bottom hole for bottom servo
+        Part.makeCylinder(
+            2.7 / 2, PLATE_THICKNESS * 5, Vector(0, 0, 0), Vector(-1, 0, 0)
+        ).translate(
+            Vector(PLATE_THICKNESS, 15.5, 46.5 - 11.5 - 4 - 24 - 11)
+        )
+    ).cut(  # Far bottom hole for bottom servo
+        Part.makeCylinder(
+            2.7 / 2, PLATE_THICKNESS * 5, Vector(0, 0, 0), Vector(-1, 0, 0)
+        ).translate(
+            Vector(PLATE_THICKNESS, 15.5 + 12, 46.5 - 11.5 - 4 - 24 - 11)
+        )
+    ).cut(  # Close top hole for bottom servo
+        Part.makeCylinder(
+            2.7 / 2, PLATE_THICKNESS * 5, Vector(0, 0, 0), Vector(-1, 0, 0)
+        ).translate(
+            Vector(PLATE_THICKNESS, 15.5, 46.5 - 11.5 - 4 - 24 - 11 + 24)
+        )
+    ).cut(  # Far top hole for bottom servo
+        Part.makeCylinder(
+            2.7 / 2, PLATE_THICKNESS * 5, Vector(0, 0, 0), Vector(-1, 0, 0)
+        ).translate(
+            Vector(PLATE_THICKNESS, 15.5 + 12, 46.5 - 11.5 - 4 - 24 - 11 + 24)
+        )
+    ).cut(  # Close bottom hole for top servo
+        Part.makeCylinder(
+            2.7 / 2, PLATE_THICKNESS * 5, Vector(0, 0, 0), Vector(-1, 0, 0)
+        ).translate(
+            Vector(PLATE_THICKNESS, 15.5 + (PULLEY_RADIUS + TENDON_RADIUS) * 2, 46.5 - 11.5 - 4 - 24 - 11 + VERTICAL_GAP_BETWEEN_MOTORS + 46.5 + 11 - 3)
+        )
+    ).cut(  # Far bottom hole for top servo
+        Part.makeCylinder(
+            2.7 / 2, PLATE_THICKNESS * 5, Vector(0, 0, 0), Vector(-1, 0, 0)
+        ).translate(
+            Vector(PLATE_THICKNESS, 15.5 + 12 + (PULLEY_RADIUS + TENDON_RADIUS) * 2, 46.5 - 11.5 - 4 - 24 - 11 + VERTICAL_GAP_BETWEEN_MOTORS + 46.5 + 11 - 3)
+        )
+    ).cut(  # Close top hole for top servo
+        Part.makeCylinder(
+            2.7 / 2, PLATE_THICKNESS * 5, Vector(0, 0, 0), Vector(-1, 0, 0)
+        ).translate(
+            Vector(PLATE_THICKNESS, 15.5 + (PULLEY_RADIUS + TENDON_RADIUS) * 2, 46.5 - 11.5 - 4 - 24 - 11 + 24 + VERTICAL_GAP_BETWEEN_MOTORS + 46.5 + 11 - 3)
+        )
+    ).cut(  # Far top hole for top servo
+        Part.makeCylinder(
+            2.7 / 2, PLATE_THICKNESS * 5, Vector(0, 0, 0), Vector(-1, 0, 0)
+        ).translate(
+            Vector(PLATE_THICKNESS, 15.5 + 12 + (PULLEY_RADIUS + TENDON_RADIUS) * 2, 46.5 - 11.5 - 4 - 24 - 11 + 24 + VERTICAL_GAP_BETWEEN_MOTORS + 46.5 + 11 - 3)
         )
     ).removeSplitter()
 
@@ -561,7 +610,7 @@ add_visual(base, "joint-gear-right", placement=Placement(
 add_visual(base, "arm_to_body_joiner", placement=Placement(
     Vector(SEGMENT_THICKNESS / 2, -PLATE_THICKNESS / 2, 11.25),
     Rotation(0, 0, 0),
-), rgba="0 0 1 0.5")
+), rgba="1 1 1 0.5")
 
 for i in range(NUMBER_OF_MOTORS // 2):
     offset = 28.5 / 2 + SEGMENT_THICKNESS / 2 + PLATE_THICKNESS
