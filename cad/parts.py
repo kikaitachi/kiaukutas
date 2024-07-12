@@ -620,8 +620,8 @@ add_visual(
     "jetson",
     rgba="0.05 0.05 0.05 1",
     placement=Placement(
-        Vector(40, 40, 40),
-        Rotation(0, 0, 0),
+        Vector(15, 230, 155),
+        Rotation(-90, 0, -90),
     )
 )
 
