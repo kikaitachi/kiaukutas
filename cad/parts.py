@@ -3,6 +3,7 @@ from FreeCAD import newDocument, Placement, Rotation, Vector
 from math import asin, cos, degrees, pi, radians, sin, sqrt
 from freecad.gears.commands import CreateInvoluteGear
 from typing import Optional
+from shutil import copyfile
 import xml.etree.ElementTree as ET
 import Part
 import sys
@@ -550,7 +551,9 @@ def add_shaft_pulleys(
 
 
 dir = sys.argv[3]
-Part.read("XM430-W350-T.stp").exportStl(f"{dir}/XM430-W350-T.stl")
+# Part.read("XM430-W350-T.stp").exportStl(f"{dir}/XM430-W350-T.stl")
+copyfile("XM430-W350-T.stl", f"{dir}/XM430-W350-T.stl")
+copyfile("jetson.stl", f"{dir}/jetson.stl")
 pulley = make_pulley()
 pulley.exportStl(f"{dir}/shaft-pulley.stl")
 pulley.exportStep(f"{dir}/shaft-pulley.stp")
@@ -611,6 +614,16 @@ add_visual(base, "arm_to_body_joiner", placement=Placement(
     Vector(SEGMENT_THICKNESS / 2, -PLATE_THICKNESS / 2, 11.25),
     Rotation(0, 0, 0),
 ), rgba="1 1 1 0.5")
+
+add_visual(
+    base,
+    "jetson",
+    rgba="0.05 0.05 0.05 1",
+    placement=Placement(
+        Vector(40, 40, 40),
+        Rotation(0, 0, 0),
+    )
+)
 
 for i in range(NUMBER_OF_MOTORS // 2):
     offset = 28.5 / 2 + SEGMENT_THICKNESS / 2 + PLATE_THICKNESS
