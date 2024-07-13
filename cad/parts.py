@@ -257,7 +257,7 @@ def makeTendonOnPulley():
     return Part.Wire(helix).makePipe(Part.Wire([circle]))
 
 
-def make_joint_gear(beta):
+def make_joint_gear(beta: float):
     gear = CreateInvoluteGear.create()
     gear.teeth = JOINT_GEAR_TEETH
     gear.beta = beta
@@ -302,11 +302,11 @@ def make_joint_gear(beta):
         Vector(0, 0, 0),
         Vector(0, 0, 1),
         360.0 / (JOINT_GEAR_TEETH * 4) * direction
-    ).fuse(
-        solid_right
-    ).fuse(
-        solid_left
-    ).cut(  # Bunt gear teeth
+    # ).fuse(
+    #     solid_right
+    # ).fuse(
+    #     solid_left
+    ).cut(  # Blunt gear teeth
         Part.makeBox(SEGMENT_THICKNESS / 2 - JOINT_SHAFT_OD / 2, PLATE_THICKNESS + 2 * connector_thickness, gear.height * 2).translate(
             Vector(JOINT_SHAFT_OD / 2 + (SEGMENT_THICKNESS / 2 - JOINT_SHAFT_OD / 2) if direction > 0 else -SEGMENT_THICKNESS / 2 - (SEGMENT_THICKNESS / 2 - JOINT_SHAFT_OD / 2), -PLATE_THICKNESS / 2 - connector_thickness, -gear.height / 2)
         )
@@ -322,20 +322,20 @@ def make_joint_gear(beta):
             Vector(0, 0, -JOINT_GEAR_HEIGHT / 2),
             Vector(0, 0, 1),
         )
-    ).cut(  # Plate cavity
-        Part.makeBox(
-            PLATE_THICKNESS, PLATE_THICKNESS, PLATE_THICKNESS
-        ).translate(
-            Vector(-PLATE_THICKNESS / 2, -PLATE_THICKNESS / 2, -PLATE_THICKNESS / 2)
-        ).rotate(
-            Vector(0, 0, 0),
-            Vector(0, 1, 0),
-            45,
-        ).translate(
-            Vector(PLATE_THICKNESS / 2, PLATE_THICKNESS / 2, PLATE_THICKNESS / 2)
-        ).translate(
-            Vector(SEGMENT_THICKNESS / 2 - PLATE_THICKNESS / 2 if direction > 0 else -SEGMENT_THICKNESS / 2 - PLATE_THICKNESS / 2, -PLATE_THICKNESS / 2, JOINT_GEAR_HEIGHT - PLATE_THICKNESS / 2)
-        )
+    # ).cut(  # Plate cavity
+    #     Part.makeBox(
+    #         PLATE_THICKNESS, PLATE_THICKNESS, PLATE_THICKNESS
+    #     ).translate(
+    #         Vector(-PLATE_THICKNESS / 2, -PLATE_THICKNESS / 2, -PLATE_THICKNESS / 2)
+    #     ).rotate(
+    #         Vector(0, 0, 0),
+    #         Vector(0, 1, 0),
+    #         45,
+    #     ).translate(
+    #         Vector(PLATE_THICKNESS / 2, PLATE_THICKNESS / 2, PLATE_THICKNESS / 2)
+    #     ).translate(
+    #         Vector(SEGMENT_THICKNESS / 2 - PLATE_THICKNESS / 2 if direction > 0 else -SEGMENT_THICKNESS / 2 - PLATE_THICKNESS / 2, -PLATE_THICKNESS / 2, JOINT_GEAR_HEIGHT - PLATE_THICKNESS / 2)
+    #     )
     ).removeSplitter()
 
 
@@ -471,7 +471,27 @@ def make_arm_to_body_joiner():
         ).translate(
             Vector(PLATE_THICKNESS, 15.5 + 12 + (PULLEY_RADIUS + TENDON_RADIUS) * 2, 46.5 - 11.5 - 4 - 24 - 11 + 24 + VERTICAL_GAP_BETWEEN_MOTORS + 46.5 + 11 - 3)
         )
+    ).fuse(
+        make_joint_gear(30.0).rotate(
+            Vector(0, 0, 0),
+            Vector(1, 0, 0),
+            180,
+        ).translate(
+            Vector(-SEGMENT_THICKNESS / 2, PLATE_THICKNESS / 2, JOINT_GEAR_HEIGHT)
+        )
+    ).fuse(
+        make_joint_gear(30.0).translate(
+            Vector(-SEGMENT_THICKNESS / 2, PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT)
+        )
     ).removeSplitter()
+# add_visual(base, "joint-gear-right", placement=Placement(
+#     Vector(0, 0, 11.25 + JOINT_GEAR_HEIGHT),
+#     Rotation(180, 0, 0),
+# ), rgba="0 0 1 1")
+# add_visual(base, "joint-gear-right", placement=Placement(
+#     Vector(0, 0, 11.25 + JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT),
+#     Rotation(0, 0, 0),
+# ), rgba="0 0 1 1")
 
 
 def add_origin(
@@ -602,18 +622,18 @@ define_material("tendon7", 192 / 256, 192 / 256, 192 / 256)  # Silver
 
 
 base = ET.SubElement(root, "link", {"name": "base"})
-add_visual(base, "joint-gear-right", placement=Placement(
-    Vector(0, 0, 11.25 + JOINT_GEAR_HEIGHT),
-    Rotation(180, 0, 0),
-), rgba="0 0 1 1")
-add_visual(base, "joint-gear-right", placement=Placement(
-    Vector(0, 0, 11.25 + JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT),
-    Rotation(0, 0, 0),
-), rgba="0 0 1 1")
+# add_visual(base, "joint-gear-right", placement=Placement(
+#     Vector(0, 0, 11.25 + JOINT_GEAR_HEIGHT),
+#     Rotation(180, 0, 0),
+# ), rgba="0 0 1 1")
+# add_visual(base, "joint-gear-right", placement=Placement(
+#     Vector(0, 0, 11.25 + JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT),
+#     Rotation(0, 0, 0),
+# ), rgba="0 0 1 1")
 add_visual(base, "arm_to_body_joiner", placement=Placement(
     Vector(SEGMENT_THICKNESS / 2, -PLATE_THICKNESS / 2, 11.25),
     Rotation(0, 0, 0),
-), rgba="1 1 1 0.5")
+), rgba="0.5 0.5 0.5 1")
 
 add_visual(
     base,
