@@ -867,6 +867,24 @@ def add_joint_tendons(link1, link2, *tendons: Optional[tuple[int, bool]]) -> Non
                     ),
                     Rotation(0, 0, 0),
                 ), name=f"tendon{motor_index}")
+            else:
+                angle_radians = asin((PULLEY_RADIUS + TENDON_RADIUS) / (SEGMENT_THICKNESS / 2))
+                angle_degrees = degrees(angle_radians)
+                offset_x = sin(angle_radians) * (PULLEY_RADIUS + TENDON_RADIUS)
+                offset_y = cos(angle_radians) * (PULLEY_RADIUS + TENDON_RADIUS)
+                add_tendon(
+                    link1,
+                    2 * sqrt((SEGMENT_THICKNESS / 2) ** 2 - (PULLEY_RADIUS + TENDON_RADIUS) ** 2),
+                    Placement(
+                        Vector(
+                            -offset_x,
+                            -offset_y if tendon_type == "falling" else offset_y,
+                            JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 0.5),
+                        ),
+                        Rotation(0, -90, -angle_degrees if tendon_type == "falling" else angle_degrees),
+                    ),
+                    motor_index,
+                )
             # add_tendon(
             #     link,
             #     length,
@@ -894,25 +912,6 @@ def add_joint_tendons(link1, link2, *tendons: Optional[tuple[int, bool]]) -> Non
     #             Rotation(0, -90, 0),
     #         ),
     #         i,
-    #     )
-    # # Crossed tendons between joint pulleys
-    # for j in range(i + 1, len(SEGMENTS) + 1):
-    #     angle_radians = asin((PULLEY_RADIUS + TENDON_RADIUS) / (SEGMENT_THICKNESS / 2))
-    #     angle_degrees = degrees(angle_radians)
-    #     offset_x = sin(angle_radians) * (PULLEY_RADIUS + TENDON_RADIUS)
-    #     offset_y = cos(angle_radians) * (PULLEY_RADIUS + TENDON_RADIUS)
-    #     add_tendon(
-    #         link,
-    #         2 * sqrt((SEGMENT_THICKNESS / 2) ** 2 - (PULLEY_RADIUS + TENDON_RADIUS) ** 2),
-    #         Placement(
-    #             Vector(
-    #                 -offset_x,
-    #                 -offset_y if j <= len(SEGMENTS) // 2 else offset_y,
-    #                 JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + j + 3.5),
-    #             ),
-    #             Rotation(0, -90, -angle_degrees if j <= len(SEGMENTS) // 2 else angle_degrees),
-    #         ),
-    #         j,
     #     )
 
 
@@ -990,11 +989,11 @@ for i in range(len(SEGMENTS)):
                 (4, "top"),
                 (4, "top"),
                 (4, "top"),
-                (2, "falling"),
-                (3, "falling"),
-                (4, "rising"),
-                (5, "rising"),
-                (6, "rising"),
+                (1, "rising"),
+                (2, "rising"),
+                (3, "rising"),
+                (5, "falling"),
+                (6, "falling"),
                 (7, "bottom"),
                 (7, "bottom"),
                 (7, "bottom"),
