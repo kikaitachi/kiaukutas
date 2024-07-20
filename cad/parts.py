@@ -832,14 +832,14 @@ def add_non_direction_changing_tendons(tendons: list[Optional[int]]) -> None:
             )
 
 
-def add_joint_tendons(*tendons: Optional[tuple[int, bool]]) -> None:
+def add_joint_tendons(link1, link2, *tendons: Optional[tuple[int, bool]]) -> None:
     for i in range(len(tendons)):
         if tendons[i] is not None:
             motor_index = tendons[i][0]
             tendon_type = tendons[i][1]
             if tendon_type in ["top", "bottom"]:
                 add_tendon(
-                    link,
+                    link1,
                     SEGMENT_THICKNESS,
                     Placement(
                         Vector(
@@ -847,15 +847,23 @@ def add_joint_tendons(*tendons: Optional[tuple[int, bool]]) -> None:
                             (PULLEY_RADIUS + TENDON_RADIUS) * (1 if tendon_type != "top" else -1),
                             JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 0.5),
                         ),
-                        Rotation(0, 90, 0),
+                        Rotation(0, -90, 0),
                     ),
                     motor_index,
                 )
-                add_visual(base, "wrap_joint_pulley_tendon", placement=Placement(
+                add_visual(link1, "wrap_joint_pulley_tendon", placement=Placement(
                     Vector(
                         0,
                         0,
-                        ARM_START_Z + JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 0.5),
+                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 0.5),
+                    ),
+                    Rotation(0, 0, 0),
+                ), name=f"tendon{motor_index}")
+                add_visual(link2, "wrap_joint_pulley_tendon", placement=Placement(
+                    Vector(
+                        0,
+                        0,
+                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 0.5),
                     ),
                     Rotation(0, 0, 0),
                 ), name=f"tendon{motor_index}")
@@ -920,9 +928,9 @@ prev_link = base
 for i in range(len(SEGMENTS)):
     segment = SEGMENTS[i]
 
-    link = ET.SubElement(root, "link", {"name": f"segment{i}a"})
-    add_visual(link, "shaft", placement=placement, rgba="0 1 0 1")
-    add_shaft_pulleys(link, 14 - i, placement)
+    first_link = ET.SubElement(root, "link", {"name": f"segment{i}a"})
+    add_visual(first_link, "shaft", placement=placement, rgba="0 1 0 1")
+    add_shaft_pulleys(first_link, 14 - i, placement)
 
     link = ET.SubElement(root, "link", {"name": f"segment{i}b"})
     add_visual(link, "shaft", placement=placement, rgba="1 0 0 1")
@@ -953,6 +961,8 @@ for i in range(len(SEGMENTS)):
                 i + 3, [7, -4, -5, -6, 8, 9, -10, -11, -12, -13]
             )
             add_joint_tendons(
+                first_link,
+                link,
                 (0, "top"),
                 (0, "top"),
                 (0, "top"),
@@ -972,6 +982,24 @@ for i in range(len(SEGMENTS)):
             add_non_direction_changing_tendons([
                 None, 4, 4, 4, 4, 1, 2, 3, -5, -6, None, None, None, None
             ])
+            add_joint_tendons(
+                first_link,
+                link,
+                None,
+                (4, "top"),
+                (4, "top"),
+                (4, "top"),
+                (4, "top"),
+                (2, "falling"),
+                (3, "falling"),
+                (4, "rising"),
+                (5, "rising"),
+                (6, "rising"),
+                (7, "bottom"),
+                (7, "bottom"),
+                (7, "bottom"),
+                (7, "bottom"),
+            )
         case 2:
             add_non_direction_changing_tendons([
                 None, None, None, None, None, -1, -2, -3, 5, -6, -6, -6, -6, None
