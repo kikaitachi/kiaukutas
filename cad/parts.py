@@ -154,6 +154,18 @@ def make_tackle_pulley_tendon():
     )
 
 
+def make_wrap_joint_pulley_tendon():
+    return Part.makeTorus(
+        PULLEY_RADIUS + TENDON_RADIUS,
+        TENDON_RADIUS,
+        Vector(0, 0, 0),
+        Vector(0, 0, 1),
+        0,
+        360,
+        360,
+    )
+
+
 def make_joint_shaft():
     return Part.makeCylinder(
         JOINT_SHAFT_OD / 2, JOINT_SHAFT_LENGTH, Vector(0, 0, 0), Vector(0, 0, 1)
@@ -587,6 +599,9 @@ tackle_pulley.exportStep(f"{dir}/tackle-pulley.stp")
 tackle_pulley_tendon = make_tackle_pulley_tendon()
 tackle_pulley_tendon.exportStl(f"{dir}/tackle-pulley-tendon.stl")
 tackle_pulley_tendon.exportStep(f"{dir}/tackle-pulley-tendon.stp")
+wrap_joint_pulley_tendon = make_wrap_joint_pulley_tendon()
+wrap_joint_pulley_tendon.exportStl(f"{dir}/wrap_joint_pulley_tendon.stl")
+wrap_joint_pulley_tendon.exportStep(f"{dir}/wrap_joint_pulley_tendon.stp")
 shaft = make_joint_shaft()
 shaft.exportStl(f"{dir}/shaft.stl")
 shaft.exportStep(f"{dir}/shaft.stp")
@@ -836,6 +851,14 @@ def add_joint_tendons(*tendons: Optional[tuple[int, bool]]) -> None:
                     ),
                     motor_index,
                 )
+                add_visual(base, "wrap_joint_pulley_tendon", placement=Placement(
+                    Vector(
+                        0,
+                        0,
+                        ARM_START_Z + JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 0.5),
+                    ),
+                    Rotation(0, 0, 0),
+                ), name=f"tendon{motor_index}")
             # add_tendon(
             #     link,
             #     length,
