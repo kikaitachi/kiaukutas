@@ -172,70 +172,70 @@ def make_segment_plate():
         JOINT_SHAFT_LENGTH,
         Vector(0, -PLATE_THICKNESS / 2, 0),
         Vector(0, 0, 1),
-    ).fuse(
-        Part.makeBox(
-            corner_length,
-            PLATE_THICKNESS,
-            corner_length,
-            Vector(JOINT_SHAFT_LENGTH, -PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH),
-            Vector(0, 0, 1),
-        )
-    ).fuse(
-        Part.makeBox(
-            joiner_length,
-            PLATE_THICKNESS,
-            joiner_length,
-            Vector(JOINT_SHAFT_LENGTH - joiner_center, -PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH),
-            Vector(1, 0, 1),
-        )
-    ).fuse(
-        Part.makeBox(
-            corner_length,
-            PLATE_THICKNESS,
-            corner_length,
-            Vector(-corner_length, -PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH),
-            Vector(0, 0, 1),
-        )
-    ).fuse(
-        Part.makeBox(
-            joiner_length,
-            PLATE_THICKNESS,
-            joiner_length,
-            Vector(joiner_center, -PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH),
-            Vector(-1, 0, -1),
-        )
-    ).fuse(
-        Part.makeBox(
-            corner_length,
-            PLATE_THICKNESS,
-            corner_length,
-            Vector(JOINT_SHAFT_LENGTH, -PLATE_THICKNESS / 2, -corner_length),
-            Vector(0, 0, 1),
-        )
-    ).fuse(
-        Part.makeBox(
-            joiner_length,
-            PLATE_THICKNESS,
-            joiner_length,
-            Vector(JOINT_SHAFT_LENGTH + joiner_center, -PLATE_THICKNESS / 2, 0),
-            Vector(-1, 0, -1),
-        )
-    ).fuse(
-        Part.makeBox(
-            corner_length,
-            PLATE_THICKNESS,
-            corner_length,
-            Vector(-corner_length, -PLATE_THICKNESS / 2, -corner_length),
-            Vector(0, 0, 1),
-        )
-    ).fuse(
-        Part.makeBox(
-            joiner_length,
-            PLATE_THICKNESS,
-            joiner_length,
-            Vector(joiner_center, -PLATE_THICKNESS / 2, 0),
-            Vector(-1, 0, -1),
-        )
+    # ).fuse(
+    #     Part.makeBox(
+    #         corner_length,
+    #         PLATE_THICKNESS,
+    #         corner_length,
+    #         Vector(JOINT_SHAFT_LENGTH, -PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH),
+    #         Vector(0, 0, 1),
+    #     )
+    # ).fuse(
+    #     Part.makeBox(
+    #         joiner_length,
+    #         PLATE_THICKNESS,
+    #         joiner_length,
+    #         Vector(JOINT_SHAFT_LENGTH - joiner_center, -PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH),
+    #         Vector(1, 0, 1),
+    #     )
+    # ).fuse(
+    #     Part.makeBox(
+    #         corner_length,
+    #         PLATE_THICKNESS,
+    #         corner_length,
+    #         Vector(-corner_length, -PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH),
+    #         Vector(0, 0, 1),
+    #     )
+    # ).fuse(
+    #     Part.makeBox(
+    #         joiner_length,
+    #         PLATE_THICKNESS,
+    #         joiner_length,
+    #         Vector(joiner_center, -PLATE_THICKNESS / 2, JOINT_SHAFT_LENGTH),
+    #         Vector(-1, 0, -1),
+    #     )
+    # ).fuse(
+    #     Part.makeBox(
+    #         corner_length,
+    #         PLATE_THICKNESS,
+    #         corner_length,
+    #         Vector(JOINT_SHAFT_LENGTH, -PLATE_THICKNESS / 2, -corner_length),
+    #         Vector(0, 0, 1),
+    #     )
+    # ).fuse(
+    #     Part.makeBox(
+    #         joiner_length,
+    #         PLATE_THICKNESS,
+    #         joiner_length,
+    #         Vector(JOINT_SHAFT_LENGTH + joiner_center, -PLATE_THICKNESS / 2, 0),
+    #         Vector(-1, 0, -1),
+    #     )
+    # ).fuse(
+    #     Part.makeBox(
+    #         corner_length,
+    #         PLATE_THICKNESS,
+    #         corner_length,
+    #         Vector(-corner_length, -PLATE_THICKNESS / 2, -corner_length),
+    #         Vector(0, 0, 1),
+    #     )
+    # ).fuse(
+    #     Part.makeBox(
+    #         joiner_length,
+    #         PLATE_THICKNESS,
+    #         joiner_length,
+    #         Vector(joiner_center, -PLATE_THICKNESS / 2, 0),
+    #         Vector(-1, 0, -1),
+    #     )
     # ).cut(
     #     Part.makeCylinder(
     #         3.4 / 2, 3, Vector(JOINT_GEAR_HEIGHT / 2, 0, JOINT_GEAR_HEIGHT / 2), Vector(0, 1, 0)
@@ -829,10 +829,10 @@ def add_joint_tendons(*tendons: Optional[tuple[int, bool]]) -> None:
                     Placement(
                         Vector(
                             0,
-                            (PULLEY_RADIUS + TENDON_RADIUS) * (1 if tendon_type == "top" else -1),
+                            (PULLEY_RADIUS + TENDON_RADIUS) * (1 if tendon_type != "top" else -1),
                             JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 0.5),
                         ),
-                        Rotation(0, -90, 0),
+                        Rotation(0, 90, 0),
                     ),
                     motor_index,
                 )
@@ -967,6 +967,7 @@ for i in range(len(SEGMENTS)):
             ),
             Rotation(0, 0, 0),
         ), rgba="0.3 0.2 0.6 1")
+        # Far side of block and tackle
         for k in [-JOINT_PULLEY_SPACING / 2, JOINT_PULLEY_SPACING / 2]:
             add_tendon(
                 link,

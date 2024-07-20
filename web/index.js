@@ -1,5 +1,5 @@
 import * as THREE from 'https://esm.sh/three@0.164.1'
-import { TrackballControls } from 'https://esm.sh/three@0.164.1/addons/controls/TrackballControls.js'
+import { OrbitControls } from 'https://esm.sh/three@0.164.1/addons/controls/OrbitControls.js'
 import { STLLoader } from 'https://esm.sh/three@0.164.1/addons/loaders/STLLoader.js'
 import URDFLoader from 'https://esm.sh/urdf-loader@0.12.1'
 
@@ -19,8 +19,8 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap
 renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
 
-const controls = new TrackballControls(camera, renderer.domElement)
-controls.rotateSpeed = 5.0
+const controls = new OrbitControls(camera, renderer.domElement)
+controls.rotateSpeed = 1.0
 
 const backLight = new THREE.DirectionalLight(0xffffff, 1.0)
 backLight.position.set(0, 1000, 0)
