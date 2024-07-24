@@ -832,7 +832,13 @@ def add_non_direction_changing_tendons(tendons: list[Optional[int]]) -> None:
             )
 
 
-def add_joint_tendons(link1, link2, *tendons: Optional[tuple[int, bool]]) -> None:
+def add_joint_tendons(
+    link1,
+    link2,
+    tendons: list[Optional[tuple[int, str]]],  # motor_index, type
+    link,
+    placement
+) -> None:
     for i in range(len(tendons)):
         if tendons[i] is not None:
             motor_index = tendons[i][0]
@@ -851,22 +857,6 @@ def add_joint_tendons(link1, link2, *tendons: Optional[tuple[int, bool]]) -> Non
                     ),
                     motor_index,
                 )
-                add_visual(link1, "wrap_joint_pulley_tendon", placement=Placement(
-                    Vector(
-                        0,
-                        0,
-                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 0.5),
-                    ),
-                    Rotation(0, 0, 0),
-                ), name=f"tendon{motor_index}")
-                add_visual(link2, "wrap_joint_pulley_tendon", placement=Placement(
-                    Vector(
-                        0,
-                        0,
-                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 0.5),
-                    ),
-                    Rotation(0, 0, 0),
-                ), name=f"tendon{motor_index}")
             else:
                 angle_radians = asin((PULLEY_RADIUS + TENDON_RADIUS) / (SEGMENT_THICKNESS / 2))
                 angle_degrees = degrees(angle_radians)
@@ -885,6 +875,27 @@ def add_joint_tendons(link1, link2, *tendons: Optional[tuple[int, bool]]) -> Non
                     ),
                     motor_index,
                 )
+            add_visual(link1, "wrap_joint_pulley_tendon", placement=Placement(
+                Vector(
+                    0,
+                    0,
+                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 0.5),
+                ),
+                Rotation(0, 0, 0),
+            ), name=f"tendon{motor_index}")
+            add_visual(link2, "wrap_joint_pulley_tendon", placement=Placement(
+                Vector(
+                    0,
+                    0,
+                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (i + 0.5),
+                ),
+                Rotation(0, 0, 0),
+            ), name=f"tendon{motor_index}")
+    add_tension_pulleys(
+        link,
+        0,
+        placement=placement
+    )
             # add_tendon(
             #     link,
             #     length,
@@ -914,12 +925,6 @@ def add_joint_tendons(link1, link2, *tendons: Optional[tuple[int, bool]]) -> Non
     #         i,
     #     )
 
-
-add_tension_pulleys(
-    base,
-    0,
-    placement=Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0))
-)
 
 initial_placement = Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0))
 placement = Placement(Vector(0, 0, 0), Rotation(0, 0, 0))
@@ -962,20 +967,24 @@ for i in range(len(SEGMENTS)):
             add_joint_tendons(
                 first_link,
                 link,
-                (0, "top"),
-                (0, "top"),
-                (0, "top"),
-                (0, "top"),
-                (1, "falling"),
-                (2, "falling"),
-                (3, "falling"),
-                (4, "rising"),
-                (5, "rising"),
-                (6, "rising"),
-                (7, "bottom"),
-                (7, "bottom"),
-                (7, "bottom"),
-                (7, "bottom"),
+                [
+                    (0, "top"),
+                    (0, "top"),
+                    (0, "top"),
+                    (0, "top"),
+                    (1, "falling"),
+                    (2, "falling"),
+                    (3, "falling"),
+                    (4, "rising"),
+                    (5, "rising"),
+                    (6, "rising"),
+                    (7, "bottom"),
+                    (7, "bottom"),
+                    (7, "bottom"),
+                    (7, "bottom"),
+                ],
+                base,
+                Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0)),
             )
         case 1:
             add_non_direction_changing_tendons([
@@ -984,20 +993,33 @@ for i in range(len(SEGMENTS)):
             add_joint_tendons(
                 first_link,
                 link,
-                None,
-                (4, "top"),
-                (4, "top"),
-                (4, "top"),
-                (4, "top"),
-                (1, "rising"),
-                (2, "rising"),
-                (3, "rising"),
-                (5, "falling"),
-                (6, "falling"),
-                (7, "bottom"),
-                (7, "bottom"),
-                (7, "bottom"),
-                (7, "bottom"),
+                [
+                    None,
+                    (4, "top"),
+                    (4, "top"),
+                    (4, "top"),
+                    (4, "top"),
+                    (1, "rising"),
+                    (2, "rising"),
+                    (3, "rising"),
+                    (5, "falling"),
+                    (6, "falling"),
+                    (7, "bottom"),
+                    (7, "bottom"),
+                    (7, "bottom"),
+                    (7, "bottom"),
+                ],
+                prev_link,
+                SEGMENTS[i].placement.multiply(
+                    Placement(
+                        Vector(
+                            0,
+                            0,
+                            0,  # JOINT_PULLEY_SPACING * (i + 1),
+                        ),
+                        Rotation(0, 0, 0),
+                    )
+                ),
             )
         case 2:
             add_non_direction_changing_tendons([
@@ -1062,20 +1084,7 @@ for i in range(len(SEGMENTS)):
                 Rotation(0, 0, 0),
             )
         ), rgba="1 0 1 1")
-        add_tension_pulleys(
-            link,
-            i + 1,
-            placement=SEGMENTS[i + 1].placement.multiply(
-                Placement(
-                    Vector(
-                        0,
-                        0,
-                        JOINT_PULLEY_SPACING * (i + 1),
-                    ),
-                    Rotation(0, 0, 0),
-                )
-            ),
-        )
+    prev_link = link
 
 placement = initial_placement
 for i in range(len(SEGMENTS)):
