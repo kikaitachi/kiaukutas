@@ -26,6 +26,18 @@ SHAFT_TO_PLATE = 10
 PLATE_THICKNESS = 6
 TACKLE_PULLEY_RADIUS = 5 / 2
 
+EXTRA_PULLEYS_PER_JOINT = 3
+NUMBER_OF_MOTORS = 8
+TENDON_RADIUS = 1 / 2
+
+PULLEY_RADIUS = 10 / 2
+PULLEY_HEIGHT = 4
+PULLEY_HOLE_RADIUS = 7.4 / 2
+JOINT_PULLEY_SPACING = 6
+
+ARM_START_Z = 11.25
+VERTICAL_GAP_BETWEEN_MOTORS = JOINT_PULLEY_SPACING * 4 - 2 * ARM_START_Z
+
 SEGMENTS = [
     Segment(
         Placement(
@@ -71,15 +83,6 @@ SEGMENTS = [
     ),
 ]
 
-EXTRA_PULLEYS_PER_JOINT = 3
-NUMBER_OF_MOTORS = 8
-TENDON_RADIUS = 1 / 2
-
-PULLEY_RADIUS = 10 / 2
-PULLEY_HEIGHT = 4
-PULLEY_HOLE_RADIUS = 7.4 / 2
-JOINT_PULLEY_SPACING = 6
-
 BRACKET_THICKNESS = 4
 MOTOR_LENGTH = 28.5
 MOTOR_WIDTH = 46.5
@@ -94,9 +97,6 @@ JOINT_SHAFT_PULLEY_AREA_LENGTH = 70
 
 JOINT_GEAR_TEETH = 11
 JOINT_GEAR_HEIGHT = (JOINT_SHAFT_LENGTH - 14 * JOINT_PULLEY_SPACING) / 2
-
-VERTICAL_GAP_BETWEEN_MOTORS = JOINT_PULLEY_SPACING * 4 - 2 * 11.25
-ARM_START_Z = 11.25
 
 JETSON_HOLE_DIAMETER = 2.7
 JETSON_VERTICAL_DISTANCE_BETWEEN_HOLES = 60.5 - JETSON_HOLE_DIAMETER
@@ -833,15 +833,20 @@ def add_non_direction_changing_tendons(tendons: list[Optional[int]]) -> None:
 
 
 def add_joint_tendons(
+    prev_link,
     link1,
     link2,
     tendons: list[Optional[tuple[int, str]]],  # motor_index, type
-    link,
-    placement
+    bottom_pulley1: Optional[Placement] = None
 ) -> None:
+    first_motor_index: Optional[int] = None
+    first_tendon_index: Optional[int] = None
     for i in range(len(tendons)):
         if tendons[i] is not None:
             motor_index = tendons[i][0]
+            if first_motor_index is None:
+                first_motor_index = motor_index
+                first_tendon_index = i
             tendon_type = tendons[i][1]
             if tendon_type in ["top", "bottom"]:
                 add_tendon(
@@ -891,11 +896,21 @@ def add_joint_tendons(
                 ),
                 Rotation(0, 0, 0),
             ), name=f"tendon{motor_index}")
-    add_tension_pulleys(
-        link,
-        0,
-        placement=placement
-    )
+    if bottom_pulley1 is not None:
+        add_tension_pulleys(
+            prev_link,
+            first_motor_index,
+            placement=bottom_pulley1.multiply(
+                Placement(
+                    Vector(
+                        0,
+                        0,
+                        JOINT_PULLEY_SPACING * first_tendon_index,
+                    ),
+                    Rotation(0, 0, 0),
+                )
+            )
+        )
             # add_tendon(
             #     link,
             #     length,
@@ -965,6 +980,7 @@ for i in range(len(SEGMENTS)):
                 i + 3, [7, -4, -5, -6, 8, 9, -10, -11, -12, -13]
             )
             add_joint_tendons(
+                prev_link,
                 first_link,
                 link,
                 [
@@ -983,14 +999,14 @@ for i in range(len(SEGMENTS)):
                     (7, "bottom"),
                     (7, "bottom"),
                 ],
-                base,
-                Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0)),
+                Placement(Vector(0, 0, ARM_START_Z), Rotation(0, 0, 0)),
             )
         case 1:
             add_non_direction_changing_tendons([
                 None, 4, 4, 4, 4, 1, 2, 3, -5, -6, None, None, None, None
             ])
             add_joint_tendons(
+                prev_link,
                 first_link,
                 link,
                 [
@@ -1009,7 +1025,6 @@ for i in range(len(SEGMENTS)):
                     (7, "bottom"),
                     (7, "bottom"),
                 ],
-                prev_link,
                 SEGMENTS[i].placement.multiply(
                     Placement(
                         Vector(
