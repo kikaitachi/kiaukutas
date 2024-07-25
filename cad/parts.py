@@ -837,16 +837,21 @@ def add_joint_tendons(
     link1,
     link2,
     tendons: list[Optional[tuple[int, str]]],  # motor_index, type
-    bottom_pulley1: Optional[Placement] = None
+    bottom_pulley1: Optional[Placement] = None,
+    top_pulley1: Optional[Placement] = None,
 ) -> None:
     first_motor_index: Optional[int] = None
     first_tendon_index: Optional[int] = None
+    last_motor_index: Optional[int] = None
+    last_tendon_index: Optional[int] = None
     for i in range(len(tendons)):
         if tendons[i] is not None:
             motor_index = tendons[i][0]
             if first_motor_index is None:
                 first_motor_index = motor_index
                 first_tendon_index = i
+            last_motor_index = motor_index
+            last_tendon_index = i
             tendon_type = tendons[i][1]
             if tendon_type in ["top", "bottom"]:
                 add_tendon(
@@ -908,6 +913,21 @@ def add_joint_tendons(
                         JOINT_PULLEY_SPACING * first_tendon_index,
                     ),
                     Rotation(0, 0, 0),
+                )
+            )
+        )
+    if top_pulley1 is not None:
+        add_tension_pulleys(
+            prev_link,
+            last_motor_index,
+            placement=bottom_pulley1.multiply(
+                Placement(
+                    Vector(
+                        0,
+                        0,
+                        JOINT_PULLEY_SPACING * (last_tendon_index + 3.5) + TENDON_RADIUS * 2,
+                    ),
+                    Rotation(0, 0, -180),
                 )
             )
         )
@@ -1000,6 +1020,7 @@ for i in range(len(SEGMENTS)):
                     (7, "bottom"),
                 ],
                 Placement(Vector(0, 0, ARM_START_Z), Rotation(0, 0, 0)),
+                Placement(Vector(0, 0, ARM_START_Z), Rotation(0, 0, 0)),
             )
         case 1:
             add_non_direction_changing_tendons([
@@ -1035,6 +1056,7 @@ for i in range(len(SEGMENTS)):
                         Rotation(0, 0, 0),
                     )
                 ),
+                None,
             )
         case 2:
             add_non_direction_changing_tendons([
