@@ -724,15 +724,16 @@ def add_tension_pulleys(
         link,
         index: int,
         placement=Placement(Vector(0, 0, 0), Rotation(0, 0, 0)),
+        direction: int = 1,
 ):
     add_visual(link, "tackle-pulley", placement=placement.multiply(
         Placement(
             Vector(
                 SHAFT_TO_PLATE + 7 / 2,
-                -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
-                JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * 2,
+                (-PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2) * direction,
+                JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (2 if direction == 1 else -1),
             ),
-            Rotation(0, 0, 0),
+            Rotation(0 if direction == 1 else 180, 0, 0),
         )
     ), rgba="0.3 0.2 0.6 1")
     add_visual(
@@ -742,8 +743,8 @@ def add_tension_pulleys(
             Placement(
                 Vector(
                     SHAFT_TO_PLATE + 7 / 2,
-                    -PULLEY_RADIUS - TENDON_RADIUS,
-                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * 2,
+                    (-PULLEY_RADIUS - TENDON_RADIUS) * direction,
+                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (2 if direction == 1 else -1),
                 ),
                 Rotation(0, 0, 0),
             )
@@ -758,8 +759,8 @@ def add_tension_pulleys(
                 Placement(
                     Vector(
                         SHAFT_TO_PLATE + 7 / 2,
-                        -PULLEY_RADIUS - TENDON_RADIUS,
-                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (0.5 + k),
+                        (-PULLEY_RADIUS - TENDON_RADIUS) * direction,
+                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (0.5 + k * direction),
                     ),
                     Rotation(0, -90, 0),
                 )
@@ -905,7 +906,7 @@ def add_joint_tendons(
         add_tension_pulleys(
             prev_link,
             first_motor_index,
-            placement=bottom_pulley1.multiply(
+            bottom_pulley1.multiply(
                 Placement(
                     Vector(
                         0,
@@ -914,22 +915,24 @@ def add_joint_tendons(
                     ),
                     Rotation(0, 0, 0),
                 )
-            )
+            ),
+            1,
         )
     if top_pulley1 is not None:
         add_tension_pulleys(
             prev_link,
             last_motor_index,
-            placement=bottom_pulley1.multiply(
+            bottom_pulley1.multiply(
                 Placement(
                     Vector(
                         0,
                         0,
-                        JOINT_PULLEY_SPACING * (last_tendon_index + 3.5) + TENDON_RADIUS * 2,
+                        JOINT_PULLEY_SPACING * last_tendon_index,
                     ),
-                    Rotation(0, 0, -180),
+                    Rotation(0, 0, 0),
                 )
-            )
+            ),
+            -1,
         )
             # add_tendon(
             #     link,
