@@ -568,24 +568,6 @@ def add_tendon(
     ET.SubElement(visual, "material", {"name": f"tendon{index}"})
 
 
-def add_shaft_pulleys(
-        link: ET.Element,
-        count: int,
-        placement: Placement
-):
-    for i in range(count):
-        add_visual(
-            link,
-            "shaft-pulley",
-            placement=placement.multiply(
-                Placement(
-                    Vector(0, 0, JOINT_SHAFT_LENGTH - i * JOINT_PULLEY_SPACING - 8 - PULLEY_HEIGHT - (JOINT_PULLEY_SPACING - PULLEY_HEIGHT) / 2),
-                    Rotation(0, 0, 0),
-                )
-            )
-        )
-
-
 dir = sys.argv[3]
 # Part.read("XM430-W350-T.stp").exportStl(f"{dir}/XM430-W350-T.stl")
 copyfile("XM430-W350-T.stl", f"{dir}/XM430-W350-T.stl")
@@ -840,6 +822,7 @@ def add_joint_tendons(
     tendons: list[Optional[tuple[int, str]]],  # motor_index, type
     bottom_pulley1: Optional[Placement] = None,
     top_pulley1: Optional[Placement] = None,
+    bottom_pulley2: bool = False,
 ) -> None:
     first_motor_index: Optional[int] = None
     first_tendon_index: Optional[int] = None
@@ -902,6 +885,26 @@ def add_joint_tendons(
                 ),
                 Rotation(0, 0, 0),
             ), name=f"tendon{motor_index}")
+            add_visual(
+                link1,
+                "shaft-pulley",
+                placement=placement.multiply(
+                    Placement(
+                        Vector(0, 0, JOINT_GEAR_HEIGHT + i * JOINT_PULLEY_SPACING),
+                        Rotation(0, 0, 0),
+                    )
+                )
+            )
+            add_visual(
+                link2,
+                "shaft-pulley",
+                placement=placement.multiply(
+                    Placement(
+                        Vector(0, 0, JOINT_GEAR_HEIGHT + i * JOINT_PULLEY_SPACING),
+                        Rotation(0, 0, 0),
+                    )
+                )
+            )
     if bottom_pulley1 is not None:
         add_tension_pulleys(
             prev_link,
@@ -934,6 +937,45 @@ def add_joint_tendons(
             ),
             -1,
         )
+    if bottom_pulley2:
+        i = first_tendon_index
+        for j in range(0, 3, 2):
+            add_visual(link2, "tackle-pulley", placement=Placement(
+                Vector(
+                    -SHAFT_TO_PLATE - 7 / 2,
+                    -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
+                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (2 - j + 1 + i),
+                ),
+                Rotation(0, 0, 0),
+            ), rgba="0.3 0.2 0.6 1")
+            # Far side of block and tackle
+            for k in [-JOINT_PULLEY_SPACING / 2, JOINT_PULLEY_SPACING / 2]:
+                add_tendon(
+                    link2,
+                    7 / 2 + SHAFT_TO_PLATE,
+                    Placement(
+                        Vector(
+                            -SHAFT_TO_PLATE - 7 / 2,
+                            -PULLEY_RADIUS - TENDON_RADIUS,
+                            JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (2 - j + 1 + i) + k,
+                        ),
+                        Rotation(0, 90, 0),
+                    ),
+                    first_motor_index,
+                )
+            add_visual(
+                link2,
+                "tackle-pulley-tendon",
+                placement=Placement(
+                    Vector(
+                        -SHAFT_TO_PLATE - 7 / 2,
+                        -PULLEY_RADIUS - TENDON_RADIUS,
+                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (2 - j + 1 + i),
+                    ),
+                    Rotation(0, 180, 0),
+                ),
+                name=f"tendon{first_motor_index}"
+            )
             # add_tendon(
             #     link,
             #     length,
@@ -972,11 +1014,9 @@ for i in range(len(SEGMENTS)):
 
     first_link = ET.SubElement(root, "link", {"name": f"segment{i}a"})
     add_visual(first_link, "shaft", placement=placement, rgba="0 1 0 1")
-    add_shaft_pulleys(first_link, 14 - i, placement)
 
     link = ET.SubElement(root, "link", {"name": f"segment{i}b"})
     add_visual(link, "shaft", placement=placement, rgba="1 0 0 1")
-    add_shaft_pulleys(link, 14 - i, placement)
     add_visual(link, "joint-gear-left", placement=Placement(
         Vector(0, 0, JOINT_GEAR_HEIGHT),
         Rotation(180, 0, 0),
@@ -1024,6 +1064,7 @@ for i in range(len(SEGMENTS)):
                 ],
                 Placement(Vector(0, 0, ARM_START_Z), Rotation(0, 0, 0)),
                 Placement(Vector(0, 0, ARM_START_Z), Rotation(0, 0, 0)),
+                True,
             )
         case 1:
             add_non_direction_changing_tendons([
@@ -1060,53 +1101,40 @@ for i in range(len(SEGMENTS)):
                     )
                 ),
                 None,
+                False,
             )
         case 2:
             add_non_direction_changing_tendons([
                 None, None, None, None, None, -1, -2, -3, 5, -6, -6, -6, -6, None
             ])
+            add_joint_tendons(
+                prev_link,
+                first_link,
+                link,
+                [
+                    None,
+                    (4, "top"),
+                    (4, "top"),
+                    (4, "top"),
+                    (4, "top"),
+                    (1, "falling"),
+                    (2, "falling"),
+                    (3, "falling"),
+                    (5, "rising"),
+                    (6, "rising"),
+                    (7, "bottom"),
+                    (7, "bottom"),
+                    (7, "bottom"),
+                    (7, "bottom"),
+                ],
+                None,
+                None,
+                True,
+            )
         case 3:
             add_direction_changing_pulleys(
                 i + 3, [7, -4, -5, -6, 8, 9]
             )
-
-    for j in range(0, 3, 2):
-        add_visual(link, "tackle-pulley", placement=Placement(
-            Vector(
-                -SHAFT_TO_PLATE - 7 / 2,
-                -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
-                JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (2 - j + 1 + i),
-            ),
-            Rotation(0, 0, 0),
-        ), rgba="0.3 0.2 0.6 1")
-        # Far side of block and tackle
-        for k in [-JOINT_PULLEY_SPACING / 2, JOINT_PULLEY_SPACING / 2]:
-            add_tendon(
-                link,
-                7 / 2 + SHAFT_TO_PLATE,
-                Placement(
-                    Vector(
-                        -SHAFT_TO_PLATE - 7 / 2,
-                        -PULLEY_RADIUS - TENDON_RADIUS,
-                        JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (2 - j + 1 + i) + k,
-                    ),
-                    Rotation(0, 90, 0),
-                ),
-                i,
-            )
-        add_visual(
-            link,
-            "tackle-pulley-tendon",
-            placement=Placement(
-                Vector(
-                    -SHAFT_TO_PLATE - 7 / 2,
-                    -PULLEY_RADIUS - TENDON_RADIUS,
-                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (2 - j + 1 + i),
-                ),
-                Rotation(0, 180, 0),
-            ),
-            name=f"tendon{i}"
-        )
 
     if i != len(SEGMENTS) - 1:
         add_visual(link, "joint-gear-right", placement=SEGMENTS[i + 1].placement.multiply(
