@@ -931,7 +931,7 @@ def add_joint_tendons(
                 "shaft-pulley",
                 placement=placement.multiply(
                     Placement(
-                        Vector(0, 0, JOINT_GEAR_HEIGHT + i * JOINT_PULLEY_SPACING),
+                        Vector(0, 0, JOINT_GEAR_HEIGHT + i * JOINT_PULLEY_SPACING + (JOINT_PULLEY_SPACING - PULLEY_HEIGHT) / 2),
                         Rotation(0, 0, 0),
                     )
                 )
@@ -941,7 +941,7 @@ def add_joint_tendons(
                 "shaft-pulley",
                 placement=placement.multiply(
                     Placement(
-                        Vector(0, 0, JOINT_GEAR_HEIGHT + i * JOINT_PULLEY_SPACING),
+                        Vector(0, 0, JOINT_GEAR_HEIGHT + i * JOINT_PULLEY_SPACING + (JOINT_PULLEY_SPACING - PULLEY_HEIGHT) / 2),
                         Rotation(0, 0, 0),
                     )
                 )
@@ -1115,6 +1115,31 @@ for i in range(len(SEGMENTS)):
         case 3:
             add_direction_changing_pulleys(
                 i + 3, [7, -4, -5, -6, 8, 9]
+            )
+            add_joint_tendons(
+                prev_link,
+                first_link,
+                link,
+                [
+                    None,
+                    (4, "top"),
+                    (4, "top"),
+                    (4, "top"),
+                    (4, "top"),
+                    (1, "falling"),
+                    (2, "falling"),
+                    (3, "falling"),
+                    (5, "rising"),
+                    (6, "rising"),
+                    (7, "bottom"),
+                    (7, "bottom"),
+                    (7, "bottom"),
+                    (7, "bottom"),
+                ],
+                None,
+                None,
+                True,
+                False,
             )
 
     if i != len(SEGMENTS) - 1:
