@@ -1018,7 +1018,7 @@ for i in range(len(SEGMENTS)):
     match i:
         case 0:
             add_direction_changing_pulleys(
-                i + 3, [7, -4, -5, -6, 8, 9, -10, -11, -12, -13]
+                i + 3, [7, 8, -4, -5, -6, 9, -10, -11, -12, -13]
             )
             add_joint_tendons(
                 prev_link,
@@ -1047,7 +1047,7 @@ for i in range(len(SEGMENTS)):
             )
         case 1:
             add_non_direction_changing_tendons([
-                None, 4, 4, 4, 4, 1, 2, 3, -5, -6, None, None, None, None
+                None, 4, 4, 4, 4, -5, 1, 2, 3, -6, None, None, None, None
             ])
             add_joint_tendons(
                 prev_link,
@@ -1059,10 +1059,10 @@ for i in range(len(SEGMENTS)):
                     (4, "top"),
                     (4, "top"),
                     (4, "top"),
+                    (5, "falling"),
                     (1, "rising"),
                     (2, "rising"),
                     (3, "rising"),
-                    (5, "falling"),
                     (6, "falling"),
                     (7, "bottom"),
                     (7, "bottom"),
@@ -1085,7 +1085,7 @@ for i in range(len(SEGMENTS)):
             )
         case 2:
             add_non_direction_changing_tendons([
-                None, None, None, None, None, -1, -2, -3, 5, -6, -6, -6, -6, None
+                None, None, None, None, None, 5, -1, -2, -3, -6, -6, -6, -6, None
             ])
             add_joint_tendons(
                 prev_link,
@@ -1097,10 +1097,10 @@ for i in range(len(SEGMENTS)):
                     (4, "top"),
                     (4, "top"),
                     (4, "top"),
+                    (5, "rising"),
                     (1, "falling"),
                     (2, "falling"),
                     (3, "falling"),
-                    (5, "rising"),
                     (6, "bottom"),
                     (6, "bottom"),
                     (6, "bottom"),
@@ -1122,24 +1122,24 @@ for i in range(len(SEGMENTS)):
                 link,
                 [
                     None,
-                    (4, "top"),
-                    (4, "top"),
-                    (4, "top"),
-                    (4, "top"),
+                    None,
+                    (5, "top"),
+                    (5, "top"),
+                    (5, "top"),
+                    (5, "rising"),
                     (1, "falling"),
                     (2, "falling"),
                     (3, "falling"),
-                    (5, "rising"),
-                    (6, "rising"),
-                    (7, "bottom"),
-                    (7, "bottom"),
-                    (7, "bottom"),
-                    (7, "bottom"),
+                    (6, "bottom"),
+                    (6, "bottom"),
+                    (6, "bottom"),
+                    (6, "bottom"),
+                    None,
                 ],
+                SEGMENTS[i].placement,
                 None,
-                None,
-                True,
                 False,
+                True,
             )
         case 4:
             add_joint_tendons(
