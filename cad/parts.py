@@ -815,7 +815,7 @@ def add_non_direction_changing_tendons(tendons: list[Optional[int]]) -> None:
             )
 
 
-def add_far_tension_pulleys(link, i, direction) -> None:
+def add_far_tension_pulleys(link, i: int, motor_index: int, direction: bool) -> None:
     for j in range(0, 3, 2):
         add_visual(link, "tackle-pulley", placement=Placement(
             Vector(
@@ -838,7 +838,7 @@ def add_far_tension_pulleys(link, i, direction) -> None:
                     ),
                     Rotation(0, 90, 0),
                 ),
-                i,
+                motor_index,
             )
         add_visual(
             link,
@@ -851,7 +851,7 @@ def add_far_tension_pulleys(link, i, direction) -> None:
                 ),
                 Rotation(0, 180, 0),
             ),
-            name=f"tendon{i}"
+            name=f"tendon{motor_index}"
         )
 
 
@@ -979,9 +979,9 @@ def add_joint_tendons(
             -1,
         )
     if bottom_pulley2:
-        add_far_tension_pulleys(link, first_tendon_index, 1)
+        add_far_tension_pulleys(link, first_tendon_index, first_motor_index, 1)
     if top_pulley2:
-        add_far_tension_pulleys(link, last_tendon_index - 5, -1)
+        add_far_tension_pulleys(link, last_tendon_index - 5, last_motor_index, -1)
 
 
 initial_placement = Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0))
