@@ -966,7 +966,7 @@ def add_joint_tendons(
         add_tension_pulleys(
             prev_link,
             last_motor_index,
-            bottom_pulley1.multiply(
+            top_pulley1.multiply(
                 Placement(
                     Vector(
                         0,
@@ -1101,6 +1101,35 @@ for i in range(len(SEGMENTS)):
                     (2, "falling"),
                     (3, "falling"),
                     (5, "rising"),
+                    (6, "bottom"),
+                    (6, "bottom"),
+                    (6, "bottom"),
+                    (6, "bottom"),
+                    None,
+                ],
+                None,
+                SEGMENTS[i].placement,
+                True,
+                False,
+            )
+        case 3:
+            add_direction_changing_pulleys(
+                i + 3, [7, -4, -5, -6, 8, 9]
+            )
+            add_joint_tendons(
+                prev_link,
+                first_link,
+                link,
+                [
+                    None,
+                    (4, "top"),
+                    (4, "top"),
+                    (4, "top"),
+                    (4, "top"),
+                    (1, "falling"),
+                    (2, "falling"),
+                    (3, "falling"),
+                    (5, "rising"),
                     (6, "rising"),
                     (7, "bottom"),
                     (7, "bottom"),
@@ -1112,10 +1141,7 @@ for i in range(len(SEGMENTS)):
                 True,
                 False,
             )
-        case 3:
-            add_direction_changing_pulleys(
-                i + 3, [7, -4, -5, -6, 8, 9]
-            )
+        case 4:
             add_joint_tendons(
                 prev_link,
                 first_link,
