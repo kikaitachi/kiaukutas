@@ -864,6 +864,7 @@ def add_joint_tendons(
     top_pulley1: Optional[Placement] = None,
     bottom_pulley2: bool = False,
     top_pulley2: bool = False,
+    direction_changing_pulleys: Optional[list[Optional[tuple[int, int, int]]]] = None,
 ) -> None:
     first_motor_index: Optional[int] = None
     first_tendon_index: Optional[int] = None
@@ -982,6 +983,51 @@ def add_joint_tendons(
         add_far_tension_pulleys(link, first_tendon_index, first_motor_index, 1)
     if top_pulley2:
         add_far_tension_pulleys(link, last_tendon_index - 5, last_motor_index, -1)
+    if direction_changing_pulleys is not None:
+        for i in range(len(direction_changing_pulleys)):
+            if direction_changing_pulleys[i] is not None:
+                motor_index = abs(direction_changing_pulleys[i][2])
+                front_side = direction_changing_pulleys[i][2] > 0
+                src = direction_changing_pulleys[i][0]
+                dest = direction_changing_pulleys[i][1]
+                horizontal_tendon_length = JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - dest * JOINT_PULLEY_SPACING + JOINT_PULLEY_SPACING / 2 + TENDON_RADIUS * 2
+                vertical_tendon_length = JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - src * JOINT_PULLEY_SPACING + JOINT_PULLEY_SPACING / 2 + TENDON_RADIUS * 2
+                add_visual(link2, "tackle-pulley", placement=Placement(
+                    Vector(
+                        -horizontal_tendon_length,
+                        PULLEY_RADIUS + TENDON_RADIUS + 2.1 - (2.1 - 0.6) / 2 if not front_side else -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
+                        JOINT_GEAR_HEIGHT + (src + 1) * JOINT_PULLEY_SPACING,
+                    ),
+                    Rotation(0, 0, 180 if not front_side else 0),
+                ), rgba="0.3 0.2 0.6 1")
+                # Horizontal tendon
+                add_tendon(
+                    link2,
+                    horizontal_tendon_length,
+                    Placement(
+                        Vector(
+                            0,
+                            PULLEY_RADIUS + TENDON_RADIUS if not front_side else -PULLEY_RADIUS - TENDON_RADIUS,
+                            JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (src + 1) - JOINT_PULLEY_SPACING / 2,
+                        ),
+                        Rotation(0, -90, 0),
+                    ),
+                    motor_index,
+                )
+                # Vertical tendon
+                add_tendon(
+                    link2,
+                    vertical_tendon_length,
+                    Placement(
+                        Vector(
+                            -horizontal_tendon_length - JOINT_PULLEY_SPACING / 2,
+                            PULLEY_RADIUS + TENDON_RADIUS if not front_side else -PULLEY_RADIUS - TENDON_RADIUS,
+                            JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (src + 1.5) - JOINT_PULLEY_SPACING / 2,
+                        ),
+                        Rotation(0, 0, 0),
+                    ),
+                    motor_index,
+                )
 
 
 initial_placement = Placement(Vector(0, 0, 11.25), Rotation(0, 0, 0))
@@ -1017,9 +1063,6 @@ for i in range(len(SEGMENTS)):
 
     match i:
         case 0:
-            add_direction_changing_pulleys(
-                i + 3, [7, 8, -4, -5, -6, 9, -10, -11, -12, -13]
-            )
             add_joint_tendons(
                 prev_link,
                 first_link,
@@ -1044,6 +1087,22 @@ for i in range(len(SEGMENTS)):
                 Placement(Vector(0, 0, ARM_START_Z), Rotation(0, 0, 0)),
                 True,
                 False,
+                [
+                    None,
+                    None,
+                    None,
+                    None,
+                    (7, 4, 4),
+                    (8, 5, 5),
+                    (4, 6, -1),
+                    (5, 7, -2),
+                    (6, 8, -3),
+                    (9, 9, 6),
+                    (10, 10, -7),
+                    (11, 11, -7),
+                    (12, 12, -7),
+                    (13, 13, -7)
+                ],
             )
         case 1:
             add_non_direction_changing_tendons([
@@ -1113,9 +1172,6 @@ for i in range(len(SEGMENTS)):
                 False,
             )
         case 3:
-            add_direction_changing_pulleys(
-                i + 3, [7, -4, -5, -6, 8, 9]
-            )
             add_joint_tendons(
                 prev_link,
                 first_link,
@@ -1140,6 +1196,22 @@ for i in range(len(SEGMENTS)):
                 None,
                 False,
                 True,
+                [
+                    None,
+                    None,
+                    (2, 2, 5),
+                    (3, 3, 5),
+                    (4, 4, 5),
+                    (5, 5, 5),
+                    (6, 6, -1),
+                    (7, 7, -2),
+                    (8, 8, -3),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ],
             )
         case 4:
             add_joint_tendons(
