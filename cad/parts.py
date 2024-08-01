@@ -751,50 +751,6 @@ def add_tension_pulleys(
         )
 
 
-def add_direction_changing_pulleys(start_index: int, order_and_directions: list[int]):
-    for i in range(len(order_and_directions)):
-        j = abs(order_and_directions[i])
-        front_side = order_and_directions[i] > 0
-        horizontal_tendon_length = JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - (i + start_index + 1) * JOINT_PULLEY_SPACING + JOINT_PULLEY_SPACING / 2 + TENDON_RADIUS * 2
-        vertical_tendon_length = JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - j * JOINT_PULLEY_SPACING + JOINT_PULLEY_SPACING / 2 + TENDON_RADIUS * 2
-        add_visual(link, "tackle-pulley", placement=Placement(
-            Vector(
-                -horizontal_tendon_length,
-                PULLEY_RADIUS + TENDON_RADIUS + 2.1 - (2.1 - 0.6) / 2 if not front_side else -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
-                JOINT_GEAR_HEIGHT + (j + 1) * JOINT_PULLEY_SPACING,
-            ),
-            Rotation(0, 0, 180 if not front_side else 0),
-        ), rgba="0.3 0.2 0.6 1")
-        # Horizontal tendon
-        add_tendon(
-            link,
-            horizontal_tendon_length,
-            Placement(
-                Vector(
-                    0,
-                    PULLEY_RADIUS + TENDON_RADIUS if not front_side else -PULLEY_RADIUS - TENDON_RADIUS,
-                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1) - JOINT_PULLEY_SPACING / 2,
-                ),
-                Rotation(0, -90, 0),
-            ),
-            j - 3,
-        )
-        # Vertical tendon
-        add_tendon(
-            link,
-            vertical_tendon_length,
-            Placement(
-                Vector(
-                    -horizontal_tendon_length - JOINT_PULLEY_SPACING / 2,
-                    PULLEY_RADIUS + TENDON_RADIUS if not front_side else -PULLEY_RADIUS - TENDON_RADIUS,
-                    JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (j + 1.5) - JOINT_PULLEY_SPACING / 2,
-                ),
-                Rotation(0, 0, 0),
-            ),
-            j - 3,
-        )
-
-
 def add_non_direction_changing_tendons(tendons: list[Optional[int]]) -> None:
     for i in range(len(tendons)):
         if tendons[i] is not None:
@@ -1220,19 +1176,19 @@ for i in range(len(SEGMENTS)):
                 link,
                 [
                     None,
-                    (4, "top"),
-                    (4, "top"),
-                    (4, "top"),
-                    (4, "top"),
-                    (1, "falling"),
-                    (2, "falling"),
-                    (3, "falling"),
-                    (5, "rising"),
-                    (6, "rising"),
-                    (7, "bottom"),
-                    (7, "bottom"),
-                    (7, "bottom"),
-                    (7, "bottom"),
+                    None,
+                    (5, "top"),
+                    (5, "top"),
+                    (5, "top"),
+                    (5, "top"),
+                    (1, "rising"),
+                    (2, "rising"),
+                    (3, "bottom"),
+                    (3, "bottom"),
+                    (3, "bottom"),
+                    (3, "bottom"),
+                    None,
+                    None,
                 ],
                 None,
                 None,
