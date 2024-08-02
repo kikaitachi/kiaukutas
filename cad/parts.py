@@ -945,7 +945,8 @@ def add_joint_tendons(
                 motor_index = abs(direction_changing_pulleys[i][2])
                 front_side = direction_changing_pulleys[i][2] > 0
                 src = direction_changing_pulleys[i][0]
-                dest = direction_changing_pulleys[i][1]
+                dest = abs(direction_changing_pulleys[i][1])
+                inverted = direction_changing_pulleys[i][1] < 0
                 horizontal_tendon_length = JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - dest * JOINT_PULLEY_SPACING + JOINT_PULLEY_SPACING / 2 + TENDON_RADIUS * 2
                 vertical_tendon_length = JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - src * JOINT_PULLEY_SPACING + JOINT_PULLEY_SPACING / 2 + TENDON_RADIUS * 2
                 add_visual(link2, "tackle-pulley", placement=Placement(
@@ -980,7 +981,7 @@ def add_joint_tendons(
                             PULLEY_RADIUS + TENDON_RADIUS if not front_side else -PULLEY_RADIUS - TENDON_RADIUS,
                             JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (src + 1.5) - JOINT_PULLEY_SPACING / 2,
                         ),
-                        Rotation(0, 0, 0),
+                        Rotation(0, 180 if inverted else 0, 0),
                     ),
                     motor_index,
                 )
@@ -1138,10 +1139,10 @@ for i in range(len(SEGMENTS)):
                     (5, "top"),
                     (5, "top"),
                     (5, "top"),
-                    (5, "rising"),
-                    (1, "falling"),
-                    (2, "falling"),
-                    (3, "falling"),
+                    (5, "top"),
+                    (1, "rising"),
+                    (2, "rising"),
+                    (3, "rising"),
                     (6, "bottom"),
                     (6, "bottom"),
                     (6, "bottom"),
@@ -1191,9 +1192,25 @@ for i in range(len(SEGMENTS)):
                     None,
                 ],
                 None,
-                None,
+                SEGMENTS[i].placement,
                 True,
                 False,
+                [
+                    None,
+                    None,
+                    (2, -2, 5),
+                    (3, -3, 5),
+                    (4, -4, 5),
+                    (5, -5, 5),
+                    (6, -6, -1),
+                    (7, -7, -2),
+                    (8, -8, -3),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ],
             )
 
     if i != len(SEGMENTS) - 1:
