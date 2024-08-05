@@ -4,7 +4,7 @@
 class HTTPServer {
  public:
   HTTPServer();
-  void serve();
+  void serve(int port);
  private:
 };
 
