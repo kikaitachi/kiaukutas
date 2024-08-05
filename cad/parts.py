@@ -1198,6 +1198,10 @@ for i in range(len(SEGMENTS)):
                 [
                     None,
                     None,
+                    None,
+                    None,
+                    None,
+                    None,
                     (2, -2, 5),
                     (3, -3, 5),
                     (4, -4, 5),
@@ -1205,10 +1209,6 @@ for i in range(len(SEGMENTS)):
                     (6, -6, -1),
                     (7, -7, -2),
                     (8, -8, -3),
-                    None,
-                    None,
-                    None,
-                    None,
                     None,
                 ],
             )
