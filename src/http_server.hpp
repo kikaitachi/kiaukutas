@@ -6,6 +6,7 @@ class HTTPServer {
   HTTPServer();
   void serve(int port);
  private:
+  void client_handler(int fd);
 };
 
 #endif  // SRC_HTTP_SERVER_HPP_

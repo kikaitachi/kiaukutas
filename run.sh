@@ -1,6 +1,6 @@
 #!/bin/bash
 
-(cd dist && python3 -m http.server)
+# (cd dist && python3 -m http.server)
 
 if [ -f "build/bin/kiaukutas" ]; then
   build/bin/kiaukutas "$@"

@@ -1,14 +1,16 @@
 #include <cstring>
 #include <arpa/inet.h>
+#include <fcntl.h>
+#include <sys/sendfile.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <thread>
+#include <unistd.h>
 
 #include "http_server.hpp"
 #include "logger.hpp"
 
 HTTPServer::HTTPServer() {
-  // std::thread accept_thread(&HTTPServer::accept_handler, this);
-  // accept_thread.detach();
 }
 
 void HTTPServer::serve(int port) {
@@ -43,7 +45,57 @@ void HTTPServer::serve(int port) {
       struct sockaddr_in* addr_in = (struct sockaddr_in*)&addr;
       inet_ntop(addr_in->sin_family, &addr_in->sin_addr, host, sizeof(host));
       logger::info("%s connected", host);
-      // TODO: create new thread
+      std::thread accept_thread(&HTTPServer::client_handler, this, client_fd);
+      accept_thread.detach();
     }
   }
+}
+
+void HTTPServer::client_handler(int fd) {
+  struct timeval timeout;
+  timeout.tv_sec = 5;
+  timeout.tv_usec = 0;
+  if (setsockopt (fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
+    logger::last("Failed to set receive timeout for client socket %d", fd);
+  }
+  if (setsockopt (fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout)) < 0) {
+    logger::last("Failed to set send timeout for client socket %d", fd);
+  }
+  char buf[1024 * 4];
+  int len = 0;
+  for ( ; ; ) {
+    ssize_t result = read(fd, &buf[len], sizeof(buf) - len);
+    if (result < 0) {
+      logger::last("Failed to read from client socket %d", fd);
+      break;
+    }
+    len += result;
+    const std::string_view request(buf, len);
+    if (request.starts_with("GET ") && request.find("\r") != std::string_view::npos) {
+      std::size_t end = request.find(" ", 4);
+      if (end != std::string_view::npos) {
+        const std::string_view path = request.substr(4, end - 4);
+        logger::info("Request for path %s from client socket %d", std::string(path).c_str(), fd);
+        if (path == "/") {
+          int file = open("dist/index.html", O_RDONLY);
+          struct stat file_stat;
+          if (fstat(file, &file_stat) == -1) {
+            logger::last("socket %d: file %d: can't stat", fd, file);
+          }
+          off_t offset = 0;
+          result = sendfile(fd, file, &offset, file_stat.st_size - offset);
+          if (result == -1) {
+            logger::last("socket %d: file %d: sendfile failed", fd, file);
+          }
+          // TODO: close
+        }
+        break;
+      }
+    }
+    if (len == sizeof(buf)) {
+      logger::error("HTTP request > %d for client socket %d", sizeof(buf), fd);
+      break;
+    }
+  }
+  close(fd);
 }
