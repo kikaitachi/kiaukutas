@@ -76,19 +76,38 @@ void HTTPServer::client_handler(int fd) {
       if (end != std::string_view::npos) {
         const std::string_view path = request.substr(4, end - 4);
         logger::info("Request for path %s from client socket %d", std::string(path).c_str(), fd);
-        if (path == "/") {
-          int file = open("dist/index.html", O_RDONLY);
-          struct stat file_stat;
-          if (fstat(file, &file_stat) == -1) {
-            logger::last("socket %d: file %d: can't stat", fd, file);
-          }
-          off_t offset = 0;
-          result = sendfile(fd, file, &offset, file_stat.st_size - offset);
-          if (result == -1) {
-            logger::last("socket %d: file %d: sendfile failed", fd, file);
-          }
-          // TODO: close
+        std::string file_name = "dist/index.html";
+        if (path != "/") {
+          file_name = "dist/" + std::string(path);
         }
+        std::string mime = "text/plain";
+        if (file_name.ends_with(".html")) {
+          mime = "text/html";
+        } else if (file_name.ends_with(".js")) {
+          mime = "text/javascript";
+        } else if (file_name.ends_with(".css")) {
+          mime = "text/css";
+        } else if (file_name.ends_with(".svg")) {
+          mime = "image/svg+xml";
+        } else if (file_name.ends_with(".stl")) {
+          mime = "model/stl";
+        }
+        result = snprintf(buf, sizeof(buf),
+          "HTTP/1.1 200 OK\r\nContent-Type: %s\r\n\r\n",
+          mime.c_str());  // TODO: check return
+        write(fd, buf, result);  // TODO: check return
+
+        int file = open(file_name.c_str(), O_RDONLY);
+        struct stat file_stat;
+        if (fstat(file, &file_stat) == -1) {
+          logger::last("socket %d: file %d: can't stat", fd, file);
+        }
+        off_t offset = 0;
+        result = sendfile(fd, file, &offset, file_stat.st_size - offset);
+        if (result == -1) {
+          logger::last("socket %d: file %d: sendfile failed", fd, file);
+        }
+        // TODO: close
         break;
       }
     }
