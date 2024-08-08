@@ -953,7 +953,7 @@ def add_joint_tendons(
                     Vector(
                         -horizontal_tendon_length,
                         PULLEY_RADIUS + TENDON_RADIUS + 2.1 - (2.1 - 0.6) / 2 if not front_side else -PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2,
-                        JOINT_GEAR_HEIGHT + (src + 1) * JOINT_PULLEY_SPACING,
+                        JOINT_GEAR_HEIGHT + (src + 1) * JOINT_PULLEY_SPACING - ((TACKLE_PULLEY_RADIUS + TENDON_RADIUS) * 2 if inverted else 0),
                     ),
                     Rotation(0, 0, 180 if not front_side else 0),
                 ), rgba="0.3 0.2 0.6 1")
@@ -979,7 +979,7 @@ def add_joint_tendons(
                         Vector(
                             -horizontal_tendon_length - JOINT_PULLEY_SPACING / 2,
                             PULLEY_RADIUS + TENDON_RADIUS if not front_side else -PULLEY_RADIUS - TENDON_RADIUS,
-                            JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (src + 1.5) - JOINT_PULLEY_SPACING / 2,
+                            JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (src + 1.5) - JOINT_PULLEY_SPACING / 2 - ((TACKLE_PULLEY_RADIUS + TENDON_RADIUS) * 2 if inverted else 0),
                         ),
                         Rotation(0, 180 if inverted else 0, 0),
                     ),
