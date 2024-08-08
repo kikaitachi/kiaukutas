@@ -94,20 +94,44 @@ void HTTPServer::client_handler(int fd) {
         }
         result = snprintf(buf, sizeof(buf),
           "HTTP/1.1 200 OK\r\nContent-Type: %s\r\n\r\n",
-          mime.c_str());  // TODO: check return
-        write(fd, buf, result);  // TODO: check return
+          mime.c_str());
+        if (result < 0 || result > sizeof(buf)) {
+          logger::last("socket %d: failed generate response header", fd);
+          break;
+        }
+        result = write(fd, buf, result);
+        if (result < 0) {
+          logger::last("socket %d: failed send response header", fd);
+          break;
+        }
+        // TODO: check if all data was send
 
         int file = open(file_name.c_str(), O_RDONLY);
+        if (file == -1) {
+          logger::last(
+            "socket %d: failed to open file '%s'",
+            fd, file_name.c_str());
+          break;
+        }
         struct stat file_stat;
         if (fstat(file, &file_stat) == -1) {
-          logger::last("socket %d: file %d: can't stat", fd, file);
+          logger::last(
+            "socket %d: failed to get size of file '%s'",
+            fd, file_name.c_str());
+          break;
         }
         off_t offset = 0;
-        result = sendfile(fd, file, &offset, file_stat.st_size - offset);
-        if (result == -1) {
-          logger::last("socket %d: file %d: sendfile failed", fd, file);
+        for ( ; ; ) {
+          result = sendfile(fd, file, &offset, file_stat.st_size - offset);
+          if (result == -1) {
+            logger::last("socket %d: file %d: sendfile failed", fd, file);
+            break;
+          }
+          if (offset == file_stat.st_size) {
+            break;
+          }
         }
-        // TODO: close
+        close(file);
         break;
       }
     }
