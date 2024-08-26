@@ -154,6 +154,18 @@ def make_tackle_pulley_tendon():
     )
 
 
+def make_direction_changing_pulley_tendon():
+    return Part.makeTorus(
+        TACKLE_PULLEY_RADIUS + TENDON_RADIUS,
+        TENDON_RADIUS,
+        Vector(0, 0, 0),
+        Vector(0, 1, 0),
+        0,
+        360,
+        90,
+    )
+
+
 def make_wrap_joint_pulley_tendon():
     return Part.makeTorus(
         PULLEY_RADIUS + TENDON_RADIUS,
@@ -569,7 +581,6 @@ def add_tendon(
 
 
 dir = sys.argv[3]
-# Part.read("XM430-W350-T.stp").exportStl(f"{dir}/XM430-W350-T.stl")
 copyfile("XM430-W350-T.stl", f"{dir}/XM430-W350-T.stl")
 copyfile("jetson.stl", f"{dir}/jetson.stl")
 pulley = make_pulley()
@@ -581,6 +592,9 @@ tackle_pulley.exportStep(f"{dir}/tackle-pulley.stp")
 tackle_pulley_tendon = make_tackle_pulley_tendon()
 tackle_pulley_tendon.exportStl(f"{dir}/tackle-pulley-tendon.stl")
 tackle_pulley_tendon.exportStep(f"{dir}/tackle-pulley-tendon.stp")
+direction_changing_pulley_tendon = make_direction_changing_pulley_tendon()
+direction_changing_pulley_tendon.exportStl(f"{dir}/direction-changing-pulley-tendon.stl")
+direction_changing_pulley_tendon.exportStep(f"{dir}/direction-changing-pulley-tendon.stp")
 wrap_joint_pulley_tendon = make_wrap_joint_pulley_tendon()
 wrap_joint_pulley_tendon.exportStl(f"{dir}/wrap_joint_pulley_tendon.stl")
 wrap_joint_pulley_tendon.exportStep(f"{dir}/wrap_joint_pulley_tendon.stp")
@@ -957,6 +971,14 @@ def add_joint_tendons(
                     ),
                     Rotation(0, 0, 180 if not front_side else 0),
                 ), rgba="0.3 0.2 0.6 1")
+                add_visual(link2, "direction-changing-pulley-tendon", placement=Placement(
+                    Vector(
+                        -horizontal_tendon_length,
+                        -(PULLEY_RADIUS + TENDON_RADIUS) if front_side else (PULLEY_RADIUS + TENDON_RADIUS),
+                        JOINT_GEAR_HEIGHT + (src + 1) * JOINT_PULLEY_SPACING - ((TACKLE_PULLEY_RADIUS + TENDON_RADIUS) * 2 if inverted else 0),
+                    ),
+                    Rotation(0, 180, 0),
+                ), name=f"tendon{motor_index}")
                 # Horizontal tendon
                 add_tendon(
                     link2,

@@ -78,7 +78,7 @@ void HTTPServer::client_handler(int fd) {
         logger::info("Request for path %s from client socket %d", std::string(path).c_str(), fd);
         std::string file_name = "dist/index.html";
         if (path != "/") {
-          file_name = "dist/" + std::string(path);
+          file_name = "dist" + std::string(path);
         }
         std::string mime = "text/plain";
         if (file_name.ends_with(".html")) {
