@@ -613,13 +613,13 @@ def define_material(name: str, r: float, g: float, b: float, a: float = 1) -> No
 
 
 define_material("tendon0", 1, 0, 0)  # Red
-define_material("tendon1", 1, 165 / 256, 0)  # Orange
+define_material("tendon1", 1, 165 / 255, 0)  # Orange
 define_material("tendon2", 1, 1, 0)  # Yellow
 define_material("tendon3", 0, 1, 0)  # Green
 define_material("tendon4", 0, 1, 1)  # Cyan
 define_material("tendon5", 0, 0, 1)  # Blue
-define_material("tendon6", 127 / 256, 0, 1)  # Violet
-define_material("tendon7", 192 / 256, 192 / 256, 192 / 256)  # Silver
+define_material("tendon6", 127 / 255, 0, 1)  # Violet
+define_material("tendon7", 165 / 255, 42 / 255, 42 / 255)  # Brown
 
 
 base = ET.SubElement(root, "link", {"name": "base"})
@@ -711,7 +711,7 @@ def add_tension_pulleys(
     add_visual(link, "tackle-pulley", placement=placement.multiply(
         Placement(
             Vector(
-                SHAFT_TO_PLATE + 7 / 2,
+                SHAFT_TO_PLATE + PLATE_THICKNESS / 2,
                 (-PULLEY_RADIUS - TENDON_RADIUS - 2.1 + (2.1 - 0.6) / 2) * direction,
                 JOINT_GEAR_HEIGHT + JOINT_PULLEY_SPACING * (2 if direction == 1 else -1),
             ),
