@@ -977,7 +977,7 @@ def add_joint_tendons(
                         -(PULLEY_RADIUS + TENDON_RADIUS) if front_side else (PULLEY_RADIUS + TENDON_RADIUS),
                         JOINT_GEAR_HEIGHT + (src + 1) * JOINT_PULLEY_SPACING - ((TACKLE_PULLEY_RADIUS + TENDON_RADIUS) * 2 if inverted else 0),
                     ),
-                    Rotation(0, 180, 0),
+                    Rotation(0, 180 + (90 if inverted else 0), 0),
                 ), name=f"tendon{motor_index}")
                 # Horizontal tendon
                 add_tendon(
