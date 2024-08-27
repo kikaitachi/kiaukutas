@@ -963,6 +963,8 @@ def add_joint_tendons(
                 inverted = direction_changing_pulleys[i][1] < 0
                 horizontal_tendon_length = JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - dest * JOINT_PULLEY_SPACING + JOINT_PULLEY_SPACING / 2 + TENDON_RADIUS * 2
                 vertical_tendon_length = JOINT_SHAFT_LENGTH - JOINT_GEAR_HEIGHT - src * JOINT_PULLEY_SPACING + JOINT_PULLEY_SPACING / 2 + TENDON_RADIUS * 2
+                if inverted:
+                    vertical_tendon_length = JOINT_SHAFT_LENGTH - vertical_tendon_length + SEGMENT_THICKNESS / 2
                 add_visual(link2, "tackle-pulley", placement=Placement(
                     Vector(
                         -horizontal_tendon_length,
@@ -1224,13 +1226,13 @@ for i in range(len(SEGMENTS)):
                     None,
                     None,
                     None,
-                    (2, -2, 5),
-                    (3, -3, 5),
-                    (4, -4, 5),
-                    (5, -5, 5),
-                    (6, -6, -1),
-                    (7, -7, -2),
-                    (8, -8, -3),
+                    (8, -5, -3),
+                    (9, -4, -3),
+                    (10, -3, -3),
+                    (11, -2, -3),
+                    (6, -7, 2),
+                    (7, -6, 1),
+                    None,
                     None,
                 ],
             )
