@@ -25,5 +25,6 @@ file(GLOB SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
 target_sources(${PROJECT_NAME} PUBLIC ${SRC_FILES})
 
 target_link_libraries(${PROJECT_NAME}
+  common
   llama
 )
