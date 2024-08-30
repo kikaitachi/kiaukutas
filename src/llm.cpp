@@ -25,7 +25,11 @@ LLM::LLM(std::string file) {
   }
   // llama_token token = llama_add_bos_token(lmodel);
   llama_token tokens[1024];
-  std::string prompt = "What is 2 + 2?";
+  std::string prompt = // <|begin_of_text|>
+    "<|start_header_id|>system<|end_header_id|>\n"
+    "You are a helpful assistant<|eot_id|><|start_header_id|>user<|end_header_id|>\n"
+    "What is the capital of France?<|eot_id|>\n"
+    "<|start_header_id|>assistant<|end_header_id|>";
   int32_t token_count = llama_tokenize(
     lmodel,
     prompt.c_str(),
@@ -49,7 +53,7 @@ LLM::LLM(std::string file) {
 
   int n_cur = batch.n_tokens;
   int n_decode = 0;
-  const int n_predict = 32;
+  const int n_predict = 512;
 
   while (n_cur <= n_predict) {
     auto   n_vocab = llama_n_vocab(lmodel);

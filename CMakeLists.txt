@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 include(CheckLanguage)
 check_language(CUDA)
 if(CMAKE_CUDA_COMPILER)
-  set(WHISPER_CUBLAS 1)
+  set(GGML_CUDA 1)
 endif()
 
 include(FetchContent)
