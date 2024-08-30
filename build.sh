@@ -2,6 +2,19 @@
 
 set -e
 
+rebuild_model=true
+
+while getopts ":s" opt; do
+  case $opt in
+    s)
+      rebuild_model=false
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+  esac
+done
+
 freecad_gears_dir=~/.local/share/FreeCAD/Mod/freecad.gears
 
 if [ ! -d "${freecad_gears_dir}" ]; then
@@ -18,8 +31,11 @@ fi
 
 cmake --build "${build_dir}"
 
-rm -rf dist
-cp -r web dist
-cp cad/XM430-W350-T.stp dist
+if [ "$rebuild_model" = true ] ; then
+  echo "Building URDF file"
+  rm -rf dist
+  cp -r web dist
+  cp cad/XM430-W350-T.stp dist
 
-(cd cad && freecad -c parts.py "../dist")
+  (cd cad && freecad -c parts.py "../dist")
+fi
